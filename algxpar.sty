@@ -1,0 +1,301 @@
+%%
+%% This is file `algxpar.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% algxpar.dtx  (with options: `algxpar')
+%% 
+%% 
+%% Copyright (C) 2019 by Jander Moreira (moreira.jander@gmail.com)
+%% 
+\NeedsTeXFormat{LaTeX2e}[2005/12/01]
+\ProvidesPackage{algxpar}
+[2019/10/24 v0.9 Algorithms with multiline/paragraph support]
+
+%% Package options
+\newif\ifaxp@brazilian\axp@brazilianfalse
+\DeclareOption{brazilian}{\axp@braziliantrue}
+\DeclareOption*{\PackageWarning{algxpar}{Unknown ‘\CurrentOption’}}
+\ProcessOptions\relax
+
+%% Required packages
+\RequirePackage{algorithmicx}
+\RequirePackage{algpseudocode}
+\RequirePackage{ragged2e}
+\RequirePackage{listings}
+\RequirePackage{amsmath, amssymb}
+\RequirePackage{xcolor}
+\RequirePackage{tcolorbox} % to save verbatim
+\RequirePackage{fancyvrb} % to load verbatim preserving tabs
+
+%% Constants and identifiers
+\algnewcommand\algorithmictrue{\textsc{True}}
+\algnewcommand\algorithmicfalse{\textsc{False}}
+\algnewcommand\algorithmicnil{\textsc{Nil}}
+\algnewcommand\True{\mbox{\algorithmictrue}}
+\algnewcommand\False{\mbox{\algorithmicfalse}}
+\algnewcommand\Nil{\mbox{\algorithmicnil}}
+\newcommand{\Id}[1]{\mbox{\textit{\rmfamily #1}}}
+\newcommand{\TextString}[1]{\textrm{\normalfont``{\ttfamily\mbox{#1}}''}}
+\algnewcommand{\VisibleSpace}{\textrm{\color{black!70}\textvisiblespace}}
+
+%% Headings
+\algnewcommand\algorithmicdescription{\textbf{Description}}
+\algnewcommand\algorithmicinput{\textbf{Input}}
+\algnewcommand\algorithmicoutput{\textbf{Output}}
+\algrenewcommand\algorithmicensure{\textbf{Ensure}}
+\algrenewcommand\algorithmicrequire{\textbf{Require}}
+\algnewcommand\Description{\item[\algorithmicdescription:]}
+\algnewcommand\Input{\item[\algorithmicinput:]}
+\algnewcommand\Output{\item[\algorithmicoutput:]}
+\algrenewcommand\Ensure{\item[\algorithmicensure:]}
+\algrenewcommand\Require{\item[\algorithmicrequire:]}
+
+%% Read, write
+\algnewcommand{\algorithmicread}{\textbf{read}}
+\algnewcommand{\algorithmicwrite}{\textbf{write}}
+\algnewcommand{\Read}{\algorithmicread}
+\algnewcommand{\Write}{\algorithmicwrite}
+
+%% Comments
+\newcommand{\axp@commentleftsymbol}{$\triangleright$}
+\newcommand{\axp@commentrightsymbol}{$\triangleleft$}
+\algnewcommand{\CommentIn}[1]{\axp@commentleftsymbol~%
+  \textsl{#1}~\axp@commentrightsymbol}
+\algnewcommand{\Commentl}[1]{\axp@commentleftsymbol~\textsl{#1}}
+\algrenewcommand{\algorithmiccomment}[1]{%
+\def\tmp{#1}%
+\ifx\tmp\empty\else%
+\hfill\Commentl{#1}%
+\fi
+}
+
+%% Statep
+\newlength{\axp@stateindent}
+\setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
+\algnewcommand{\Statep}[2][]{\State\algparbox[#1]{#2}{\axp@stateindent}}
+
+%% While
+\newlength{\axp@whilewidth}
+\algblockdefx{While}{EndWhile}%
+[2][]{%
+\settowidth{\axp@whilewidth}{\algorithmicwhile\ }%
+\algparbox[#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
+}%
+{\algorithmicend\ \algorithmicwhile}
+
+%% Repeat
+\newlength{\axp@untilwidth}
+\algblockdefx{Repeat}{Until}%
+{\algorithmicrepeat}%
+[2][]{%
+\settowidth{\axp@untilwidth}{\algorithmicuntil\ }%
+\axp@algparbox{#1}{\algorithmicuntil\ #2}{\axp@untilwidth}{0}%
+}
+
+%% If, else if, else
+\newlength{\axp@ifwidth}
+\newlength{\axp@elseifwidth}
+\algblockdefx[If]{If}{EndIf}%
+[2][]{%
+\settowidth{\axp@ifwidth}{\algorithmicif\ }%
+\algparbox[#1]{\algorithmicif\ #2~\algorithmicthen}{\axp@ifwidth}%
+}
+{\algorithmicend\ \algorithmicif}
+\algcblockx[If]{If}{ElsIf}{EndIf}
+[2][]{%
+\settowidth{\axp@elseifwidth}{\algorithmicelse\ \algorithmicif\ }%
+\algparbox[#1]{\algorithmicelse~\algorithmicif\ #2~\algorithmicthen}{\axp@elseifwidth}%
+}
+{\algorithmicend\ \algorithmicif}
+\algcblockx{If}{Else}{EndIf}
+{\textbf{\algorithmicelse}}
+{\textbf{\algorithmicend~\algorithmicif}}
+
+%% Switch, case, otherwise
+\algnewcommand{\algorithmicswitch}{\textbf{switch}}
+\algnewcommand{\algorithmicof}{\textbf{of}}
+\algnewcommand{\algorithmiccase}{\textbf{case}}
+\algnewcommand{\algorithmicotherwise}{\textbf{otherwise}}
+\newlength{\axp@switchwidth}
+\algblockdefx{Switch}{EndSwitch}%
+[2][]{%
+\settowidth{\axp@switchwidth}{\algorithmicswitch\ }%
+\algparbox[#1]{\algorithmicswitch\ #2~\algorithmicof}{\axp@switchwidth}%
+}
+{\algorithmicend~\algorithmicswitch}
+\newlength{\axp@casewidth}
+\algblockdefx{Case}{EndCase}%
+[2][]{%
+\settowidth{\axp@casewidth}{\algorithmiccase\ }%
+\algparbox[#1]{\algorithmiccase\ #2~\algorithmicdo}{\axp@casewidth}%
+}
+{\algorithmicend~\algorithmiccase}
+\algblockdefx{Otherwise}{EndOtherwise}%
+{\algorithmicotherwise~\algorithmicdo}%
+{\textbf{\algorithmicend\ \algorithmicotherwise}}
+\newcommand{\Range}[3][]{%
+\ensuremath{%
+#2%
+\def\temp{#1}%
+\mathcal{\ldotp\ldotp}#3
+\ifx\temp\empty\relax\else{\ensuremath{\mathcal{:}#1}}\fi%
+}%
+}
+
+%% For, for each, for all
+\algnewcommand{\To}{\textbf{to}}
+\algnewcommand{\DownTo}{\textbf{downto}}
+\algnewcommand{\Step}{\textbf{step}}
+\newlength{\axp@forwidth}
+\algblockdefx{For}{EndFor}%
+[2][]{%
+\settowidth{\axp@forwidth}{\algorithmicfor\ }%
+\algparbox[#1]{\algorithmicfor\ #2~\algorithmicdo}{\axp@forwidth}%
+}
+{\algorithmicend\ \algorithmicfor}
+\algnewcommand{\algorithmicforeach}{\textbf{for~each}}
+\newlength{\axp@foreachwidth}
+\algblockdefx{ForEach}{EndFor}%
+[2][]{%
+\settowidth{\axp@foreachwidth}{\algorithmicforeach\ }%
+\algparbox[#1]{\algorithmicforeach\ #2~\algorithmicdo}{\axp@foreachwidth}%
+}
+{\algorithmicend\~\algorithmicfor}
+\newlength{\axp@forallwidth}
+\algblockdefx{ForAll}{EndFor}%
+[2][]{%
+\settowidth{\axp@forallwidth}{\algorithmicforall\ }%
+\algparbox[#1]{\algorithmicforall\ #2~\algorithmicdo}{\axp@forallwidth}%
+}%
+{\algorithmicend\ \algorithmicfor}
+
+%% Procedure, function, calls
+\newlength{\axp@procedurewidth}
+\newlength{\axp@namewidth}
+\algblockdefx{Procedure}{EndProcedure}%
+[3][]{%
+\settowidth{\axp@procedurewidth}{\algorithmicprocedure~}%
+\settowidth{\axp@namewidth}{\textsc{#2}(}%
+\addtolength{\axp@procedurewidth}{0.6\axp@namewidth}%
+\algparbox[#1]{\algorithmicprocedure\ \textsc{#2}(#3)}{\axp@procedurewidth}
+}%
+{\algorithmicend\ \algorithmicprocedure}
+\newlength{\axp@functionwidth}
+\algblockdefx{Function}{EndFunction}%
+[3][]{%
+\settowidth{\axp@functionwidth}{\algorithmicfunction~}%
+\settowidth{\axp@namewidth}{\textsc{#2}(}%
+\addtolength{\axp@functionwidth}{0.6\axp@namewidth}%
+\algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{\axp@functionwidth}
+}%
+{\algorithmicend\ \algorithmicfunction}
+\algrenewcommand\Call[2]{%
+\def\argstmp{#2}%
+\textsc{#1}\ifx\argstmp\empty\mbox{(\hskip0.5ex)}\else(#2)\fi%
+}
+
+%% NewLine
+\newcommand{\NewLine}{\\}
+
+%% DefineCode, UseCode, \ShowCode
+\newenvironment{DefineCode}[1]
+{\begingroup\tcbverbatimwrite{\jobname_code_#1.tmp}}
+{\endtcbverbatimwrite\endgroup}
+\newcommand{\UseCode}[1]{\input{\jobname_code_#1.tmp}}
+\newcommand{\ShowCode}[2][]{{\small\VerbatimInput[tabsize=4, #1]%
+{\jobname_code_#2.tmp}}}
+
+\algrenewcommand{\alglinenumber}[1]%
+  {\hspace{-1em}\color{black!35}{\scriptsize#1}{\tiny$\blacktriangleright$}}
+
+%% axp@algparbox
+\newlength{\axp@commentwidth}
+\setlength{\axp@commentwidth}{0pt}
+\newcommand{\algparbox}[3][]{\axp@algparbox{#1}{#2}{#3}{1}}
+
+\newlength{\axp@largestcommentwidth}
+\setlength{\axp@largestcommentwidth}{0.3\linewidth}
+\newcommand{\axp@algparbox}[4]{%
+    \def\temp{#1}%
+    \ifx\temp\empty%
+        \setlength{\axp@commentwidth}{-2em}%
+    \else%
+        \settowidth{\axp@commentwidth}{\axp@commentleftsymbol\ #1}%
+        \ifdim\axp@commentwidth>\axp@largestcommentwidth\relax%
+            \setlength{\axp@commentwidth}{\axp@largestcommentwidth}%
+        \fi%
+    \fi%
+    \renewcommand{\NewLine}{\\\hspace{#3}}%
+    \parbox[t]{\dimexpr\linewidth-\axp@commentwidth-%
+        (\algorithmicindent)*(\theALG@nested - #4)-2em}%
+        {\RaggedRight\setlength{\hangindent}{#3}#2\strut}%
+    \ifx\temp\empty\else%
+        \hfill\axp@commentleftsymbol\hspace{0.5em}%
+        \parbox[t]{\axp@commentwidth}{\slshape\RaggedRight#1}%
+    \fi%
+    \renewcommand{\NewLine}{\\}%
+}
+\lstset{
+literate=
+{á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+{À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+{ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+{ã}{{\~a}}1 {õ}{{\~o}}1
+{Ã}{{\~A}}1 {Õ}{{\~O}}1
+{Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+{Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+{ç}{{\c c}}1 {Ç}{{\c C}}1
+{ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+{œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1
+{ß}{{\ss}}1
+{ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+{£}{{\pounds}}1
+{«}{{\guillemotleft}}1
+{»}{{\guillemotright}}1
+{ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+}
+
+\ifaxp@brazilian
+\RequirePackage{icomma} % comma as decimal separator
+\algrenewcommand\algorithmicdescription{\textbf{Descrição}}
+\algrenewcommand\algorithmicinput{\textbf{Entrada}}
+\algrenewcommand\algorithmicoutput{\textbf{Saída}}
+\algrenewcommand\algorithmicrequire{\textbf{Pré}}
+\algrenewcommand\algorithmicensure{\textbf{Pós}}
+\algrenewcommand{\algorithmicend}{\textbf{fim}}
+\algrenewcommand{\algorithmicif}{\textbf{se}}
+\algrenewcommand{\algorithmicthen}{\textbf{então}}
+\algrenewcommand{\algorithmicelse}{\textbf{senão}}
+\algrenewcommand{\algorithmicswitch}{\textbf{escolha}}
+\algrenewcommand{\algorithmicof}{\textbf{de}}
+\algrenewcommand{\algorithmiccase}{\textbf{caso}}
+\algrenewcommand{\algorithmicotherwise}{\textbf{caso~contrário}}
+\algrenewcommand{\algorithmicfor}{\textbf{para}}
+\algrenewcommand{\algorithmicdo}{\textbf{faça}}
+\algrenewcommand{\algorithmicwhile}{\textbf{enquanto}}
+\algrenewcommand{\algorithmicforall}{\textbf{para cada}}
+\algrenewcommand{\algorithmicrepeat}{\textbf{repita}}
+\algrenewcommand{\algorithmicuntil}{\textbf{até que}}
+\algrenewcommand{\algorithmicloop}{\textbf{repita}}
+\algrenewcommand{\algorithmicforeach}{\textbf{para~cada}}
+\algrenewcommand{\algorithmicforall}{\textbf{para~todo}}
+\algrenewcommand{\algorithmicfunction}{\textbf{função}}
+\algrenewcommand{\algorithmicprocedure}{\textbf{procedimento}}
+\algrenewcommand{\algorithmicreturn}{\textbf{retorne}}
+\algrenewcommand\algorithmictrue{\textsc{Verdadeiro}}
+\algrenewcommand\algorithmicfalse{\textsc{Falso}}
+\algrenewcommand\algorithmicnil{\textsc{Nulo}}
+\algrenewcommand{\algorithmicread}{\textbf{leia}}
+\algrenewcommand{\algorithmicwrite}{\textbf{escreva}}
+\algrenewcommand{\To}{\textbf{até}}
+\algrenewcommand{\DownTo}{\textbf{decrescente~até}}
+\algrenewcommand{\Step}{\textbf{passo}}
+\fi
+\endinput
+%%
+%% End of file `algxpar.sty'.
