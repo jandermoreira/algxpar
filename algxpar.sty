@@ -202,7 +202,7 @@
 %% DefineCode, UseCode, \ShowCode
 \newenvironment{DefineCode}[1]
 {\begingroup\tcbverbatimwrite{\jobname_code_#1.tmp}}
-{\endtcbverbatimwrite\endgroup}
+{\endtcbverbatimwrite\endgroup} 
 \newcommand{\UseCode}[1]{\input{\jobname_code_#1.tmp}}
 \newcommand{\ShowCode}[2][]{{\small\VerbatimInput[tabsize=4, #1]%
 {\jobname_code_#2.tmp}}}
