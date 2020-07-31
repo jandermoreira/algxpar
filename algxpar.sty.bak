@@ -74,7 +74,7 @@
 \algblockdefx{While}{EndWhile}%
 [2][]{%
 \settowidth{\axp@whilewidth}{\algorithmicwhile\ }%
-\algparbox[x#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
+\algparbox[#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
 }%
 {\algorithmicend\ \algorithmicwhile}
 

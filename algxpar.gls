@@ -1,0 +1,15 @@
+
+ \begin{theglossary} 
+
+    \makeatletter\scan@allowedfalse
+
+  \item v0.9\efill 
+ \subitem General:\ Initial version\pfill 1
+  \item v0.91\efill 
+ \subitem \verb*+\Id+:\ Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.\pfill 
+		13
+    \subitem \verb*+\Set+:\ New macro for assignments, using $\gets $\pfill 14
+    \subitem \verb*+\Setl+:\ New macro for assignments (verbose)\pfill 14
+    \subitem General:\ Small fix in the position of the triangle in line numbers.\pfill 17
+
+ \end{theglossary}

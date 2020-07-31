@@ -1,0 +1,18 @@
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Instalation}{2}{section.2}%
+\contentsline {section}{\numberline {3}Usage}{2}{section.3}%
+\contentsline {section}{\numberline {4}Writing pseudocode}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Header}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Constants and identifiers}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Assignment, reading and writing}{4}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Comments}{5}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Statements}{5}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Conditionals}{6}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Loops}{8}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}Procedures and functions}{10}{subsection.4.8}%
+\contentsline {section}{\numberline {5}Extras}{11}{section.5}%
+\contentsline {section}{\numberline {6}Implementation}{13}{section.6}%
+\contentsline {section}{\numberline {7}Customization}{18}{section.7}%
+\contentsline {section}{\numberline {8}To do\ldots }{20}{section.8}%
+\contentsline {section}{\numberline {A}An example}{20}{appendix.A}%

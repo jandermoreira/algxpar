@@ -1,5 +1,4 @@
 % \iffalse
-% !TeX spellcheck = en
 %<*driver>
 \ProvidesFile{algxpar.dtx}
 \documentclass{ltxdoc}
@@ -27,7 +26,7 @@
 		overlay first and middle={
 			\coordinate (A1) at ($(interior.south east) + (-10pt,5pt)$);
 			\coordinate (C1) at ($(interior.south east) + (-6pt,7.5pt)$);
-			\draw[fill=tcbcol@frame] (A1) -- +(0,5pt) -- (C1) -- cycle;
+			\draw[fill=tcbcolframe] (A1) -- +(0,5pt) -- (C1) -- cycle;
 		},
 	]%
 	\begin{Verbatim}[gobble = 2, tabsize=4, commandchars = &\[\]]%
@@ -71,7 +70,7 @@
 			overlay first and middle={
 				\coordinate (A1) at ($(interior.south east) + (-10pt,5pt)$);
 				\coordinate (C1) at ($(interior.south east) + (-6pt,7.5pt)$);
-				\draw[fill=tcbcol@frame] (A1) -- +(0,5pt) -- (C1) -- cycle;
+				\draw[fill=tcbcolframe] (A1) -- +(0,5pt) -- (C1) -- cycle;
 			},
 		]%
 	\small\VerbatimInput[tabsize=4, gobble = 2]{\jobname_code.tmp}
@@ -136,7 +135,7 @@
 %   Right brace   \}     Tilde         \~}
 %
 %
-% \changes{v0.9}{2019/10/23}{Initial version}
+% \changes{v0.9}{2019/10/24}{Initial version}
 %
 % \GetFileInfo{algxpar.sty}
 %
@@ -287,6 +286,12 @@
 % \Statep{\Read\ $a, b$}
 % \Statep{$s \gets a + b$}
 % \Statep{\Write\ $s$}\end{example}
+% 
+% \DescribeMacro{\Set}
+% \DescribeMacro{\Setl}
+% Besides |\gets|, the macros |\Set| and |\Setl| can be used for assignments.
+%
+% |\Set|\marg{id}\marg{value} is a shortcut to |\Id{id} \gets value|. The ``long'' version for the assigment is |\Setl|\marg{id}\marg{value}, to get the verbose ``\algorithmicset\ \Id{id} \algorithmicsetto\ \Id{value}''.
 % 
 % \subsection{Comments}
 % Comments use the symbol \makeatletter\axp@commentleftsymbol\makeatother\ preceding the commented text and stay close to the left margin. Comment macros are intended to be used with |\State| or |\Statex|, when no multiline handling is done. Comments with multiline control are considered starting at section~\ref{sec:statements}.
@@ -554,7 +559,7 @@
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
 \ProvidesPackage{algxpar}
-	[2019/10/24 v0.9 Algorithms with multiline/paragraph support]
+	[2020/05/30 v0.91 Algorithms with multiline/paragraph support]
 %    \end{macrocode}
 
 % \iffalse
@@ -594,16 +599,17 @@
 % \begin{macro}{\False}
 % \begin{macro}{\Nil}
 % \begin{macro}{\Id}
+% \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
 % \begin{macro}{\TextString}
 % \begin{macro}{\VisibleSpace}
 %    \begin{macrocode}
-\algnewcommand\algorithmictrue{\textsc{True}}
-\algnewcommand\algorithmicfalse{\textsc{False}}
-\algnewcommand\algorithmicnil{\textsc{Nil}}
-\algnewcommand\True{\mbox{\algorithmictrue}}
-\algnewcommand\False{\mbox{\algorithmicfalse}}
-\algnewcommand\Nil{\mbox{\algorithmicnil}}
-\newcommand{\Id}[1]{\mbox{\textit{\rmfamily #1}}}
+\algnewcommand\algorithmictrue{True}
+\algnewcommand\algorithmicfalse{False}
+\algnewcommand\algorithmicnil{Nil}
+\algnewcommand\True{\ensuremath{\textsc{\rmfamily \algorithmictrue}}}
+\algnewcommand\False{\ensuremath{\textsc{\rmfamily \algorithmicfalse}}}
+\algnewcommand\Nil{\ensuremath{\textsc{\rmfamily \algorithmicnil}}}
+\newcommand{\Id}[1]{\ensuremath{\textit{\rmfamily#1}}}
 \newcommand{\TextString}[1]{\textrm{\normalfont``{\ttfamily\mbox{#1}}''}}
 \algnewcommand{\VisibleSpace}{\textrm{\color{black!70}\textvisiblespace}}
 %    \end{macrocode}
@@ -645,12 +651,22 @@
 % \fi
 % \begin{macro}{\Read}
 % \begin{macro}{\Write}
+% \begin{macro}{\Set}
+% \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
+% \begin{macro}{\Setl}
+% \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
 %    \begin{macrocode}
 \algnewcommand{\algorithmicread}{\textbf{read}}
 \algnewcommand{\algorithmicwrite}{\textbf{write}}
+\algnewcommand\algorithmicset{Set}
+\algnewcommand\algorithmicsetto{to}
+\algnewcommand{\Set}[2]{\Id{#1} $\gets$ #2}
+\algnewcommand{\Setl}[2]{\algorithmicset\ #1 \algorithmicsetto\ #2}
 \algnewcommand{\Read}{\algorithmicread}
 \algnewcommand{\Write}{\algorithmicwrite}
 %    \end{macrocode}
+% \end{macro}
+% \end{macro}
 % \end{macro}
 % \end{macro}
 
@@ -699,7 +715,7 @@
 \algblockdefx{While}{EndWhile}%
 	[2][]{%
 		\settowidth{\axp@whilewidth}{\algorithmicwhile\ }%
-		\algparbox[#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
+		\algparbox[x#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
 	}%
 	{\algorithmicend\ \algorithmicwhile}
 %    \end{macrocode}
@@ -914,10 +930,11 @@
 % \end{macro}
 % \end{environment}
 
+% \changes{v0.91}{2020/04/30}{Small fix in the position of the triangle in line numbers.}
 % \begin{macro}{\alglinenumber}
 %    \begin{macrocode}
 \algrenewcommand{\alglinenumber}[1]%
-  {\hspace{-1em}\color{black!35}{\scriptsize#1}{\tiny$\blacktriangleright$}}
+  {\hspace{-1.5em}\color{black!35}{\scriptsize#1}\raisebox{0.2ex}{\tiny$\blacktriangleright$}}
 %    \end{macrocode}
 % \end{macro}
 
@@ -999,45 +1016,95 @@
 % \renewcommand{\axp@commentrightsymbol}{\texttt{*/}}
 % \end{commands}
 % 
-% The translation to Brazilian Portugues is straight forward.
+% To handle languages, the macro |\algxparset| should be used.
 %
 %    \begin{macrocode}
-\ifaxp@brazilian
-\RequirePackage{icomma} % comma as decimal separator
-\algrenewcommand\algorithmicdescription{\textbf{Descrição}}
-\algrenewcommand\algorithmicinput{\textbf{Entrada}}
-\algrenewcommand\algorithmicoutput{\textbf{Saída}}
-\algrenewcommand\algorithmicrequire{\textbf{Pré}}
-\algrenewcommand\algorithmicensure{\textbf{Pós}}
-\algrenewcommand{\algorithmicend}{\textbf{fim}}
-\algrenewcommand{\algorithmicif}{\textbf{se}}
-\algrenewcommand{\algorithmicthen}{\textbf{então}}
-\algrenewcommand{\algorithmicelse}{\textbf{senão}}
-\algrenewcommand{\algorithmicswitch}{\textbf{escolha}}
-\algrenewcommand{\algorithmicof}{\textbf{de}}
-\algrenewcommand{\algorithmiccase}{\textbf{caso}}
-\algrenewcommand{\algorithmicotherwise}{\textbf{caso~contrário}}
-\algrenewcommand{\algorithmicfor}{\textbf{para}}
-\algrenewcommand{\algorithmicdo}{\textbf{faça}}
-\algrenewcommand{\algorithmicwhile}{\textbf{enquanto}}
-\algrenewcommand{\algorithmicforall}{\textbf{para cada}}
-\algrenewcommand{\algorithmicrepeat}{\textbf{repita}}
-\algrenewcommand{\algorithmicuntil}{\textbf{até que}}
-\algrenewcommand{\algorithmicloop}{\textbf{repita}} 
-\algrenewcommand{\algorithmicforeach}{\textbf{para~cada}}
-\algrenewcommand{\algorithmicforall}{\textbf{para~todo}}
-\algrenewcommand{\algorithmicfunction}{\textbf{função}}
-\algrenewcommand{\algorithmicprocedure}{\textbf{procedimento}}
-\algrenewcommand{\algorithmicreturn}{\textbf{retorne}}
-\algrenewcommand\algorithmictrue{\textsc{Verdadeiro}}
-\algrenewcommand\algorithmicfalse{\textsc{Falso}}
-\algrenewcommand\algorithmicnil{\textsc{Nulo}}
-\algrenewcommand{\algorithmicread}{\textbf{leia}}
-\algrenewcommand{\algorithmicwrite}{\textbf{escreva}}
-\algrenewcommand{\To}{\textbf{até}}
-\algrenewcommand{\DownTo}{\textbf{decrescente~até}}
-\algrenewcommand{\Step}{\textbf{passo}}
-\fi
+\pgfkeys{
+	algxpar/.cd,
+	brazilian/.code = {\axp@languagebrazilian},
+	english/.code = {\axp@languageenglish},
+	default/.code = {\axp@languageenglish},
+}
+\newcommand{\algxparset}[1]{
+	\pgfkeys{
+		algxpar/.cd,
+		#1
+	}
+}
+\newcommand{\axp@languagebrazilian}{
+	\algrenewcommand\algorithmicdescription{\textbf{Descrição}}
+	\algrenewcommand\algorithmicinput{\textbf{Entrada}}
+	\algrenewcommand\algorithmicoutput{\textbf{Saída}}
+	\algrenewcommand\algorithmicrequire{\textbf{Pré}}
+	\algrenewcommand\algorithmicensure{\textbf{Pós}}
+	\algrenewcommand{\algorithmicend}{\textbf{fim}}
+	\algrenewcommand{\algorithmicif}{\textbf{se}}
+	\algrenewcommand{\algorithmicthen}{\textbf{então}}
+	\algrenewcommand{\algorithmicelse}{\textbf{senão}}
+	\algrenewcommand{\algorithmicswitch}{\textbf{escolha}}
+	\algrenewcommand{\algorithmicof}{\textbf{de}}
+	\algrenewcommand{\algorithmiccase}{\textbf{caso}}
+	\algrenewcommand{\algorithmicotherwise}{\textbf{caso~contrário}}
+	\algrenewcommand{\algorithmicfor}{\textbf{para}}
+	\algrenewcommand{\algorithmicdo}{\textbf{faça}}
+	\algrenewcommand{\algorithmicwhile}{\textbf{enquanto}}
+	\algrenewcommand{\algorithmicrepeat}{\textbf{repita}}
+	\algrenewcommand{\algorithmicuntil}{\textbf{até que}}
+	\algrenewcommand{\algorithmicloop}{\textbf{repita}} 
+	\algrenewcommand{\algorithmicforeach}{\textbf{para~cada}}
+	\algrenewcommand{\algorithmicforall}{\textbf{para~todo}}
+	\algrenewcommand{\algorithmicfunction}{\textbf{função}}
+	\algrenewcommand{\algorithmicprocedure}{\textbf{procedimento}}
+	\algrenewcommand{\algorithmicreturn}{\textbf{retorne}}
+	\algrenewcommand{\algorithmictrue}{Verdadeiro}
+	\algrenewcommand{\algorithmicfalse}{Falso}
+	\algrenewcommand{\algorithmicnil}{Nulo}
+	\algrenewcommand{\algorithmicread}{\textbf{leia}}
+	\algrenewcommand{\algorithmicwrite}{\textbf{escreva}}
+	\algrenewcommand{\algorithmicset}{Defina}
+	\algrenewcommand{\algorithmicsetto}{como}
+	\algrenewcommand{\To}{\textbf{até}}
+	\algrenewcommand{\DownTo}{\textbf{decrescente~até}}
+	\algrenewcommand{\Step}{\textbf{passo}}
+}
+\newcommand{\axp@languageenglish}{
+	\algrenewcommand\algorithmicdescription{\textbf{Description}}
+	\algrenewcommand\algorithmicinput{\textbf{Input}}
+	\algrenewcommand\algorithmicoutput{\textbf{Output}}
+	\algrenewcommand\algorithmicrequire{\textbf{Pre}}
+	\algrenewcommand\algorithmicensure{\textbf{Post}}
+	\algrenewcommand{\algorithmicend}{\textbf{end}}
+	\algrenewcommand{\algorithmicif}{\textbf{if}}
+	\algrenewcommand{\algorithmicthen}{\textbf{then}}
+	\algrenewcommand{\algorithmicelse}{\textbf{else}}
+	\algrenewcommand{\algorithmicswitch}{\textbf{swith}}
+	\algrenewcommand{\algorithmicof}{\textbf{of}}
+	\algrenewcommand{\algorithmiccase}{\textbf{case}}
+	\algrenewcommand{\algorithmicotherwise}{\textbf{otherwise}}
+	\algrenewcommand{\algorithmicfor}{\textbf{for}}
+	\algrenewcommand{\algorithmicdo}{\textbf{do}}
+	\algrenewcommand{\algorithmicwhile}{\textbf{while}}
+	\algrenewcommand{\algorithmicrepeat}{\textbf{repeat}}
+	\algrenewcommand{\algorithmicuntil}{\textbf{until}}
+	\algrenewcommand{\algorithmicloop}{\textbf{loop}} 
+	\algrenewcommand{\algorithmicforeach}{\textbf{for~each}}
+	\algrenewcommand{\algorithmicforall}{\textbf{for~all}}
+	\algrenewcommand{\algorithmicfunction}{\textbf{function}}
+	\algrenewcommand{\algorithmicprocedure}{\textbf{procedure}}
+	\algrenewcommand{\algorithmicreturn}{\textbf{retorne}}
+	\algrenewcommand{\algorithmictrue}{True}
+	\algrenewcommand{\algorithmicfalse}{False}
+	\algrenewcommand{\algorithmicnil}{Nil}
+	\algrenewcommand{\algorithmicread}{\textbf{read}}
+	\algrenewcommand{\algorithmicwrite}{\textbf{write}}
+	\algrenewcommand{\algorithmicset}{Set}
+	\algrenewcommand{\algorithmicsetto}{to}
+	\algrenewcommand{\To}{\textbf{to}}
+	\algrenewcommand{\DownTo}{\textbf{downto}}
+	\algrenewcommand{\Step}{\textbf{step}}
+}
+\axp@languageenglish % default language
+\ifaxp@brazilian\algxparset{brazilian}\fi
 %    \end{macrocode}
 % 
 % \section{To do\ldots}

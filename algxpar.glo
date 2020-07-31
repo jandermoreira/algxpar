@@ -1,0 +1,5 @@
+\glossaryentry{v0.9> =General:>Initial version}{1}
+\glossaryentry{v0.91>\Id=\verb!*+\Id+:>Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}{13}
+\glossaryentry{v0.91>\Set=\verb!*+\Set+:>New macro for assignments, using $\gets $}{14}
+\glossaryentry{v0.91>\Setl=\verb!*+\Setl+:>New macro for assignments (verbose)}{14}
+\glossaryentry{v0.91> =General:>Small fix in the position of the triangle in line numbers.}{17}
