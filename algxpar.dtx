@@ -462,7 +462,7 @@
 % \DescribeMacro{\Function}
 % \DescribeMacro{\EndFunction}
 % \DescribeMacro{\Return}
-% Procedure and functions are supported with |\Procedure|\marg{name}\marg{arguments} and |\EndProcedure| and |\Function|\marg{name}\marg{arguments} and |\EndFunction|. The return value for functions use |\Return|.
+% Procedure and functions are supported with |\Procedure|\marg{name}\marg{arguments} and |\EndProcedure| and |\Function|\marg{name}\marg{arguments} and |\EndFunction|. The return value for functions uses |\Return|.
 %
 % \subsection*{Examples}
 % \begin{example}
@@ -715,7 +715,7 @@
 \algblockdefx{While}{EndWhile}%
 	[2][]{%
 		\settowidth{\axp@whilewidth}{\algorithmicwhile\ }%
-		\algparbox[x#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
+		\algparbox[#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
 	}%
 	{\algorithmicend\ \algorithmicwhile}
 %    \end{macrocode}
@@ -1091,7 +1091,7 @@
 	\algrenewcommand{\algorithmicforall}{\textbf{for~all}}
 	\algrenewcommand{\algorithmicfunction}{\textbf{function}}
 	\algrenewcommand{\algorithmicprocedure}{\textbf{procedure}}
-	\algrenewcommand{\algorithmicreturn}{\textbf{retorne}}
+	\algrenewcommand{\algorithmicreturn}{\textbf{return}}
 	\algrenewcommand{\algorithmictrue}{True}
 	\algrenewcommand{\algorithmicfalse}{False}
 	\algrenewcommand{\algorithmicnil}{Nil}

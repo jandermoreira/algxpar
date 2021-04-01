@@ -74,7 +74,7 @@
 \algblockdefx{While}{EndWhile}%
 [2][]{%
 \settowidth{\axp@whilewidth}{\algorithmicwhile\ }%
-\algparbox[x#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
+\algparbox[#1]{\algorithmicwhile\ #2~\algorithmicdo}{\axp@whilewidth}%
 }%
 {\algorithmicend\ \algorithmicwhile}
 
@@ -325,7 +325,7 @@ algxpar/.cd,
 \algrenewcommand{\algorithmicforall}{\textbf{for~all}}
 \algrenewcommand{\algorithmicfunction}{\textbf{function}}
 \algrenewcommand{\algorithmicprocedure}{\textbf{procedure}}
-\algrenewcommand{\algorithmicreturn}{\textbf{retorne}}
+\algrenewcommand{\algorithmicreturn}{\textbf{return}}
 \algrenewcommand{\algorithmictrue}{True}
 \algrenewcommand{\algorithmicfalse}{False}
 \algrenewcommand{\algorithmicnil}{Nil}
