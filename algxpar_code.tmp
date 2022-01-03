@@ -1,0 +1,56 @@
+% 	\Description Inserts a new item in the B-tree structure,
+% 		handling only the root node
+% 	\Input The \Id{item} to be inserted
+% 	\Output Returns \True\ in case of success, \False\ in
+% 		case of failure (i.e., duplicated keys)
+% 	\Function{Insert}{\Id{item}}
+% 		\If{\Id{tree.root address} is \Nil}
+% 			\Statep{\Commentl{Create first node}}
+% 			\Statep[\Nil\ = new node]{$\Id{new root node}
+% 				\gets \Call{GetNode}{\Nil}$}
+% 			\Statep[only item]{Insert \Id{item} in \Id{new
+% 				root node} and set both  its left and right
+% 				childs to \Nil; also set \Id{new root
+% 				node.count} to 1}
+% 			\Statep[first node is always a leaf]{Set \Id{new
+% 				root node.type} to \Leaf}
+% 			\Statep[flag that node must be updated in file]
+% 				{Set \Id{new root node.modified} to \True}
+% 			\Statep{\Call{WriteNode}{\Id{new root node}}}
+% 			\Statep{$\Id{tree.root address} \gets
+% 				\Id{new root node.address}$}
+% 			\Statep[update root address in file]
+% 				{\Call{WriteRootAddress}{}}
+% 			\Statep{\Return \True}
+% 		\Else
+% 			\Statep{\Commentl{Insert in existing tree}}
+% 			\Statep[]{$\Id{success}$,
+% 			$\Id{promoted item}$, $\Id{new node address} \gets
+% 				\Call{SearchInsert}{\Id{tree.root address},
+% 				\Id{item}}$}
+% 			\If[root has splitted]{\Id{success} and
+% 				${\Id{new node address}\neq\Nil}$}
+% 				\Statep[new root]{$\Id{new root node} \gets
+% 					\Call{GetNode}{\Nil}$}
+% 				\Statep{Insert \Id{promoted item} in \Id{new
+% 					root node} and set \Id{new root node.count}
+% 					to 1}
+% 				\Statep[tree height grows]{Set \Id{item}'s
+% 					left child to \Id{tree.root
+% 					address} and right child to \Id{new
+% 					node address}}
+% 				\Statep[not a leaf]{Set \Id{new root
+% 						node.type} to \Internal}
+% 				\Statep{Set \Id{new root node.modified}
+% 					to \True}
+% 				\Statep{\Call{WriteNode}{\Id{new root
+% 					node}}}
+% 				\Statep{$\Id{tree.root address} \gets
+% 					\Id{new root node.address}$}
+% 				\Statep[update root address in
+% 					file]{\Call{WriteRootAddress}{}}
+% 			\EndIf
+% 			\Statep[insertion status]{\Return \Id{success}}
+% 		\EndIf
+% 	\EndFunction
+% 

@@ -1,0 +1,115 @@
+
+ \begin{theindex} 
+ \makeatletter\scan@allowedfalse
+{\bfseries\hfil C\hfil}\nopagebreak
+
+  \item \verb*+\Case+\pfill \usage{6}
+  \item \verb*+\Comment+\pfill \usage{5}
+  \item \verb*+\CommentIn+\pfill \usage{5}
+  \item \verb*+\Commentl+\pfill \usage{5}
+
+  \indexspace
+{\bfseries\hfil D\hfil}\nopagebreak
+
+  \item {\ttfamily DefineCode} (environment)\pfill \usage{11}
+  \item \verb*+\Description+\pfill \usage{3}
+  \item \verb*+\DownTo+\pfill \usage{8}
+
+  \indexspace
+{\bfseries\hfil E\hfil}\nopagebreak
+
+  \item \verb*+\Else+\pfill \usage{6}
+  \item \verb*+\ElsIf+\pfill \usage{6}
+  \item \verb*+\EndCase+\pfill \usage{6}
+  \item \verb*+\EndFunction+\pfill \usage{10}
+  \item \verb*+\EndOtherwise+\pfill \usage{6}
+  \item \verb*+\EndProcedure+\pfill \usage{10}
+  \item \verb*+\EndSwitch+\pfill \usage{6}
+  \item \verb*+\EndWhile+\pfill \usage{8}
+  \item \verb*+\Ensure+\pfill \usage{3}
+  \item environments:\efill 
+ \subitem {\ttfamily DefineCode}\pfill \usage{11}
+
+  \indexspace
+{\bfseries\hfil F\hfil}\nopagebreak
+
+  \item \verb*+\False+\pfill \usage{4}
+  \item \verb*+\For+\pfill \usage{8}
+  \item \verb*+\ForAll+\pfill \usage{8}
+  \item \verb*+\ForEach+\pfill \usage{8}
+  \item \verb*+\Function+\pfill \usage{10}
+
+  \indexspace
+{\bfseries\hfil G\hfil}\nopagebreak
+
+  \item \verb*+\gets+\pfill \usage{4}
+
+  \indexspace
+{\bfseries\hfil I\hfil}\nopagebreak
+
+  \item \verb*+\Id+\pfill \usage{4}
+  \item \verb*+\If+\pfill \usage{6}
+  \item \verb*+\Input+\pfill \usage{3}
+
+  \indexspace
+{\bfseries\hfil N\hfil}\nopagebreak
+
+  \item \verb*+\NewLine+\pfill \usage{11}
+  \item \verb*+\Nil+\pfill \usage{4}
+
+  \indexspace
+{\bfseries\hfil O\hfil}\nopagebreak
+
+  \item \verb*+\Otherwise+\pfill \usage{6}
+  \item \verb*+\Output+\pfill \usage{3}
+
+  \indexspace
+{\bfseries\hfil P\hfil}\nopagebreak
+
+  \item \verb*+\Procedure+\pfill \usage{10}
+
+  \indexspace
+{\bfseries\hfil R\hfil}\nopagebreak
+
+  \item \verb*+\Read+\pfill \usage{4}
+  \item \verb*+\Repeat+\pfill \usage{8}
+  \item \verb*+\Require+\pfill \usage{3}
+  \item \verb*+\Return+\pfill \usage{10}
+
+  \indexspace
+{\bfseries\hfil S\hfil}\nopagebreak
+
+  \item \verb*+\Set+\pfill \usage{5}
+  \item \verb*+\Setl+\pfill \usage{5}
+  \item \verb*+\ShowCode+\pfill \usage{11}
+  \item \verb*+\State+\pfill \usage{5}
+  \item \verb*+\Statep+\pfill \usage{5}
+  \item \verb*+\Statex+\pfill \usage{5}
+  \item \verb*+\Step+\pfill \usage{8}
+  \item \verb*+\Switch+\pfill \usage{6}
+
+  \indexspace
+{\bfseries\hfil T\hfil}\nopagebreak
+
+  \item \verb*+\TextString+\pfill \usage{4}
+  \item \verb*+\To+\pfill \usage{8}
+  \item \verb*+\True+\pfill \usage{4}
+
+  \indexspace
+{\bfseries\hfil U\hfil}\nopagebreak
+
+  \item \verb*+\Until+\pfill \usage{8}
+  \item \verb*+\UseCode+\pfill \usage{11}
+
+  \indexspace
+{\bfseries\hfil V\hfil}\nopagebreak
+
+  \item \verb*+\VisibleSpace+\pfill \usage{4}
+
+  \indexspace
+{\bfseries\hfil W\hfil}\nopagebreak
+
+  \item \verb*+\While+\pfill \usage{8}
+  \item \verb*+\Write+\pfill \usage{4}
+
+ \end{theindex}
