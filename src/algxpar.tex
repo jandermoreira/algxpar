@@ -1,0 +1,58 @@
+%! Author = Jander Moreira
+%! Date = 08/05/2023
+\documentclass[12pt, twocolumn]{article}
+\usepackage[T1]{fontenc}
+
+\title{The \textsf{algxpar} package}
+\author{Jander Moreira\\\texttt{moreira.jander@gmail.com}}
+\date{\today}
+
+\usepackage[noend]{algxpar}
+\usepackage{pgffor}
+
+\begin{document}
+\maketitle
+\NewDocumentCommand{\umtexto}{}{algo a
+%ser dito aqui que tenha alguma coisa longa para ser dita ou escrita
+}
+\NewDocumentCommand{\algoritmo}{}{
+    \begin{algorithmic}
+        \Description \umtexto
+        \Require \umtexto \umtexto
+        \Ensure \umtexto
+        \Input \umtexto
+        \Output \umtexto
+        \State \Read $k$
+        \State \Write $k+1$
+        \State $k \gets 2k + 1$
+        \If{é \True\ ou \False\ or \Nil}
+            \Statep{\umtexto\umtexto\umtexto}
+        \EndIf
+        \Switch{$v$}
+        \Case{10}
+        \Statep{\umtexto\umtexto\umtexto\umtexto}
+        \EndCase
+        \Otherwise
+        \Statep{\umtexto\umtexto\umtexto\umtexto}
+        \EndOtherwise
+        \EndSwitch
+        \For{$i \gets 0$ \To $10$ \Step $0,22$}
+            \State{Say something}
+        \EndFor
+        \While{\umtexto\umtexto}
+            \State{Say something}
+        \EndWhile
+        \Repeat
+            \State{Say something}
+        \Until{\umtexto\umtexto\umtexto}
+    \end{algorithmic}
+}
+
+\foreach \lang in {english, brazilian}{
+    \AlgSet{language = \lang}
+    \algoritmo
+
+    \pagebreak
+}
+
+\end{document}
