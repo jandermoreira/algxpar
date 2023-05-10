@@ -3,7 +3,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectRootManager">
+  <component name="ProjectRootManager" version="2" project-jdk-name="Native TeX Live SDK" project-jdk-type="Native TeX Live SDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

@@ -1,0 +1,13 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="FORMATTER_ON_TAG" value="formatter = on" />
+    <option name="FORMATTER_OFF_TAG" value="formatter = off" />
+    <Latex>
+      <option name="INDENT_DOCUMENT_ENVIRONMENT" value="false" />
+    </Latex>
+    <codeStyleSettings language="Latex">
+      <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
+      <option name="LINE_COMMENT_ADD_SPACE" value="true" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>
