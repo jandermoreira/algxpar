@@ -2,8 +2,12 @@
 %! Author: Jander Moreira
 %! Date: May 8, 2023
 
+\NewDocumentCommand{\AlgVersion}{}{v0.95}
+\NewDocumentCommand{\AlgDate}{}{2023/05/08}
+
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
 \ProvidesPackage{algxpar}[2023/05/08 v0.95 Algorithms with multiline/paragraph support]
+
 
 %% Required packages
 \RequirePackage{algorithmicx}
@@ -33,7 +37,7 @@
 % #2: keyword (e.g. while)
 % returns: keyword text (e.g. enquanto)
 \cs_new:Npn \get_keyword:nn #1#2 {
-    \tl_use:c { g_keyword_#1_#2_tl }
+    \mbox{ \tl_use:c { g_keyword_#1_#2_tl } }
 }
 
 %%% User commands
@@ -58,6 +62,14 @@
     \textsc{\get_keyword:nn{\axp@Language}{#1}}
 }
 
+% RenewFullyExpandedDocumentCommand: fully expands argument before
+%   renewing document command
+% #1: macro
+% #2: value
+\NewDocumentCommand{\RenewFullyExpandedDocumentCommand} { m m }{
+    \exp_args:NNnV \RenewDocumentCommand #1 { } { #2 }
+}
+
 \ExplSyntaxOff
 
 
@@ -66,7 +78,9 @@
     /algxpar/.cd,
     language/.store in = \axp@Language,
     noend/.is if = axp@NoEnd,
-    .unknown/.code = {\AlgSet{language = \pgfkeyscurrentname}}
+    .unknown/.code = {
+        \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
+    }
 }
 
 \NewDocumentCommand{\axp@Language}{}{}  % current language
@@ -81,6 +95,7 @@
     language = english,
     noend = false,
 }
+
 
 %% Package options (may change defaults)
 \ProcessPgfOptions{/algxpar}
@@ -199,7 +214,7 @@
 \NewDocumentCommand{\Write}{}{\Keyword{write} }
 
 % %% Comments
-% \newcommand{\axp@commentleftsymbol}{$\triangleright$}
+\newcommand{\axp@commentleftsymbol}{$\triangleright$}
 % \newcommand{\axp@commentrightsymbol}{$\triangleleft$}
 % \algnewcommand{\CommentIn}[1]{%
 %     \axp@commentleftsymbol~\textsl{#1}~\axp@commentrightsymbol%
@@ -217,70 +232,71 @@
 %% Statep
 \newlength{\axp@stateindent}
 \setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
-\algnewcommand{\Statep}[2][]{\State\algparbox[#1]{#2}{\axp@stateindent}}
+\algnewcommand{\Statep}[2][]{%
+    \setlength{\axp@CurrentIndent}{0.75pt}%  I don't know why
+    \State\algparbox[#1]{#2}{1.5em}%
+}
 %
 %% While
 \algblockdefx{While}{EndWhile}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{while}\ }%
-    \algparbox[#1]{\Keyword{while}\ #2 \Keyword{do}}{\axp@CurrentIndent}%
+    \settowidth{\axp@CurrentIndent}{\Keyword{while}~}%
+    \Keyword{while}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
 }%
 {%
     \Keyword{end}~\Keyword{while}%
 }
 
 %% Repeat
-\newlength{\axp@untilwidth}
 \algblockdefx{Repeat}{Until}{%
     \Keyword{repeat}%
 }[2][]{%
-    \settowidth{\axp@untilwidth}{\Keyword{until}\ }%
-    \axp@algparbox{#1}{\Keyword{until}\ #2}{\axp@untilwidth}{0}%
+    \settowidth{\axp@CurrentIndent}{\Keyword{until}~}%
+    \stepcounter{ALG@nested}%  'until' is already in outter level
+    \Keyword{until}~\algparbox[#1]{#2}{0pt}%
+    \addtocounter{ALG@nested}{-1}%
 }
 
 %% If
-\newlength{\axp@ifwidth}
-\newlength{\axp@elseifwidth}
 \algblockdefx[If]{If}{EndIf}[2][]{%
-    \settowidth{\axp@ifwidth}{\Keyword{if}\ }%
-    \algparbox[#1]{\Keyword{if}\ #2~\Keyword{then}}{\axp@ifwidth}%
+    \settowidth{\axp@CurrentIndent}{\Keyword{if}~}%
+    \Keyword{if}~\algparbox[#1]{#2~\Keyword{then}}{0pt}%
 }
 {%
     \Keyword{end}~\Keyword{if}%
 }
 % + else if
-\algcblockx{If}{ElsIf}{EndIf}[2][]{%
-    \settowidth{\axp@elseifwidth}{\Keyword{else}~\Keyword{if}~}%
-    \algparbox[#1]{\Keyword{else}~\Keyword{if} #2~\Keyword{then}}{\axp@elseifwidth}%
+\algcblockdefx[If]{If}{ElsIf}{EndIf}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{else}~\Keyword{if}~}%
+    \Keyword{else}~\Keyword{if}~\algparbox[#1]{#2~\Keyword{then}}{0pt}%
 }{%
     \Keyword{end}~\Keyword{if}%
 }
 % + else
-\algcblockx{If}{Else}{EndIf}{%
+\algcblockdefx[If]{If}{Else}{EndIf}{%
     \textbf{\Keyword{else}}%
 }{%
     \textbf{\Keyword{end}~\Keyword{if}}%
 }
 
 %% Switch, case, otherwise
-\newlength{\axp@switchwidth}
-\algblockdefx{Switch}{EndSwitch}%
-[2][]{%
-    \settowidth{\axp@switchwidth}{\Keyword{switch}\ }%
-    \algparbox[#1]{\Keyword{switch}\ #2}{\axp@switchwidth}%
+\algblockdefx{Switch}{EndSwitch}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{switch}~}%
+    \Keyword{switch}~\algparbox[#1]{#2}{0pt}%
 }
-{\Keyword{end}~\Keyword{switch}}
-\newlength{\axp@casewidth}
+{%
+    \Keyword{end}~\Keyword{switch}%
+}
 \algblockdefx{Case}{EndCase}%
 [2][]{%
-    \settowidth{\axp@casewidth}{\Keyword{case}\ }%
-    \algparbox[#1]{\Keyword{case}\ #2~\Keyword{do}}{\axp@casewidth}%
+    \settowidth{\axp@CurrentIndent}{\Keyword{case}~}%
+    \Keyword{case}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
 }
 {\Keyword{end}~\Keyword{case}}
 
 \algblockdefx[Otherwise]{Otherwise}{EndOtherwise}{%
     \Keyword{otherwise}~\Keyword{do}%
 }{%
-    \Keyword{end}\ \Keyword{otherwise}%
+    \Keyword{end}~\Keyword{otherwise}%
 }
 
 
@@ -294,27 +310,24 @@
 % }
 %
 %% For, for each, for all
-\newlength{\axp@forwidth}
-\algblockdefx{For}{EndFor}%
-[2][]{%
-    \settowidth{\axp@forwidth}{\Keyword{for}\ }%
-    \algparbox[#1]{\Keyword{for}\ #2~\Keyword{do}}{\axp@forwidth}%
+\algblockdefx{For}{EndFor}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{for}~}%
+    \Keyword{for}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}{%
+    \Keyword{end}~\Keyword{for}%
 }
-{\Keyword{end}\ \Keyword{for}}
-\newlength{\axp@foreachwidth}
-\algblockdefx{ForEach}{EndFor}%
-[2][]{%
-    \settowidth{\axp@foreachwidth}{\Keyword{foreach}\ }%
-    \algparbox[#1]{\Keyword{foreach}\ #2~\Keyword{do}}{\axp@foreachwidth}%
+\algblockdefx{ForEach}{EndFor}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{foreach}~}%
+    \Keyword{foreach}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}{%
+    \Keyword{end}\~\Keyword{for}%
 }
-{\Keyword{end}\~\Keyword{for}}
-\newlength{\axp@forallwidth}
-\algblockdefx{ForAll}{EndFor}%
-[2][]{%
-    \settowidth{\axp@forallwidth}{\Keyword{forall}\ }%
-    \algparbox[#1]{\Keyword{forall}\ #2~\Keyword{do}}{\axp@forallwidth}%
-}%
-{\Keyword{end}\ \Keyword{for}}
+\algblockdefx{ForAll}{EndFor}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{forall}~}%
+    \Keyword{forall}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}{%
+    \Keyword{end}~\Keyword{for}%
+}
 
 % %% Procedure, function, calls
 % \newlength{\axp@procedurewidth}
@@ -324,7 +337,7 @@
 %     \settowidth{\axp@procedurewidth}{\algorithmicprocedure~}%
 %     \settowidth{\axp@namewidth}{\textsc{#2}(}%
 %     \addtolength{\axp@procedurewidth}{0.6\axp@namewidth}%
-%     \algparbox[#1]{\algorithmicprocedure\ \textsc{#2}(#3)}{\axp@procedurewidth}
+%     \algparbox[#1]{\algorithmicprocedure\ \textsc{#2}(#3)}{0pt}
 % }%
 % {\Keyword{end}\ \algorithmicprocedure}
 % \newlength{\axp@functionwidth}
@@ -333,7 +346,7 @@
 %     \settowidth{\axp@functionwidth}{\algorithmicfunction~}%
 %     \settowidth{\axp@namewidth}{\textsc{#2}(}%
 %     \addtolength{\axp@functionwidth}{0.6\axp@namewidth}%
-%     \algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{\axp@functionwidth}
+%     \algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{0pt}
 % }%
 % {\Keyword{end}\ \algorithmicfunction}
 % \algrenewcommand\Call[2]{%
@@ -342,7 +355,7 @@
 % }
 
 %% NewLine
-\newcommand{\NewLine}{\\}
+\newcommand{\NewLine}{\par}
 
 % %% DefineCode, UseCode, \ShowCode
 % \newenvironment{DefineCode}[1]
@@ -365,24 +378,33 @@
 \setlength{\axp@largestcommentwidth}{0.3\linewidth}
 %! formatter = off
 \newcommand{\axp@algparbox}[4]{%
+    \begingroup%
     \def\temp{#1}%
     \ifx\temp\empty%
         \setlength{\axp@commentwidth}{-2em}%
     \else%
-        \settowidth{\axp@commentwidth}{\axp@commentleftsymbol\ #1}%
+        \settowidth{\axp@commentwidth}{\axp@commentleftsymbol~#1}%
         \ifdim\axp@commentwidth>\axp@largestcommentwidth\relax%
             \setlength{\axp@commentwidth}{\axp@largestcommentwidth}%
         \fi%
     \fi%
-    \renewcommand{\NewLine}{\\\hspace{#3}}%
-    \parbox[t]{\dimexpr\linewidth-\axp@commentwidth-%
-        (\algorithmicindent)*(\theALG@nested - #4)-2em}%
-    {\RaggedRight\setlength{\hangindent}{#3}#2\strut}%
+    \RenewDocumentCommand{\NewLine}{}{%
+        \\\hspace{#3}>>%
+        % \raisebox{0.2ex}{\scalebox{0.75}{\rotatebox{90}{$\curvearrowleft$}~}}%
+    }
+    \setlength{\fboxsep}{0pt}\fbox{%
+    \begin{minipage}[t]{\dimexpr\linewidth - (\algorithmicindent)*(\theALG@nested - 1) - \axp@CurrentIndent - \axp@commentwidth - 2em}
+        \setlength{\hangindent}{#3}%
+        \begin{flushleft}
+            #2(\the\axp@commentwidth)%
+        \end{flushleft}
+    \end{minipage}\strut%
+    }%
     \ifx\temp\empty\else%
-        \hfill\axp@commentleftsymbol\hspace{0.5em}%
-        \parbox[t]{\axp@commentwidth}{\slshape\RaggedRight#1}%
+        \hfill\axp@commentleftsymbol\hspace{0.25em}%
+        \fbox{\parbox[t]{\axp@commentwidth}{\slshape\RaggedRight#1}}%
     \fi%
-    \renewcommand{\NewLine}{\\}%
+    \endgroup%
 }
 %! formatter = on
 
@@ -425,12 +447,12 @@
 
 %! formatter = off
 \ifaxp@NoEnd
-    \algtext*{EndWhile}%
-    \algtext*{EndFor}%
-    \algtext*{EndLoop}%
-    \algtext*{EndIf}%
-    \algtext*{EndProcedure}%
-    \algtext*{EndFunction}%
+    \algtext*{EndWhile}
+    \algtext*{EndFor}
+    \algtext*{EndLoop}
+    \algtext*{EndIf}
+    \algtext*{EndProcedure}
+    \algtext*{EndFunction}
     \algtext*{EndSwitch}
     \algtext*{EndCase}
     \algtext*{EndOtherwise}
