@@ -1,58 +1,196 @@
 %! Author = Jander Moreira
 %! Date = 08/05/2023
-\documentclass[12pt, twocolumn]{article}
+\documentclass[12pt]{ltxdoc}
 \usepackage[T1]{fontenc}
 
-\title{The \textsf{algxpar} package}
+\usepackage{algxpar}
+\usepackage[showframe]{geometry}
+\geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 3cm}
+\usepackage[backref=page]{hyperref}
+\hypersetup{
+    colorlinks,
+    urlcolor = blue!20!black,
+    linkcolor = blue!10!black,
+    citecolor = black!80,
+}
+\usepackage{imakeidx}
+\makeindex
+\usepackage{listings}
+\usepackage[outputdir=../out]{minted}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings, minted}
+\tcbset{listing engine = minted}
+\usepackage{tikz}
+
+
+\newenvironment{commands}{
+    \VerbatimEnvironment
+    \tcolorbox[
+    bottomrule = 0pt,
+    toprule = 0pt,
+    leftrule = 0pt,
+    rightrule = 0pt,
+    titlerule = 0pt,
+    colframe = white,
+    colback = white,
+    sharp corners,
+    pad at break*=1pc,
+    enhanced jigsaw,
+    overlay first and middle={
+        \coordinate (A1) at ($(interior.south east) + (-10pt,5pt)$);
+        \coordinate (C1) at ($(interior.south east) + (-6pt,7.5pt)$);
+        \draw[fill=tcbcolframe] (A1) -- +(0,5pt) -- (C1) -- cycle;
+    },
+    ]%
+    \Verbatim[gobble = 4, tabsize=4, commandchars = &\[\]]%
+    }
+%     {%
+%     \endVerbatim%
+%     \endtcolorbox%
+% }
+
+        \newtcolorbox{codigo}[1]{%
+    bottomrule = 0pt,
+    toprule = 0pt,
+    leftrule = 0pt,
+    rightrule = 0pt,
+    titlerule = 0pt,
+    sharp corners,
+    sidebyside,
+    sidebyside align = top,
+    #1
+}
+
+\usetikzlibrary{calc}
+\newenvironment{example}{
+    \begingroup\tcbverbatimwrite{\jobname_code.tmp}
+    }{
+    \endtcbverbatimwrite\endgroup%
+    \begin{tcolorbox}
+        [
+        bottomrule = 0pt,
+        toprule = 0pt,
+        leftrule = 0pt,
+        rightrule = 0pt,
+        titlerule = 0pt,
+        colframe = white,
+        segmentation style = {black!30, solid},
+        colback = white,
+        sharp corners,
+        pad at break* = 1pc,
+        enhanced jigsaw,
+        breakable,
+        overlay first and middle={
+            \coordinate (A1) at ($(interior.south east) + (-10pt,5pt)$);
+            \coordinate (C1) at ($(interior.south east) + (-6pt,7.5pt)$);
+            \draw[fill=tcbcolframe] (A1) -- +(0,5pt) -- (C1) -- cycle;
+        },
+        ]%
+        \small\VerbatimInput[tabsize=4, gobble = 2]{\jobname_code.tmp}
+        \tcblower
+% 	\begin{minipage}{0.85\linewidth}
+        \begin{algorithmic}
+            \input{\jobname_code.tmp}
+        \end{algorithmic}
+% 	\end{minipage}
+    \end{tcolorbox}
+}
+
+
+% ShowMacro: showw macro name and description
+\NewDocumentCommand{\ShowMacro}{ m m }{%
+    \begin{itemize}
+        \item[\textbackslash\texttt{#1}] #2
+    \end{itemize}
+}
+
+
+\title{The \textsf{algxpar} package\thanks{This document corresponds to \textsf{algxpar}~\AlgVersion, dated \AlgDate.}}
 \author{Jander Moreira\\\texttt{moreira.jander@gmail.com}}
 \date{\today}
 
-\usepackage[noend]{algxpar}
-\usepackage{pgffor}
-
 \begin{document}
 \maketitle
-\NewDocumentCommand{\umtexto}{}{algo a
-%ser dito aqui que tenha alguma coisa longa para ser dita ou escrita
-}
-\NewDocumentCommand{\algoritmo}{}{
+
+\begin{abstract}
+    The \textsf{algxpar} packages is an extension of the \textsf{algorithmicx} package to handle multiline text with the proper indentation.
+\end{abstract}
+
+\tableofcontents
+\vspace{2em}
+
+% \changes{v0.9}{2019/10/24}{First version}
+% \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
+% \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
+% \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
+
+
+\section{Introduction}
+I teach algorithms and programming and have adopted the \textsf{algorithmicx} package (\textsf{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
+
+As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
+
+Unfortunately, \textsf{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
+
+
+\section{Package usage and options}
+To use the package simply add it to preamble.
+
+\begin{verbatim}
+\usepackage{algxpar}
+\end{verbatim}
+
+Package options:
+\begin{itemize}
+    \item[\texttt{noend}] Suppress the line at the end of a block.
+    \item[\texttt{english}] Selects english keywords (default).
+    \item[\texttt{brazilian}] Selects portuguese/brazilian keywords.
+\end{itemize}
+
+
+\section{Writting pseudocode}
+All pseudocode is written inside the \texttt{algorithmic} environment.
+
+\subsection{Documentation}
+A series of macros are defined to provide the header documentation for a pseudocode. The basice are:
+\ShowMacro{Description}{General description of the algorithm.}
+\ShowMacro{Require}{Preconditions.}
+\ShowMacro{Ensure}{Postconditions.}
+
+\begin{tcblisting}{}
     \begin{algorithmic}
-        \Description \umtexto
-        \Require \umtexto \umtexto
-        \Ensure \umtexto
-        \Input \umtexto
-        \Output \umtexto
-        \State \Read $k$
-        \State \Write $k+1$
-        \State $k \gets 2k + 1$
-        \If{é \True\ ou \False\ or \Nil}
-            \Statep{\umtexto\umtexto\umtexto}
-        \EndIf
-        \Switch{$v$}
-        \Case{10}
-        \Statep{\umtexto\umtexto\umtexto\umtexto}
-        \EndCase
-        \Otherwise
-        \Statep{\umtexto\umtexto\umtexto\umtexto}
-        \EndOtherwise
-        \EndSwitch
-        \For{$i \gets 0$ \To $10$ \Step $0,22$}
-            \State{Say something}
-        \EndFor
-        \While{\umtexto\umtexto}
-            \State{Say something}
-        \EndWhile
-        \Repeat
-            \State{Say something}
-        \Until{\umtexto\umtexto\umtexto}
+        \Description Calculation of the factorial of a natural number through successive multiplications
+        \Require $n \in \mathbb{N}$
+        \Ensure $f = n!$
     \end{algorithmic}
-}
+\end{tcblisting}
 
-\foreach \lang in {english, brazilian}{
-    \AlgSet{language = \lang}
-    \algoritmo
+Also are provided:
+\ShowMacro{Input}{Inputs.}
+\ShowMacro{Output}{Outputs}
 
-    \pagebreak
-}
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Description Calculation of the factorial of a natural number through successive multiplications
+        \Input $n$ (integer)
+        \Output $n!$ (integer)
+    \end{algorithmic}
+\end{tcblisting}
+
+\subsection{Constants and Identifiers}
+
+\subsection{Assignments and I/O}
+
+\subsection{Comments}
+
+\subsection{Statements}
+
+\subsection{Flow Control}
+
+\subsection{Procedures and Functions}
+
+
+\section{Customization and Fine Tunning}
+
 
 \end{document}
