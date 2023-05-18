@@ -1,11 +1,12 @@
 %! Author = Jander Moreira
 %! Date = 08/05/2023
-\documentclass[12pt]{ltxdoc}
+\documentclass[a4paper, 11pt]{article}
 \usepackage[T1]{fontenc}
 
-\usepackage{algxpar}
+\usepackage{amsfonts}
+\usepackage[brazilian, language = english]{algxpar__}
 \usepackage[showframe]{geometry}
-\geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 3cm}
+\geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 4cm}
 \usepackage[backref=page]{hyperref}
 \hypersetup{
     colorlinks,
@@ -15,13 +16,33 @@
 }
 \usepackage{imakeidx}
 \makeindex
-\usepackage{listings}
 \usepackage[outputdir=../out]{minted}
-\usepackage{tcolorbox}
+% \usepackage{tcolorbox}
 \tcbuselibrary{listings, minted}
-\tcbset{listing engine = minted}
+\tcbset{
+    colback = blue!3,
+    sharp corners,
+    fontlower = \footnotesize,
+    minted options={
+        fontsize = \footnotesize,
+        breaklines,
+        autogobble,
+        % linenos,
+        % numbersep = 3mm,
+    },
+    listing engine = minted,
+    sidebyside,
+}
 \usepackage{tikz}
+\usepackage{etoolbox}
+\usepackage{textcomp}
 
+\colorlet{argumentcolor}{brown!50!black}
+\NewDocumentCommand{\Argument}{ m }{$\langle$\textcolor{argumentcolor}{\textsl{#1}}$\rangle$}
+\NewDocumentCommand{\MandatoryArgument}{ m }{\texttt{\{}\Argument{#1}\texttt{\}}}
+\NewDocumentCommand{\OptionalArgument}{ m }{\texttt{[}\Argument{#1}\texttt{]}}
+
+\usepackage{color}
 
 \newenvironment{commands}{
     \VerbatimEnvironment
@@ -96,24 +117,37 @@
     \end{tcolorbox}
 }
 
+% \NewDocumentCommand{\DefineMacro}{ m m }{
+%     \begin{tikzpicture}%[overlay]
+%         \node[fill = black!10, rounded corners = 2pt, font = \tiny] {#1};
+%     \end{tikzpicture}
+% }
+
 
 % ShowMacro: showw macro name and description
-\NewDocumentCommand{\ShowMacro}{ m m }{%
-    \begin{itemize}
-        \item[\textbackslash\texttt{#1}] #2
-    \end{itemize}
+\newmintinline{latex}{}
+\NewDocumentCommand{\Macro}{ m }{\expandafter\latexinline\expandafter{\csname#1\endcsname}}
+\NewDocumentEnvironment{macro}{ m O{} }{
+    \index{#1@\texttt{\textbackslash#1}}
+    \noindent
+    $\triangleright$~\Macro{#1}#2
+    \par
+    }{
+    \par
+    \medskip
 }
 
 
-\title{The \textsf{algxpar} package\thanks{This document corresponds to \textsf{algxpar}~\AlgVersion, dated \AlgDate.}}
+\title{The \PackageName{algxpar} package\thanks{This document corresponds to \PackageName{algxpar}~v\AlgVersion, dated \AlgDate.}}
 \author{Jander Moreira\\\texttt{moreira.jander@gmail.com}}
 \date{\today}
 
 \begin{document}
 \maketitle
+\sloppy
 
 \begin{abstract}
-    The \textsf{algxpar} packages is an extension of the \textsf{algorithmicx} package to handle multiline text with the proper indentation.
+    The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multiline text with the proper indentation.
 \end{abstract}
 
 \tableofcontents
@@ -126,36 +160,44 @@
 
 
 \section{Introduction}
-I teach algorithms and programming and have adopted the \textsf{algorithmicx} package (\textsf{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
+I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
 
 As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
 
-Unfortunately, \textsf{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
+Unfortunately, \PackageName{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
 
 
 \section{Package usage and options}
 To use the package simply add it to preamble.
 
-\begin{verbatim}
-\usepackage{algxpar}
-\end{verbatim}
+\usemintedstyle{tango}
+\newminted{latex}{autogobble}
 
-Package options:
-\begin{itemize}
-    \item[\texttt{noend}] Suppress the line at the end of a block.
-    \item[\texttt{english}] Selects english keywords (default).
-    \item[\texttt{brazilian}] Selects portuguese/brazilian keywords.
-\end{itemize}
-
-
-\section{Writting pseudocode}
-All pseudocode is written inside the \texttt{algorithmic} environment.
-
-\subsection{Documentation}
-A series of macros are defined to provide the header documentation for a pseudocode. The basice are:
-\ShowMacro{Description}{General description of the algorithm.}
-\ShowMacro{Require}{Preconditions.}
-\ShowMacro{Ensure}{Postconditions.}
+\begin{latexcode}
+    \usepackage{algxpar}
+\end{latexcode}
+% Package options:
+% \begin{itemize}
+%     \item[\texttt{noend}] Suppress the line at the end of a block.
+%     \item[\texttt{english}] Selects english keywords (default).
+%     \item[\texttt{brazilian}] Selects portuguese/brazilian keywords.
+% \end{itemize}
+%
+%
+% \section{Writting pseudocode}
+% All pseudocode is written inside the \texttt{algorithmic} environment.
+%
+% \subsection{Documentation}
+% A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
+\begin{macro}{Description}
+    General description of the pseudocode.
+\end{macro}
+\begin{macro}{Require}
+    The required initial state that the code relies on. These are \textit{preconditions}.
+\end{macro}
+\begin{macro}{Ensure}
+    The final state produced by the code. These are \textit{preconditions}.
+\end{macro}
 
 \begin{tcblisting}{}
     \begin{algorithmic}
@@ -164,33 +206,112 @@ A series of macros are defined to provide the header documentation for a pseudoc
         \Ensure $f = n!$
     \end{algorithmic}
 \end{tcblisting}
+%
+% Also are provided:
+% \DescribeMacro{Input}{Inputs.}
+% \DescribeMacro{Output}{Outputs}
+%
+% \begin{tcblisting}{}
+%     \begin{algorithmic}
+%         \Description Calculation of the factorial of a natural number through successive multiplications
+%         \Input $n$ (integer)
+%         \Output $n!$ (integer)
+%     \end{algorithmic}
+% \end{tcblisting}
+%
+% \subsection{Constants and Identifiers}
+%
+% Constants: \True, \False\ and \Nil.
+%
+% Identifiers: |\Id{}|.
+%
+% \subsection{Assignments and I/O}
+%
+% \subsection{Comments}
+%
+% \subsection{Statements}
+%
+% The macro |\State| can still be used and was left unchanged. A replacement statement macro is |\Statep|.
+%
+% \subsection{Flow Control}
+%
+% \subsection{Procedures and Functions}
+%
+% \begin{tcblisting}{}
+%     \begin{algorithmic}
+%         \While{\False}
+%         \EndWhile
+%         \If{\True ou \False}
+%             \Statep{Say ok}
+%         \ElsIf{$a>\alpha$}
+%         \ElsIf{$b>\beta$}[languages/else = intonces\ldots]
+%         \Else[language = brazilian]
+%         \EndIf[language = english]
+%         \ForAll{}
+%         \EndFor
+%     \end{algorithmic}
+% \end{tcblisting}
+%
+%
+% \section{Customization and Fine Tunning}
+%
+% %
+%
+\begin{macro}{Keyword}[\OptionalArgument{language}\MandatoryArgument{keyword}]
+    Macros like \Macro{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \Macro{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
+    If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
 
-Also are provided:
-\ShowMacro{Input}{Inputs.}
-\ShowMacro{Output}{Outputs}
+    Section~\ref{sec:languages} shows the predefined keywords.
 
-\begin{tcblisting}{}
-    \begin{algorithmic}
-        \Description Calculation of the factorial of a natural number through successive multiplications
-        \Input $n$ (integer)
-        \Output $n!$ (integer)
-    \end{algorithmic}
-\end{tcblisting}
+    \begin{tcblisting}{}
+        In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
+    \end{tcblisting}
+\end{macro}
 
-\subsection{Constants and Identifiers}
-
-\subsection{Assignments and I/O}
-
-\subsection{Comments}
-
-\subsection{Statements}
-
-\subsection{Flow Control}
-
-\subsection{Procedures and Functions}
+\begin{macro}{SetKeyword}[\OptionalArgument{language}\MandatoryArgument{keyword}\MandatoryArgument{value}]
+    The macro \Macro{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
+    If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
+\end{macro}
 
 
-\section{Customization and Fine Tunning}
 
+%
+% \makeatletter
+% \RenewDocumentCommand{\If}{ O{} m O{} }{%
+%     \axp@ProcessCommandOptions{#1}{#3}%
+%     \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
+% }
+% \appto{\EndIf}{\endgroup}
+%
+% \RenewDocumentCommand{\Switch}{ O{} m O{} }{%
+%     \axp@ProcessCommandOptions{#1}{#3}%
+%     \ALG@makeentity{Switch}[\axp@CurrentComment]{#2}%
+% }
+% \appto{\EndSwitch}{\endgroup}
+% \makeatother
+%
+%
+% \begin{algorithmic}
+%     \If{abc and \Nil}[language = brazilian, languages/end = fim do meu querido, comment is here]
+%         \Statep{teste}
+%     \EndIf%\endgroup
+%     \While{abc}
+%         \Statep{x}
+%     \EndWhile
+% \end{algorithmic}
+% %
+% % \AlgSet{
+% %     brazilian
+% % }
+% % \AlgLanguageSet{brazilian}{switch = selecione a partir de}
+% %
+% % \begin{algorithmic}
+% %     \Switch{asdf}[something in here a little longer, languages/switch = selecione]
+% %     \Statep{$v \gets \True$}
+% %     \EndSwitch
+% % \end{algorithmic}
+%
+\clearpage
+\printindex
 
 \end{document}
