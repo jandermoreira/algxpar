@@ -1,0 +1,439 @@
+%! Package: algxpar
+%! Author: Jander Moreira
+%! Date: May 8, 2023
+
+\NewDocumentCommand{\AlgVersion}{}{0.95}
+\NewDocumentCommand{\AlgDate}{}{2023/05/08}
+
+\NeedsTeXFormat{LaTeX2e}[2005/12/01]
+\ProvidesPackage{algxpar}[2023/05/08 v0.95 Algorithms with multiline/paragraph support]
+
+
+%% Required packages
+\RequirePackage{algorithmicx}
+\RequirePackage{algpseudocode}
+\RequirePackage{ragged2e}
+\RequirePackage{listings}
+\RequirePackage{amsmath, amssymb}
+\RequirePackage{xcolor}
+\RequirePackage{tcolorbox} % to save verbatim
+\RequirePackage{fancyvrb} % to load verbatim preserving tabs
+\RequirePackage{pgfopts}
+
+\ExplSyntaxOn
+%%% Internal commands
+
+% set_keyword:nnn creates or update a keyword in a language
+% #1: language (e.g., brazilian)
+% #2: keyword (e.g. while)
+% #3: value (e.g, enquanto)
+\cs_new:Npn \set_keyword:nnn #1#2#3 {
+    \tl_clear_new:c { g_keyword_#1_#2_tl }
+    \tl_gset:cn { g_keyword_#1_#2_tl } { #3 }
+}
+
+% get_keyword:nn returs a keyword in a language
+% #1: language (e.g., brazilian)
+% #2: keyword (e.g. while)
+% returns: keyword text (e.g. enquanto)
+\cs_new:Npn \get_keyword:nn #1#2 {
+    \mbox{ \tl_use:c { g_keyword_#1_#2_tl } }
+}
+
+%%% User commands
+
+% SetKeyword: create or update a keyword in a language
+% #1: language (e.g., brazilian)
+% #2: keyword (e.g. while)
+% #3: value (e.g, enquanto)
+\NewDocumentCommand{\SetKeyword}{ O{\axp@Language} m m }{
+    \set_keyword:nnn { #1 } { #2 } { #3 }
+}
+
+% Keyword: returns a formatted keyword in the current language
+% #1: keyword (e.g. while)
+\NewDocumentCommand{\Keyword} { O{\axp@Language} m }{
+    \textbf{\get_keyword:nn{#1}{#2}}
+}
+
+% Constant: returns a formatted constant in the current language
+% #1: keyword (e.g. True)
+\NewDocumentCommand{\Constant} { m }{
+    \textsc{\get_keyword:nn{\axp@Language}{#1}}
+}
+
+% RenewFullyExpandedDocumentCommand: fully expands argument before
+%   renewing document command
+% #1: macro
+% #2: value
+\NewDocumentCommand{\RenewFullyExpandedDocumentCommand} { m m }{
+    \exp_args:NNnV \RenewDocumentCommand #1 { } { #2 }
+}
+
+% \axp@ProcessCommandOptions: process command options
+% #1: comment (earlier version, before command text)
+% #2: options to the command
+
+\NewDocumentCommand{\axp@ProcessCommandOptions}{ m m }{
+    \def\temp{#1}
+    %! formatter = off
+    \ifx\temp\emtpy
+    \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
+    \else
+    \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
+    \fi
+    %! formatter = on
+    \pgfkeys{
+        /algxpar/.cd,
+        .unknown/.code = {
+            \RenewFullyExpandedDocumentCommand{\axp@CurrentComment}{\pgfkeyscurrentname}
+        }
+    }
+    \pgfkeys{
+        /algxpar/.cd,
+        #2,
+    }
+}
+
+\ExplSyntaxOff
+
+
+%% Settings: general
+\pgfkeys{
+    /algxpar/.cd,
+    language/.store in = \axp@Language,
+    noend/.is if = axp@NoEnd,
+    .unknown/.code = {
+        \input{\pgfkeyscurrentname.kw}
+        \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
+    }
+}
+
+\NewDocumentCommand{\axp@Language}{}{}  % current language
+\newif\ifaxp@NoEnd\axp@NoEndfalse  % if 'end' is used
+
+\NewDocumentCommand{\AlgSet}{ > { \TrimSpaces } m }{
+    \pgfkeys{algxpar/.cd, #1}
+}
+
+% general settings defaults
+\AlgSet{
+    language = english,
+    noend = false,
+}
+
+
+%% Languages and translations
+\pgfkeys{
+    /algxpar/languages/.cd,
+    .unknown/.code = { \SetKeyword{\pgfkeyscurrentname}{#1}}
+}
+
+\NewDocumentCommand{\AlgLanguageSet}{ > { \TrimSpaces } m > { \TrimSpaces } m }{
+    \begingroup
+    \AlgSet{language = #1}
+    \pgfkeys{
+        /algxpar/languages/.cd,
+        #2
+    }
+    \endgroup
+}
+\input{english.kw}  % always loads default language
+
+
+%% Package options (may change defaults)
+\ProcessPgfOptions{/algxpar}
+
+
+%% Keyword quick references
+\NewDocumentCommand{\To}{}{ \Keyword{to} }
+\NewDocumentCommand{\DownTo}{}{ \Keyword{downto} }
+\NewDocumentCommand{\Step}{}{ \Keyword{step} }
+\NewDocumentCommand{\True}{}{\Constant{true}}
+\NewDocumentCommand{\False}{}{\Constant{false}}
+\NewDocumentCommand{\Nil}{}{\Constant{nil}}
+
+% \newcommand{\Id}[1]{\ensuremath{\textit{\rmfamily#1}}}
+% \newcommand{\TextString}[1]{\textrm{\normalfont``{\ttfamily\mbox{#1}}''}}
+% \algnewcommand{\VisibleSpace}{\textrm{\color{black!70}\textvisiblespace}}
+
+%% Headings
+\NewDocumentCommand{\Description}{}{\item[\Keyword{description}:]}
+\NewDocumentCommand{\Input}{}{\item[\Keyword{input}:]}
+\NewDocumentCommand{\Output}{}{\item[\Keyword{output}:]}
+\RenewDocumentCommand{\Ensure}{}{\item[\Keyword{ensure}:]}
+\RenewDocumentCommand{\Require}{}{\item[\Keyword{require}:]}
+
+% Read, write
+%\NewDocumentCommand{\Set}{ m m }{\Id{#1} \gets #2}
+\NewDocumentCommand{\Read}{}{\Keyword{read} }
+\NewDocumentCommand{\Write}{}{\Keyword{write} }
+
+% %% Comments
+\newcommand{\axp@commentleftsymbol}{$\triangleright$}
+% \newcommand{\axp@commentrightsymbol}{$\triangleleft$}
+% \algnewcommand{\CommentIn}[1]{%
+%     \axp@commentleftsymbol~\textsl{#1}~\axp@commentrightsymbol%
+% }
+% \algnewcommand{\Commentl}[1]{\axp@commentleftsymbol~\textsl{#1}}
+% \algrenewcommand{\algorithmiccomment}[1]{%
+%     \def\tmp{#1}%
+%     \ifx\tmp\empty\else%
+%     \hfill\Commentl{#1}%
+%     \fi
+% }
+
+\newlength{\axp@CurrentIndent}
+
+%% Statep
+\newlength{\axp@stateindent}
+\setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
+\algnewcommand{\Statep}[2][]{%
+    \setlength{\axp@CurrentIndent}{0.75pt}%  I don't know why
+    \State\algparbox[#1]{#2}{1.5em}%
+}
+%
+%% While
+\algblockdefx{While}{EndWhile}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{while}~}%
+    \Keyword{while}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}%
+{%
+    \Keyword{end}~\Keyword{while}%
+}
+
+%% Repeat
+\algblockdefx{Repeat}{Until}{%
+    \Keyword{repeat}%
+}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{until}~}%
+    \stepcounter{ALG@nested}%  'until' is already in outter level
+    \Keyword{until}~\algparbox[#1]{#2}{0pt}%
+    \addtocounter{ALG@nested}{-1}%
+}
+
+%% If
+\algblockdefx[If]{If}{EndIf}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{if}~}%
+    \Keyword{if}~\algparbox[#1]{#2~\Keyword{then}}{0pt}%
+}{%
+    \Keyword{end}~\Keyword{if}%
+}
+% + else if
+\algcblockdefx[If]{If}{ElsIf}{EndIf}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{else}~\Keyword{if}~}%
+    \Keyword{else}~\Keyword{if}~\algparbox[#1]{#2~\Keyword{then}}{0pt}%
+}{%
+    \Keyword{end}~\Keyword{if}%
+}
+% + else
+\algcblockdefx[If]{If}{Else}{EndIf}[1][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{else}~}%
+    \Keyword{else}~\algparbox[#1]{}{0pt}%
+}[1][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{end}~\Keyword{if}~}%
+    \Keyword{end}~\Keyword{if}~\algparbox[#1]{}{0pt}%
+}
+
+\RenewDocumentCommand{\If}{ O{} m O{} }{%
+    \begingroup%
+    \axp@ProcessCommandOptions{#1}{#3}%
+    \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
+}
+\RenewDocumentCommand{\ElsIf}{ O{} m O{} }{%
+    \axp@ProcessCommandOptions{#1}{#3}%
+    \ALG@makeentity{ElsIf}[\axp@CurrentComment]{#2}%
+}
+\RenewDocumentCommand{\Else}{ O{} }{%
+    \axp@ProcessCommandOptions{}{#1}%
+    \ALG@makeentity{Else}[\axp@CurrentComment]%
+}
+\RenewDocumentCommand{\EndIf}{ O{} }{%
+    \axp@ProcessCommandOptions{}{#1}%
+    \ALG@makeentity{EndIf}[\axp@CurrentComment]%
+    \endgroup
+}
+
+
+%% Switch, case, otherwise
+\algblockdefx{Switch}{EndSwitch}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{switch}~}%
+    \Keyword{switch}~\algparbox[#1]{#2}{0pt}%
+}
+{%
+    \Keyword{end}~\Keyword{switch}%
+}
+\algblockdefx{Case}{EndCase}%
+[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{case}~}%
+    \Keyword{case}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}
+{\Keyword{end}~\Keyword{case}}
+
+\algblockdefx[Otherwise]{Otherwise}{EndOtherwise}{%
+    \Keyword{otherwise}~\Keyword{do}%
+}{%
+    \Keyword{end}~\Keyword{otherwise}%
+}
+
+
+% \newcommand{\Range}[3][]{%
+%     \ensuremath{%
+%         #2%
+%         \def\temp{#1}%
+%         \mathcal{\ldotp\ldotp}#3
+%         \ifx\temp\empty\relax\else{\ensuremath{\mathcal{:}#1}}\fi%
+%     }%
+% }
+%
+%% For, for each, for all
+\algblockdefx{For}{EndFor}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{for}~}%
+    \Keyword{for}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}{%
+    \Keyword{end}~\Keyword{for}%
+}
+\algblockdefx{ForEach}{EndFor}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{foreach}~}%
+    \Keyword{foreach}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}{%
+    \Keyword{end}\~\Keyword{for}%
+}
+\algblockdefx{ForAll}{EndFor}[2][]{%
+    \settowidth{\axp@CurrentIndent}{\Keyword{forall}~}%
+    \Keyword{forall}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+}{%
+    \Keyword{end}~\Keyword{for}%
+}
+
+% %% Procedure, function, calls
+% \newlength{\axp@procedurewidth}
+% \newlength{\axp@namewidth}
+% \algblockdefx{Procedure}{EndProcedure}%
+% [3][]{%
+%     \settowidth{\axp@procedurewidth}{\algorithmicprocedure~}%
+%     \settowidth{\axp@namewidth}{\textsc{#2}(}%
+%     \addtolength{\axp@procedurewidth}{0.6\axp@namewidth}%
+%     \algparbox[#1]{\algorithmicprocedure\ \textsc{#2}(#3)}{0pt}
+% }%
+% {\Keyword{end}\ \algorithmicprocedure}
+% \newlength{\axp@functionwidth}
+% \algblockdefx{Function}{EndFunction}%
+% [3][]{%
+%     \settowidth{\axp@functionwidth}{\algorithmicfunction~}%
+%     \settowidth{\axp@namewidth}{\textsc{#2}(}%
+%     \addtolength{\axp@functionwidth}{0.6\axp@namewidth}%
+%     \algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{0pt}
+% }%
+% {\Keyword{end}\ \algorithmicfunction}
+% \algrenewcommand\Call[2]{%
+%     \def\argstmp{#2}%
+%     \textsc{#1}\ifx\argstmp\empty\mbox{(\hskip0.5ex)}\else(#2)\fi%
+% }
+
+%% NewLine
+\newcommand{\NewLine}{\par}
+
+% %% DefineCode, UseCode, \ShowCode
+% \newenvironment{DefineCode}[1]
+% {\begingroup\tcbverbatimwrite{\jobname_code_#1.tmp}}
+% {\endtcbverbatimwrite\endgroup}
+% \newcommand{\UseCode}[1]{\input{\jobname_code_#1.tmp}}
+% \newcommand{\ShowCode}[2][]{{\small\VerbatimInput[tabsize=4, #1]%
+% {\jobname_code_#2.tmp}}}
+%
+% \algrenewcommand{\alglinenumber}[1]{%
+%     \hspace{-1.5em}\color{black!35}{\scriptsize#1}\raisebox{0.2ex}{\tiny$\blacktriangleright$}%
+% }
+%
+%% axp@algparbox
+\newlength{\axp@commentwidth}
+\setlength{\axp@commentwidth}{0pt}
+\newcommand{\algparbox}[3][]{\axp@algparbox{#1}{#2}{#3}{1}}
+
+\newlength{\axp@largestcommentwidth}
+\setlength{\axp@largestcommentwidth}{0.3\linewidth}
+%! formatter = off
+\newcommand{\axp@algparbox}[4]{%
+    \begingroup%
+    \def\temp{#1}%
+    \ifx\temp\relax%
+    \setlength{\axp@commentwidth}{-2em}%
+    \else%
+    \settowidth{\axp@commentwidth}{\axp@commentleftsymbol~#1}%
+    \ifdim\axp@commentwidth>\axp@largestcommentwidth\relax%
+    \setlength{\axp@commentwidth}{\axp@largestcommentwidth}%
+    \fi%
+    \fi%
+    \RenewDocumentCommand{\NewLine}{}{%
+        \\\hspace{#3}%
+    % \raisebox{0.2ex}{\scalebox{0.75}{\rotatebox{90}{$\curvearrowleft$}~}}%
+    }%
+    % \setlength{\fboxsep}{0pt}\fbox{%
+        \begin{minipage}[t]{\dimexpr\linewidth - (\algorithmicindent)*(\theALG@nested - 1) - \axp@CurrentIndent - \axp@commentwidth - 2em}
+            \setlength{\hangindent}{#3}%
+            \begin{flushleft}
+                #2%
+            \end{flushleft}
+        \end{minipage}\strut%
+    % }%
+    \ifx\temp\relax\else%
+    \hfill\axp@commentleftsymbol\hspace{0.25em}%
+    % \fbox{%
+        \parbox[t]{\axp@commentwidth}{\slshape\RaggedRight#1}%
+    % }%
+    \fi%
+    \endgroup%
+}
+%! formatter = on
+
+
+% \lstset{
+%     literate=
+%         {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+%         {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+%         {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+%         {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+%         {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+%         {ã}{{\~a}}1 {õ}{{\~o}}1
+%         {Ã}{{\~A}}1 {Õ}{{\~O}}1
+%         {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+%         {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+%         {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+%         {ç}{{\c c}}1 {Ç}{{\c C}}1
+%         {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+%         {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1
+%         {ß}{{\ss}}1
+%         {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+%         {£}{{\pounds}}1
+%         {«}{{\guillemotleft}}1
+%         {»}{{\guillemotright}}1
+%         {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+% }
+%
+% \pgfkeys{
+%     algxpar/.cd,
+%     brazilian/.code = {\axp@languagebrazilian},
+%     english/.code = {\axp@languageenglish},
+%     default/.code = {\axp@languageenglish},
+% }
+% \newcommand{\algxparset}[1]{
+%     \pgfkeys{
+%         algxpar/.cd,
+%         #1
+%     }
+% }
+
+%! formatter = off
+\ifaxp@NoEnd
+\algtext*{EndWhile}
+\algtext*{EndFor}
+\algtext*{EndLoop}
+\algtext*{EndIf}
+\algtext*{EndProcedure}
+\algtext*{EndFunction}
+\algtext*{EndSwitch}
+\algtext*{EndCase}
+\algtext*{EndOtherwise}
+\fi
+%! formatter = on
