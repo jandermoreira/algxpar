@@ -1,5 +1,7 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
+    <option name="FORMATTER_ON_TAG" value="formatter = on" />
+    <option name="FORMATTER_OFF_TAG" value="formatter = off" />
     <Latex>
       <option name="INDENT_DOCUMENT_ENVIRONMENT" value="false" />
     </Latex>

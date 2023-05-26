@@ -130,7 +130,7 @@
 \NewDocumentEnvironment{macro}{ m O{} }{
     \index{#1@\texttt{\textbackslash#1}}
     \noindent
-    $\triangleright$~\Macro{#1}#2
+    $\triangleright$ ~\Macro{#1}#2
     \par
     }{
     \par
@@ -148,171 +148,177 @@
 \maketitle
 \sloppy
 
-\begin{abstract}
-    The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multiline text with the proper indentation.
-\end{abstract}
-
-\tableofcontents
-\vspace{2em}
-
-% \changes{v0.9}{2019/10/24}{First version}
-% \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
-% \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
-% \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
-
-
-\section{Introduction}
-I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
-
-As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
-
-Unfortunately, \PackageName{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
-
-
-\section{Package usage and options}
-To use the package simply add it to preamble.
-
-\usemintedstyle{tango}
-\newminted{latex}{autogobble}
-
-\begin{latexcode}
-    \usepackage{algxpar}
-\end{latexcode}
-% Package options:
-% \begin{itemize}
-%     \item[\texttt{noend}] Suppress the line at the end of a block.
-%     \item[\texttt{english}] Selects english keywords (default).
-%     \item[\texttt{brazilian}] Selects portuguese/brazilian keywords.
-% \end{itemize}
+% \begin{abstract}
+%     The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multiline text with the proper indentation.
+% \end{abstract}
+%
+% \tableofcontents
+% \vspace{2em}
+%
+% % \changes{v0.9}{2019/10/24}{First version}
+% % \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
+% % \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
+% % \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
 %
 %
-% \section{Writting pseudocode}
-% All pseudocode is written inside the \texttt{algorithmic} environment.
+% \section{Introduction}
+% I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
 %
-% \subsection{Documentation}
-% A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
-\begin{macro}{Description}
-    General description of the pseudocode.
-\end{macro}
-\begin{macro}{Require}
-    The required initial state that the code relies on. These are \textit{preconditions}.
-\end{macro}
-\begin{macro}{Ensure}
-    The final state produced by the code. These are \textit{preconditions}.
-\end{macro}
-
-\begin{tcblisting}{}
-    \begin{algorithmic}
-        \Description Calculation of the factorial of a natural number through successive multiplications
-        \Require $n \in \mathbb{N}$
-        \Ensure $f = n!$
-    \end{algorithmic}
-\end{tcblisting}
+% As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
 %
-% Also are provided:
-% \DescribeMacro{Input}{Inputs.}
-% \DescribeMacro{Output}{Outputs}
+% Unfortunately, \PackageName{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
+%
+%
+% \section{Package usage and options}
+% To use the package simply add it to preamble.
+%
+% \usemintedstyle{tango}
+% \newminted{latex}{autogobble}
+%
+% \begin{latexcode}
+%     \usepackage{algxpar}
+% \end{latexcode}
+% % Package options:
+% % \begin{itemize}
+% %     \item[\texttt{noend}] Suppress the line at the end of a block.
+% %     \item[\texttt{english}] Selects english keywords (default).
+% %     \item[\texttt{brazilian}] Selects portuguese/brazilian keywords.
+% % \end{itemize}
+% %
+% %
+% % \section{Writting pseudocode}
+% % All pseudocode is written inside the \texttt{algorithmic} environment.
+% %
+% % \subsection{Documentation}
+% % A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
+% \begin{macro}{Description}
+%     General description of the pseudocode.
+% \end{macro}
+% \begin{macro}{Require}
+%     The required initial state that the code relies on. These are \textit{preconditions}.
+% \end{macro}
+% \begin{macro}{Ensure}
+%     The final state produced by the code. These are \textit{preconditions}.
+% \end{macro}
 %
 % \begin{tcblisting}{}
 %     \begin{algorithmic}
 %         \Description Calculation of the factorial of a natural number through successive multiplications
-%         \Input $n$ (integer)
-%         \Output $n!$ (integer)
+%         \Require $n \in \mathbb{N}$
+%         \Ensure $f = n!$
 %     \end{algorithmic}
 % \end{tcblisting}
+% %
+% % Also are provided:
+% % \DescribeMacro{Input}{Inputs.}
+% % \DescribeMacro{Output}{Outputs}
+% %
+% % \begin{tcblisting}{}
+% %     \begin{algorithmic}
+% %         \Description Calculation of the factorial of a natural number through successive multiplications
+% %         \Input $n$ (integer)
+% %         \Output $n!$ (integer)
+% %     \end{algorithmic}
+% % \end{tcblisting}
+% %
+% % \subsection{Constants and Identifiers}
+% %
+% % Constants: \True, \False\ and \Nil.
+% %
+% % Identifiers: |\Id{}|.
+% %
+% % \subsection{Assignments and I/O}
+% %
+% % \subsection{Comments}
+% %
+% % \subsection{Statements}
+% %
+% % The macro |\State| can still be used and was left unchanged. A replacement statement macro is |\Statep|.
+% %
+% % \subsection{Flow Control}
+% %
+% % \subsection{Procedures and Functions}
+% %
+% % \begin{tcblisting}{}
+% %     \begin{algorithmic}
+% %         \While{\False}
+% %         \EndWhile
+% %         \If{\True ou \False}
+% %             \Statep{Say ok}
+% %         \ElsIf{$a>\alpha$}
+% %         \ElsIf{$b>\beta$}[languages/else = intonces\ldots]
+% %         \Else[language = brazilian]
+% %         \EndIf[language = english]
+% %         \ForAll{}
+% %         \EndFor
+% %     \end{algorithmic}
+% % \end{tcblisting}
+% %
+% %
+% % \section{Customization and Fine Tunning}
+% %
+% % %
+% %
+% \begin{macro}{Keyword}[\OptionalArgument{language}\MandatoryArgument{keyword}]
+%     Macros like \Macro{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \Macro{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
+%     If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
 %
-% \subsection{Constants and Identifiers}
+%     Section~\ref{sec:languages} shows the predefined keywords.
 %
-% Constants: \True, \False\ and \Nil.
+%     \begin{tcblisting}{}
+%         In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
+%     \end{tcblisting}
+% \end{macro}
 %
-% Identifiers: |\Id{}|.
+% \begin{macro}{SetKeyword}[\OptionalArgument{language}\MandatoryArgument{keyword}\MandatoryArgument{value}]
+%     The macro \Macro{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
+%     If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
+% \end{macro}
 %
-% \subsection{Assignments and I/O}
-%
-% \subsection{Comments}
-%
-% \subsection{Statements}
-%
-% The macro |\State| can still be used and was left unchanged. A replacement statement macro is |\Statep|.
-%
-% \subsection{Flow Control}
-%
-% \subsection{Procedures and Functions}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \While{\False}
-%         \EndWhile
-%         \If{\True ou \False}
-%             \Statep{Say ok}
-%         \ElsIf{$a>\alpha$}
-%         \ElsIf{$b>\beta$}[languages/else = intonces\ldots]
-%         \Else[language = brazilian]
-%         \EndIf[language = english]
-%         \ForAll{}
-%         \EndFor
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-%
-% \section{Customization and Fine Tunning}
 %
 % %
-%
-\begin{macro}{Keyword}[\OptionalArgument{language}\MandatoryArgument{keyword}]
-    Macros like \Macro{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \Macro{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
-    If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
-
-    Section~\ref{sec:languages} shows the predefined keywords.
-
-    \begin{tcblisting}{}
-        In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
-    \end{tcblisting}
-\end{macro}
-
-\begin{macro}{SetKeyword}[\OptionalArgument{language}\MandatoryArgument{keyword}\MandatoryArgument{value}]
-    The macro \Macro{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
-    If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
-\end{macro}
-
-
-
-%
-% \makeatletter
-% \RenewDocumentCommand{\If}{ O{} m O{} }{%
-%     \axp@ProcessCommandOptions{#1}{#3}%
-%     \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
-% }
-% \appto{\EndIf}{\endgroup}
-%
-% \RenewDocumentCommand{\Switch}{ O{} m O{} }{%
-%     \axp@ProcessCommandOptions{#1}{#3}%
-%     \ALG@makeentity{Switch}[\axp@CurrentComment]{#2}%
-% }
-% \appto{\EndSwitch}{\endgroup}
-% \makeatother
-%
-%
-% \begin{algorithmic}
-%     \If{abc and \Nil}[language = brazilian, languages/end = fim do meu querido, comment is here]
-%         \Statep{teste}
-%     \EndIf%\endgroup
-%     \While{abc}
-%         \Statep{x}
-%     \EndWhile
-% \end{algorithmic}
-% %
-% % \AlgSet{
-% %     brazilian
+% % \makeatletter
+% % \RenewDocumentCommand{\If}{ O{} m O{} }{%
+% %     \axp@ProcessCommandOptions{#1}{#3}%
+% %     \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
 % % }
-% % \AlgLanguageSet{brazilian}{switch = selecione a partir de}
+% % \appto{\EndIf}{\endgroup}
+% %
+% % \RenewDocumentCommand{\Switch}{ O{} m O{} }{%
+% %     \axp@ProcessCommandOptions{#1}{#3}%
+% %     \ALG@makeentity{Switch}[\axp@CurrentComment]{#2}%
+% % }
+% % \appto{\EndSwitch}{\endgroup}
+% % \makeatother
+% %
 % %
 % % \begin{algorithmic}
-% %     \Switch{asdf}[something in here a little longer, languages/switch = selecione]
-% %     \Statep{$v \gets \True$}
-% %     \EndSwitch
+% %     \If{abc and \Nil}[language = brazilian, languages/end = fim do meu querido, comment is here]
+% %         \Statep{teste}
+% %     \EndIf%\endgroup
+% %     \While{abc}
+% %         \Statep{x}
+% %     \EndWhile
 % % \end{algorithmic}
-%
+% % %
+% % % \AlgSet{
+% % %     brazilian
+% % % }
+% % % \AlgLanguageSet{brazilian}{switch = selecione a partir de}
+% % %
+% % % \begin{algorithmic}
+% % %     \Switch{asdf}[something in here a little longer, languages/switch = selecione]
+% % %     \Statep{$v \gets \True$}
+% % %     \EndSwitch
+% % % \end{algorithmic}
+% %
+
+\begin{algorithmic}
+    \While[asdf]{something}[adfsadfadf]
+        \State x
+    \EndWhile
+\end{algorithmic}
+
 \clearpage
 \printindex
 
