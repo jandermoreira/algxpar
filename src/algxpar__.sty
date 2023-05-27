@@ -20,8 +20,9 @@
 \RequirePackage{fancyvrb} % to load verbatim preserving tabs
 \RequirePackage{pgfopts}
 
-\ExplSyntaxOn
+
 %%% Internal commands
+\ExplSyntaxOn
 
 % set_keyword:nnn creates or update a keyword in a language
 % #1: language (e.g., brazilian)
@@ -70,102 +71,24 @@
     \exp_args:NNnV \RenewDocumentCommand #1 { } { #2 }
 }
 
-% \axp@ProcessCommandOptions: process command options
-% #1: comment (earlier version, before command text)
-% #2: options to the command
-\NewDocumentCommand{\axp@ProcessCommandOptions}{ m m }{
-    \def\temp{#1}
-    %! formatter = off
-    \ifx\temp\emtpy
-    \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
-    \else
-    \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
-    \fi
-    %! formatter = on
-    \pgfkeys{
-        /algxpar/.cd,
-        .unknown/.code = {
-            \RenewFullyExpandedDocumentCommand{\axp@CurrentComment}{\pgfkeyscurrentname}
-        }
-    }
-    \pgfkeys{
-        /algxpar/.cd,
-        #2,
-    }
-}
-
-% axp@DefineCommand: defines command structure
-% #1: keyword (e.g, while)
-% #2: block text (e.g. a > 0)
-% #3: complement keyword (e.g. do)
-% #4: comment text
-% #5: options
-\NewDocumentCommand{\axp@DefineCommand}{ m m m m m }{
-    \DeclareDocumentCommand{\axp@CommandKeyword}{}{#1}
-    \DeclareDocumentCommand{\axp@CommandText}{}{#2}
-    \DeclareDocumentCommand{\axp@CommandComplementKeyword}{}{#3}
-    \DeclareDocumentCommand{\axp@CommentText}{}{#4}
-    \DeclareDocumentCommand{\axp@CommandOptions}{}{#5}
-}
-
 \ExplSyntaxOff
 
-% axp@MakeSingleToken: texto before and after only if token has some width
-% #1: text before toke
-% #2: token
-% #3: text after token
-\newlength{\axp@TokenWidth}
-\NewDocumentCommand{\axp@MakeSingleToken}{ m m m }{%
-    \settowidth{\axp@TokenWidth}{#2}%
-    \ifdim\axp@TokenWidth>0pt\relax#1\fi%
-    #2%
-    \ifdim\axp@TokenWidth>0pt\relax#3\fi%
-}
-
-% axp@MakeCommand: builds the command (see axp@DefineCommand)
-\newlength{\axp@CurrentTokenWidth}
-\NewDocumentCommand{\axp@MakeCommand}{ s }{%
-    \IfBooleanTF{#1}{%
-        \DeclareDocumentCommand{\axp@NestedAdjust}{}{0}%
-    }{%
-        \DeclareDocumentCommand{\axp@NestedAdjust}{}{1}%
-    }%
-    \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
-    \settowidth{\axp@CurrentTokenWidth}{\axp@MakeSingleToken{}{\axp@CommandKeyword}{~}}%
-    \setlength{\fboxsep}{0pt}\fbox{%
-        \parbox[t]{
-            \dimexpr \linewidth - \axp@CurrentTokenWidth -
-            (\algorithmicindent)*(\theALG@nested - \axp@NestedAdjust)
-        }{%
-            \axp@CommandText%
-            \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}%
-        }%
-    }%  fbox
-}
-
-
-%% Settings: general
-\pgfkeys{
-    /algxpar/.cd,
-    language/.store in = \axp@Language,
-    noend/.is if = axp@NoEnd,
-    .unknown/.code = {
-        \input{\pgfkeyscurrentname.kw}
-        \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
-    }
-}
-
+%% Settings
 \NewDocumentCommand{\axp@Language}{}{}  % current language
-\newif\ifaxp@NoEnd\axp@NoEndfalse  % if 'end' is used
+\newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
 
-\NewDocumentCommand{\AlgSet}{ > { \TrimSpaces } m }{
-    \pgfkeys{algxpar/.cd, #1}
+
+%% General options
+\pgfkeys{
+    /algxpar/options/.cd,
+    language/.store in = \axp@Language,
 }
 
-% general settings defaults
-\AlgSet{
-    language = english,
-    noend = false,
+\NewDocumentCommand{\AlgSet}{ > { \TrimSpaces } m }{%
+    \pgfkeys{
+        algxpar/options/.cd,
+        /utils/exec = \pgfkeysalsofrom{#1},
+    }%
 }
 
 
@@ -187,19 +110,118 @@
 \input{english.kw}  % always loads default language
 
 
-%% Package options (may change defaults)
+% general settings defaults
+\AlgSet{
+    language = english,
+}
+
+
+%% Package options
+\pgfkeys{
+    /algxpar/.cd,
+    language/.store in = \axp@Language,
+    noend/.is if = axp@NoEnd,
+    .unknown/.code = {
+        \input{\pgfkeyscurrentname.kw}
+        \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
+    }
+}
+\pgfkeys{
+    /algxpar/.cd,
+    language = english,
+    noend = false,
+}
 \ProcessPgfOptions{/algxpar}
 
 
+% % \axp@ProcessCommandOptions: process command options
+% % #1: comment (earlier version, before command text)
+% % #2: options to the command
+% \NewDocumentCommand{\axp@ProcessCommandOptions}{ m m }{
+%     \def\temp{#1}
+%     %! formatter = off
+%     \ifx\temp\emtpy
+%     \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
+%     \else
+%     \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
+%     \fi
+%     %! formatter = on
+%     \pgfkeys{
+%         /algxpar/.cd,
+%         .unknown/.code = {
+%             \RenewFullyExpandedDocumentCommand{\axp@CurrentComment}{\pgfkeyscurrentname}
+%         }
+%     }
+%     \pgfkeys{
+%         /algxpar/.cd,
+%         #2,
+%     }
+% }
+
+
+% axp@DefineCommand: defines command structure
+% #1: keyword (e.g, while)
+% #2: block text (e.g. a > 0)
+% #3: complement keyword (e.g. do)
+% #4: comment text
+% #5: options
+\NewDocumentCommand{\axp@DefineCommand}{ m m m m m }{%
+    \DeclareDocumentCommand{\axp@CommandKeyword}{}{#1}%
+    \DeclareDocumentCommand{\axp@CommandText}{}{#2}%
+    \DeclareDocumentCommand{\axp@CommandComplementKeyword}{}{#3}%
+    \DeclareDocumentCommand{\axp@CommentText}{}{#4}%
+    \def\axp@CommandOptions{#5}% def: to be accepeted in \pgfkeysalsofrom
+}
+
+
+% axp@MakeSingleToken: texto before and after only if token has some width
+% #1: text before toke
+% #2: token
+% #3: text after token
+\newlength{\axp@TokenWidth}
+\NewDocumentCommand{\axp@MakeSingleToken}{ m m m }{%
+    \settowidth{\axp@TokenWidth}{#2}%
+    \ifdim\axp@TokenWidth>0pt\relax#1\fi%
+    #2%
+    \ifdim\axp@TokenWidth>0pt\relax#3\fi%
+}
+
+% axp@MakeCommand: builds the command (see axp@DefineCommand)
+\newlength{\axp@CurrentTokenWidth}
+\NewDocumentCommand{\axp@MakeCommand}{ s }{%
+    % \begingroup%
+    \AlgSet{\axp@CommandOptions}%
+    \IfBooleanTF{#1}{%
+        \DeclareDocumentCommand{\axp@NestedAdjust}{}{0}%
+    }{%
+        \DeclareDocumentCommand{\axp@NestedAdjust}{}{1}%
+    }%
+    \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
+    \settowidth{\axp@CurrentTokenWidth}{\axp@MakeSingleToken{}{\axp@CommandKeyword}{~}}%
+    % \setlength{\fboxsep}{0pt}\fbox{%
+        \parbox[t]{
+            \dimexpr \linewidth - \axp@CurrentTokenWidth -
+            (\algorithmicindent)*(\theALG@nested - \axp@NestedAdjust)
+        }{%
+            \axp@CommandText%
+            \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}\strut%
+        }\strut%
+    % }%  fbox
+    % \endgroup%
+}
+
+
+
 %% Keyword quick references
-\NewDocumentCommand{\To}{}{ \Keyword{to} }
-\NewDocumentCommand{\DownTo}{}{ \Keyword{downto} }
-\NewDocumentCommand{\Step}{}{ \Keyword{step} }
+\NewDocumentCommand{\To}{}{\axp@MakeSingleToken{ }{\Keyword{to}}{ }}
+\NewDocumentCommand{\DownTo}{}{\axp@MakeSingleToken{ }{\Keyword{downto}}{ }}
+\NewDocumentCommand{\Step}{}{\axp@MakeSingleToken{ }{\Keyword{step}}{ }}
+
 \NewDocumentCommand{\True}{}{\Constant{true}}
 \NewDocumentCommand{\False}{}{\Constant{false}}
 \NewDocumentCommand{\Nil}{}{\Constant{nil}}
 
-% \newcommand{\Id}[1]{\ensuremath{\textit{\rmfamily#1}}}
+\newcommand{\Id}[1]{\ensuremath{\textit{\rmfamily#1}}}
 % \newcommand{\TextString}[1]{\textrm{\normalfont``{\ttfamily\mbox{#1}}''}}
 % \algnewcommand{\VisibleSpace}{\textrm{\color{black!70}\textvisiblespace}}
 
@@ -236,11 +258,11 @@
 \setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
 \algnewcommand{\Statep}[2][]{%
     \setlength{\axp@CurrentIndent}{0.75pt}%  I don't know why
-    \State\algparbox[#1]{#2}{1.5em}%
+    \State\algparbox[#1]{#2}{1.5em}(\the\ALG@tlm)%
 }
 %
 %% While
-\algblockdefx{While}{EndWhile}{\axp@MakeCommand}{\axp@MakeCommand*}
+\algblockdefx{While}{EndWhile}{\axp@MakeCommand[\the\ALG@tlm]}{\axp@MakeCommand*(\the\ALG@tlm)}
 
 % #1: (optional) old style comment
 % #2: text
@@ -248,11 +270,14 @@
 % #4: comment
 \RenewDocumentCommand{\While}{ O{} m O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{while}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    % \begingroup%
     \ALG@makeentity{While}%
 }
 \RenewDocumentCommand{\EndWhile}{ O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{end}~\Keyword{while}}{}{}{#1}{#2}%
     \ALG@makeentity{EndWhile}%
+    % \endgroup%
+    % \addtolength\ALG@tlm{-\csname ALG@ind@\theALG@nested\endcsname}%
 }
 
 
@@ -289,22 +314,22 @@
     \Keyword{end}~\Keyword{if}~\algparbox[#1]{}{0pt}%
 }
 
-\RenewDocumentCommand{\If}{ O{} m O{} }{%
-    \axp@ProcessCommandOptions{#1}{#3}%
-    \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
-}
-\RenewDocumentCommand{\ElsIf}{ O{} m O{} }{%
-    \axp@ProcessCommandOptions{#1}{#3}%
-    \ALG@makeentity{ElsIf}[\axp@CurrentComment]{#2}%
-}
-\RenewDocumentCommand{\Else}{ O{} }{%
-    \axp@ProcessCommandOptions{}{#1}%
-    \ALG@makeentity{Else}[\axp@CurrentComment]%
-}
-\RenewDocumentCommand{\EndIf}{ O{} }{%
-    \axp@ProcessCommandOptions{}{#1}%
-    \ALG@makeentity{EndIf}[\axp@CurrentComment]%
-}
+% \RenewDocumentCommand{\If}{ O{} m O{} }{%
+%     \axp@ProcessCommandOptions{#1}{#3}%
+%     \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
+% }
+% \RenewDocumentCommand{\ElsIf}{ O{} m O{} }{%
+%     \axp@ProcessCommandOptions{#1}{#3}%
+%     \ALG@makeentity{ElsIf}[\axp@CurrentComment]{#2}%
+% }
+% \RenewDocumentCommand{\Else}{ O{} }{%
+%     \axp@ProcessCommandOptions{}{#1}%
+%     \ALG@makeentity{Else}[\axp@CurrentComment]%
+% }
+% \RenewDocumentCommand{\EndIf}{ O{} }{%
+%     \axp@ProcessCommandOptions{}{#1}%
+%     \ALG@makeentity{EndIf}[\axp@CurrentComment]%
+% }
 
 
 %% Switch, case, otherwise
@@ -442,14 +467,14 @@
 
 %! formatter = off
 \ifaxp@NoEnd
-\algtext*{EndWhile}
-\algtext*{EndFor}
-\algtext*{EndLoop}
-\algtext*{EndIf}
-\algtext*{EndProcedure}
-\algtext*{EndFunction}
-\algtext*{EndSwitch}
-\algtext*{EndCase}
-\algtext*{EndOtherwise}
+    \algtext*{EndWhile}
+    \algtext*{EndFor}
+    \algtext*{EndLoop}
+    \algtext*{EndIf}
+    \algtext*{EndProcedure}
+    \algtext*{EndFunction}
+    \algtext*{EndSwitch}
+    \algtext*{EndCase}
+    \algtext*{EndOtherwise}
 \fi
 %! formatter = on
