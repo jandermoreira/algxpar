@@ -1,10 +1,14 @@
 %! Author = Jander Moreira
 %! Date = 08/05/2023
-\documentclass[a4paper, 11pt]{article}
+\documentclass[a4paper, 11pt, twocolumn, landscape]{article}
 \usepackage[T1]{fontenc}
 
 \usepackage{amsfonts}
-\usepackage[brazilian, language = english]{algxpar__}
+\usepackage[
+    brazilian,
+    language = english
+]{algxpar__}
+
 \usepackage[showframe]{geometry}
 \geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 4cm}
 \usepackage[backref=page]{hyperref}
@@ -313,9 +317,35 @@
 % % % \end{algorithmic}
 % %
 
+\newcounter{state}
+\newcommand{\texto}{Do \rule{3cm}{1pt} \stepcounter{state}<<\thestate>>}
+
+% \setlength{\algorithmicindent}{10pt}
+
 \begin{algorithmic}
-    \While[asdf]{something}[adfsadfadf]
-        \State x
+    \While{something}
+        % \Statep{\texto}
+        % \While{something}
+        %     \Statep{\texto}
+        % \EndWhile
+        % \Statep{\texto}
+        % \While{something}
+        %     \Statep{\texto}
+        % \EndWhile
+        \While{something}
+            <language = brazilian>
+            \While{something}
+                \While{something}
+                    \While{something}
+                        \Statep{\texto}
+                    \EndWhile
+                    \Statep{--- --- \texto}
+                \EndWhile
+                \Statep{*** \texto}
+            \EndWhile
+            \Statep{\texto}
+        \EndWhile
+        \Statep{\texto}
     \EndWhile
 \end{algorithmic}
 
