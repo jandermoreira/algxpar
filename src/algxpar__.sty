@@ -258,11 +258,14 @@
 \setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
 \algnewcommand{\Statep}[2][]{%
     \setlength{\axp@CurrentIndent}{0.75pt}%  I don't know why
-    \State\algparbox[#1]{#2}{1.5em}(\the\ALG@tlm)%
+    \State\algparbox[#1]{#2}{1.5em}%
 }
 %
 %% While
-\algblockdefx{While}{EndWhile}{\axp@MakeCommand[\the\ALG@tlm]}{\axp@MakeCommand*(\the\ALG@tlm)}
+\algblockdefx{While}{EndWhile}{\axp@MakeCommand}{\axp@MakeCommand*}
+
+\newif\ifusegroup
+\usegroupfalse
 
 % #1: (optional) old style comment
 % #2: text
@@ -270,14 +273,21 @@
 % #4: comment
 \RenewDocumentCommand{\While}{ O{} m O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{while}}{#2}{\Keyword{do}}{#1#3}{#4}%
-    % \begingroup%
+    \ifusegroup\begingroup%
+    \fi%
     \ALG@makeentity{While}%
 }
 \RenewDocumentCommand{\EndWhile}{ O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{end}~\Keyword{while}}{}{}{#1}{#2}%
     \ALG@makeentity{EndWhile}%
-    % \endgroup%
-    % \addtolength\ALG@tlm{-\csname ALG@ind@\theALG@nested\endcsname}%
+    \ifusegroup%
+    \global\edef\axp@SaveIndent{\the\ALG@tlm}%
+    % ((\the\ALG@tlm/\axp@SaveIndent=%
+    \endgroup%
+    \setlength{\ALG@tlm}{\axp@SaveIndent}%
+    % \the\ALG@tlm/\axp@SaveIndent))%
+
+    \fi%
 }
 
 
