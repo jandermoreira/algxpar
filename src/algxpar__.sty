@@ -54,13 +54,13 @@
 % Keyword: returns a formatted keyword in the current language
 % #1: keyword (e.g. while)
 \NewDocumentCommand{\Keyword} { O{\axp@Language} m }{
-    \mbox{\axp@KeywordStyle\get_keyword:nn{#1}{#2}}
+    \mbox{\textcolor{\axp@KeywordColor}{\axp@KeywordFont\get_keyword:nn{#1}{#2}}}
 }
 
 % Constant: returns a formatted constant in the current language
 % #1: keyword (e.g. True)
 \NewDocumentCommand{\Constant} { m }{
-    \mbox{\axp@ConstantStyle\get_keyword:nn{\axp@Language}{#1}}
+    \mbox{\textcolor{\axp@ConstantColor}{\axp@ConstantFont\get_keyword:nn{\axp@Language}{#1}}}
 }
 
 % Module: returns a formatted name for a procedure ou function
@@ -68,6 +68,13 @@
 \NewDocumentCommand{\Module} { m }{
     \mbox{\axp@ModuleStyle\textsc{#1}}
 }
+
+% Module: returns a formatted name for a procedure ou function
+% #1: name
+\NewDocumentCommand{\CommentSymbol} { m }{
+    \mbox{\textcolor{\axp@CommentColor}{\axp@CommentFont\axp@CommentSymbol}}
+}
+
 
 % RenewFullyExpandedDocumentCommand: fully expands argument before
 %   renewing document command
@@ -91,12 +98,18 @@
     % language
     language/.store in = \axp@Language,
     % styles
+    text font/.store in = \axp@TextFont,
+    text color/.store in = \axp@TextColor,
     text style/.store in = \axp@TextStyle,
-    keyword style/.store in = \axp@KeywordStyle,
+    comment font/.store in = \axp@CommentFont,
     comment style/.store in = \axp@CommentStyle,
     comment color/.store in = \axp@CommentColor,
-    constant style/.store in = \axp@ConstantStyle,
-    module style/.store in = \axp@ModuleStyle,
+    keyword font/.store in = \axp@KeywordFont,
+    keyword color/.store in = \axp@KeywordColor,
+    constant font/.store in = \axp@ConstantFont,
+    constant color/.store in = \axp@ConstantColor,
+    module font/.store in = \axp@ModuleFont,
+    module color/.store in = \axp@ModuleColor,
     %
     comment symbol/.store in = \axp@CommentSymbol,
     maximum comment width/.code = {\setlength{\axp@MaximumCommentWidth}{#1}},
@@ -132,46 +145,45 @@
 % general settings defaults
 \AlgSet{
     language = english,
-    text style = {},
-    comment style = \slshape,
+    text font = ,
+    text color = .,
+    text style = \RaggedRight,
+    comment font = \slshape,
     comment color = .,
-    keyword style = \bfseries,
-    constant style = \scshape,
-    module style = \scshape,
-    comment symbol = $\vartriangleright$,
+    comment style = \RaggedRight,
+    keyword font = \bfseries,
+    keyword color = .,
+    constant font = \scshape,
+    constant color = .,
+    module font = \scshape,
+    module color = .,
+    comment symbol = $\triangleright$,
     maximum comment width = 0.35\linewidth,
 }
 
 \NewDocumentCommand{\axp@DisableEnds}{}{%
-    %! formatter = off
-    \ifaxp@NoEnd
-        \algtext*{EndWhile}
-        \algtext*{EndFor}
-        \algtext*{EndLoop}
-        \algtext*{EndIf}
-        \algtext*{EndProcedure}
-        \algtext*{EndFunction}
-        \algtext*{EndSwitch}
-        \algtext*{EndCase}
-        \algtext*{EndOtherwise}
-    \fi
-    %! formatter = on
+    \PackageWarning{algxpar}{Disabling ends}
+    \algtext*{EndWhile}%
+    \algtext*{EndFor}%
+    \algtext*{EndLoop}%
+    \algtext*{EndIf}%
+    \algtext*{EndProcedure}%
+    \algtext*{EndFunction}%
+    \algtext*{EndSwitch}%
+    \algtext*{EndCase}%
+    \algtext*{EndOtherwise}%
 }
 
 \NewDocumentCommand{\axp@EnableEnds}{}{%
-    %! formatter = off
-    \ifaxp@NoEnd
-        \algtext{EndWhile}
-        \algtext{EndFor}
-        \algtext{EndLoop}
-        \algtext{EndIf}
-        \algtext{EndProcedure}
-        \algtext{EndFunction}
-        \algtext{EndSwitch}
-        \algtext{EndCase}
-        \algtext{EndOtherwise}
-    \fi
-    %! formatter = on
+    \algtext{EndWhile}%
+    \algtext{EndFor}%
+    \algtext{EndLoop}%
+    \algtext{EndIf}%
+    \algtext{EndProcedure}%
+    \algtext{EndFunction}%
+    \algtext{EndSwitch}%
+    \algtext{EndCase}%
+    \algtext{EndOtherwise}%
 }
 
 %% Package options
@@ -278,7 +290,7 @@
         }%
     \else%
         % With comments
-        \settowidth{\axp@CommentSymbolWidth}{\axp@CommentSymbol~}%
+        \settowidth{\axp@CommentSymbolWidth}{\CommentSymbol{}~}%
         \ifdim\axp@CommentWidth>\axp@MaximumCommentWidth\relax%
             \axp@CommentWidth\axp@MaximumCommentWidth%
         \fi%
@@ -309,17 +321,20 @@
     \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
     \setlength{\fboxsep}{0pt}\fbox{%
         \parbox[t]{\axp@TextWidth}{%
-            {\axp@TextStyle\axp@CommandText}%
+            \RaggedRight%
+            \axp@TextStyle%
+            \textcolor{\axp@TextColor}{\axp@CommandText}%
             \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}\strut%
         }\strut%
     }%  fbox
     % Making the line: comment
     \ifaxp@NoCommentPresent\else%
-        \axp@CommentSymbol~%
+        \CommentSymbol{}~%
         \setlength{\fboxsep}{0pt}\fbox{%
             \parbox[t]{\axp@CommentWidth}{%
-                \axp@CommentStyle\color{\axp@CommentColor}%
-                \axp@CommentText\strut%
+                \RaggedRight%
+                \axp@CommentStyle%
+                \textcolor{\axp@CommentColor}{\axp@CommentFont\axp@CommentText}\strut%
             }\strut%
         }%  fbox
     \fi%
