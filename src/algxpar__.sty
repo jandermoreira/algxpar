@@ -54,13 +54,19 @@
 % Keyword: returns a formatted keyword in the current language
 % #1: keyword (e.g. while)
 \NewDocumentCommand{\Keyword} { O{\axp@Language} m }{
-    \textbf{\get_keyword:nn{#1}{#2}}
+    \mbox{\axp@KeywordStyle\get_keyword:nn{#1}{#2}}
 }
 
 % Constant: returns a formatted constant in the current language
 % #1: keyword (e.g. True)
 \NewDocumentCommand{\Constant} { m }{
-    \textsc{\get_keyword:nn{\axp@Language}{#1}}
+    \mbox{\axp@ConstantStyle\get_keyword:nn{\axp@Language}{#1}}
+}
+
+% Module: returns a formatted name for a procedure ou function
+% #1: name
+\NewDocumentCommand{\Module} { m }{
+    \mbox{\axp@ModuleStyle\textsc{#1}}
 }
 
 % RenewFullyExpandedDocumentCommand: fully expands argument before
@@ -74,15 +80,28 @@
 \ExplSyntaxOff
 
 %% Settings
-\NewDocumentCommand{\axp@Language}{}{}  % current language
+\newlength{\axp@MaximumCommentWidth}
 \newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
 
 
 %% General options
+%! formatter = off
 \pgfkeys{
     /algxpar/options/.cd,
+    % language
     language/.store in = \axp@Language,
+    % styles
+    text style/.store in = \axp@TextStyle,
+    keyword style/.store in = \axp@KeywordStyle,
+    comment style/.store in = \axp@CommentStyle,
+    comment color/.store in = \axp@CommentColor,
+    constant style/.store in = \axp@ConstantStyle,
+    module style/.store in = \axp@ModuleStyle,
+    %
+    comment symbol/.store in = \axp@CommentSymbol,
+    maximum comment width/.code = {\setlength{\axp@MaximumCommentWidth}{#1}},
 }
+%! formatter = on
 
 \NewDocumentCommand{\AlgSet}{ > { \TrimSpaces } m }{%
     \pgfkeys{
@@ -113,14 +132,53 @@
 % general settings defaults
 \AlgSet{
     language = english,
+    text style = {},
+    comment style = \slshape,
+    comment color = .,
+    keyword style = \bfseries,
+    constant style = \scshape,
+    module style = \scshape,
+    comment symbol = $\vartriangleright$,
+    maximum comment width = 0.35\linewidth,
 }
 
+\NewDocumentCommand{\axp@DisableEnds}{}{%
+    %! formatter = off
+    \ifaxp@NoEnd
+        \algtext*{EndWhile}
+        \algtext*{EndFor}
+        \algtext*{EndLoop}
+        \algtext*{EndIf}
+        \algtext*{EndProcedure}
+        \algtext*{EndFunction}
+        \algtext*{EndSwitch}
+        \algtext*{EndCase}
+        \algtext*{EndOtherwise}
+    \fi
+    %! formatter = on
+}
+
+\NewDocumentCommand{\axp@EnableEnds}{}{%
+    %! formatter = off
+    \ifaxp@NoEnd
+        \algtext{EndWhile}
+        \algtext{EndFor}
+        \algtext{EndLoop}
+        \algtext{EndIf}
+        \algtext{EndProcedure}
+        \algtext{EndFunction}
+        \algtext{EndSwitch}
+        \algtext{EndCase}
+        \algtext{EndOtherwise}
+    \fi
+    %! formatter = on
+}
 
 %% Package options
 \pgfkeys{
     /algxpar/.cd,
     language/.store in = \axp@Language,
-    noend/.is if = axp@NoEnd,
+    noend/.code = {\axp@NoEndtrue\axp@DisableEnds},
     .unknown/.code = {
         \input{\pgfkeyscurrentname.kw}
         \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
@@ -186,30 +244,87 @@
     \ifdim\axp@TokenWidth>0pt\relax#3\fi%
 }
 
+\newif\ifaxp@NoCommentPresent
+\newlength{\axp@TextWidth}
+\newlength{\axp@CommentWidth}
+
+% axp@CalculateDimensions: calculates the dimensions for the text and comment boxes
+% sets:
+% \axp@CommentWidth
+% \axp@NoCommetsPresent
+\NewDocumentCommand{\axp@CheckNoCommentPresent}{}{%
+    \settowidth{\axp@CommentWidth}{\axp@CommentText}%
+    %! formatter = off
+    \ifdim\axp@CommentWidth=0pt\relax%
+        \axp@NoCommentPresenttrue% no comments present
+    \else
+        \axp@NoCommentPresentfalse% yep, we have a comment here
+    \fi%
+    %! formatter = on
+}
+
+% axp@CalculateDimensions: evaluate space needed for text and comments
+% #1: nesting ajustment (1 when openning a block; 0 when closing)
+% sets:
+% \axp@TextWidth
+% \axp@CommentWidth, when needed
+\newlength{\axp@CommentSymbolWidth}
+\NewDocumentCommand{\axp@CalculateDimensions}{ m }{%
+    \axp@CheckNoCommentPresent%
+    %! formatter = off
+    \ifaxp@NoCommentPresent%
+        \setlength{\axp@TextWidth}{
+            \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
+        }%
+    \else%
+        % With comments
+        \settowidth{\axp@CommentSymbolWidth}{\axp@CommentSymbol~}%
+        \ifdim\axp@CommentWidth>\axp@MaximumCommentWidth\relax%
+            \axp@CommentWidth\axp@MaximumCommentWidth%
+        \fi%
+        \setlength{\axp@TextWidth}{
+            \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1) -
+            \axp@CommentWidth - \axp@CommentSymbolWidth
+        }%
+    \fi%
+    %! formatter = on
+}
+
+% todo: remove this command
+\renewcommand\fbox{\fcolorbox{.}{.!5}}
+
 % axp@MakeCommand: builds the command (see axp@DefineCommand)
 \newlength{\axp@CurrentTokenWidth}
 \NewDocumentCommand{\axp@MakeCommand}{ s }{%
-    % \begingroup%
     \AlgSet{\axp@CommandOptions}%
-    \IfBooleanTF{#1}{%
-        \DeclareDocumentCommand{\axp@NestedAdjust}{}{0}%
-    }{%
-        \DeclareDocumentCommand{\axp@NestedAdjust}{}{1}%
-    }%
-    \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
+    % Dimensions
     \settowidth{\axp@CurrentTokenWidth}{\axp@MakeSingleToken{}{\axp@CommandKeyword}{~}}%
-    % \setlength{\fboxsep}{0pt}\fbox{%
-        \parbox[t]{
-            \dimexpr \linewidth - \axp@CurrentTokenWidth -
-            (\algorithmicindent)*(\theALG@nested - \axp@NestedAdjust)
-        }{%
-            \axp@CommandText%
+    \IfBooleanTF{#1}{%
+        \axp@CalculateDimensions{0}% close block
+    }{%
+        \axp@CalculateDimensions{1}% open/continue block
+    }%
+    %! formatter = off
+    % Making the line: text
+    \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
+    \setlength{\fboxsep}{0pt}\fbox{%
+        \parbox[t]{\axp@TextWidth}{%
+            {\axp@TextStyle\axp@CommandText}%
             \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}\strut%
         }\strut%
-    % }%  fbox
-    % \endgroup%
+    }%  fbox
+    % Making the line: comment
+    \ifaxp@NoCommentPresent\else%
+        \axp@CommentSymbol~%
+        \setlength{\fboxsep}{0pt}\fbox{%
+            \parbox[t]{\axp@CommentWidth}{%
+                \axp@CommentStyle\color{\axp@CommentColor}%
+                \axp@CommentText\strut%
+            }\strut%
+        }%  fbox
+    \fi%
+    %! formatter = on
 }
-
 
 
 %% Keyword quick references
@@ -253,6 +368,13 @@
 
 \newlength{\axp@CurrentIndent}
 
+\NewDocumentCommand{\axp@BeginGroup}{}{\begingroup}
+\NewDocumentCommand{\axp@EndGroup}{}{%
+    \global\edef\axp@SaveIndent{\the\ALG@tlm}%
+    \endgroup%
+    \setlength{\ALG@tlm}{\axp@SaveIndent}%
+}
+
 %% Statep
 \newlength{\axp@stateindent}
 \setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
@@ -260,107 +382,137 @@
     \setlength{\axp@CurrentIndent}{0.75pt}%  I don't know why
     \State\algparbox[#1]{#2}{1.5em}%
 }
-%
+
+
 %% While
-\algblockdefx{While}{EndWhile}{\axp@MakeCommand}{\axp@MakeCommand*}
-
-\newif\ifusegroup
-\usegroupfalse
-
-% #1: (optional) old style comment
+\algblockdefx[While]{While}{EndWhile}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: old style comment
 % #2: text
-% #3: options
-% #4: comment
+% #3: comment
+% #4: options
 \RenewDocumentCommand{\While}{ O{} m O{} D<>{} }{%
+    \axp@BeginGroup
     \axp@DefineCommand{\Keyword{while}}{#2}{\Keyword{do}}{#1#3}{#4}%
-    \ifusegroup\begingroup%
-    \fi%
     \ALG@makeentity{While}%
 }
+% #1: comment
+% #2: options
 \RenewDocumentCommand{\EndWhile}{ O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{end}~\Keyword{while}}{}{}{#1}{#2}%
     \ALG@makeentity{EndWhile}%
-    \ifusegroup%
-    \global\edef\axp@SaveIndent{\the\ALG@tlm}%
-    % ((\the\ALG@tlm/\axp@SaveIndent=%
-    \endgroup%
-    \setlength{\ALG@tlm}{\axp@SaveIndent}%
-    % \the\ALG@tlm/\axp@SaveIndent))%
-
-    \fi%
+    \axp@EndGroup
 }
 
 
 %% Repeat
-\algblockdefx{Repeat}{Until}{%
-    \Keyword{repeat}%
-}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{until}~}%
-    \stepcounter{ALG@nested}%  'until' is already in outter level
-    \Keyword{until}~\algparbox[#1]{#2}{0pt}%
-    \addtocounter{ALG@nested}{-1}%
+\algblockdefx[Repeat]{Repeat}{Until}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: comments
+% #2: options
+\RenewDocumentCommand{\Repeat}{ O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{repeat}}{}{}{#1}{#2}%
+    \ALG@makeentity{Repeat}%
 }
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\Until}{ O{} m O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{until}}{#2}{}{#1#3}{#4}%
+    \ALG@makeentity{Until}%
+    \axp@EndGroup
+}
+
 
 %% If
-\algblockdefx[If]{If}{EndIf}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{if}~}%
-    \Keyword{if}~\algparbox[#1]{#2~\Keyword{then}}{0pt}%
-}{%
-    \Keyword{end}~\Keyword{if}%
-}
+\algblockdefx[If]{If}{EndIf}{\axp@MakeCommand}{\axp@MakeCommand*}
 % + else if
-\algcblockdefx[If]{If}{ElsIf}{EndIf}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{else}~\Keyword{if}~}%
-    \Keyword{else}~\Keyword{if}~\algparbox[#1]{#2~\Keyword{then}}{0pt}%
-}{%
-    \Keyword{end}~\Keyword{if}%
-}
+\algcblockdefx[If]{If}{ElsIf}{EndIf}{\axp@MakeCommand}{\axp@MakeCommand*}
 % + else
-\algcblockdefx[If]{If}{Else}{EndIf}[1][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{else}~}%
-    \Keyword{else}~\algparbox[#1]{}{0pt}%
-}[1][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{end}~\Keyword{if}~}%
-    \Keyword{end}~\Keyword{if}~\algparbox[#1]{}{0pt}%
+\algcblockdefx[If]{If}{Else}{EndIf}[1][]{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\If}{ O{} m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
+    \ALG@makeentity{If}%
+}
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\ElsIf}{ O{} m O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{else}~\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
+    \ALG@makeentity{ElsIf}%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\Else}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{else}}{}{}{#1}{#2}%
+    \ALG@makeentity{Else}%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndIf}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{if}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndIf}%
+    \axp@EndGroup
 }
 
-% \RenewDocumentCommand{\If}{ O{} m O{} }{%
-%     \axp@ProcessCommandOptions{#1}{#3}%
-%     \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
-% }
-% \RenewDocumentCommand{\ElsIf}{ O{} m O{} }{%
-%     \axp@ProcessCommandOptions{#1}{#3}%
-%     \ALG@makeentity{ElsIf}[\axp@CurrentComment]{#2}%
-% }
-% \RenewDocumentCommand{\Else}{ O{} }{%
-%     \axp@ProcessCommandOptions{}{#1}%
-%     \ALG@makeentity{Else}[\axp@CurrentComment]%
-% }
-% \RenewDocumentCommand{\EndIf}{ O{} }{%
-%     \axp@ProcessCommandOptions{}{#1}%
-%     \ALG@makeentity{EndIf}[\axp@CurrentComment]%
-% }
 
-
-%% Switch, case, otherwise
-\algblockdefx{Switch}{EndSwitch}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{switch}~}%
-    \Keyword{switch}~\algparbox[#1]{#2}{0pt}%
+%% Switch
+\algblockdefx[Switch]{Switch}{EndSwitch}{\axp@MakeCommand}{\axp@MakeCommand*}
+% + case
+\algblockdefx[Case]{Case}{EndCase}{\axp@MakeCommand}{\axp@MakeCommand*}
+% + otherwise
+\algblockdefx[Otherwise]{Otherwise}{EndOtherwise}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\Switch}{ O{} m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{switch}}{#2}{}{#1#3}{#4}%
+    \ALG@makeentity{Switch}%
 }
-{%
-    \Keyword{end}~\Keyword{switch}%
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndSwitch}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{switch}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndSwitch}%
+    \axp@EndGroup
 }
-\algblockdefx{Case}{EndCase}%
-[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{case}~}%
-    \Keyword{case}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\Case}{ O{} m O{} D<>{} }{%
+% \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{case}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{Case}%
 }
-{\Keyword{end}~\Keyword{case}}
-
-\algblockdefx[Otherwise]{Otherwise}{EndOtherwise}{%
-    \Keyword{otherwise}~\Keyword{do}%
-}{%
-    \Keyword{end}~\Keyword{otherwise}%
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndCase}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{case}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndCase}%
+% \axp@EndGroup
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\Otherwise}{ O{} D<>{} }{%
+% \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{otherwise}}{}{}{#1}{#2}%
+    \ALG@makeentity{Otherwise}%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndOtherwise}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{otherwise}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndOtherwise}%
+% \axp@EndGroup
 }
 
 
@@ -372,51 +524,85 @@
 %         \ifx\temp\empty\relax\else{\ensuremath{\mathcal{:}#1}}\fi%
 %     }%
 % }
-%
+
+
 %% For, for each, for all
-\algblockdefx{For}{EndFor}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{for}~}%
-    \Keyword{for}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
-}{%
-    \Keyword{end}~\Keyword{for}%
+\algblockdefx[For]{For}{EndFor}{\axp@MakeCommand}{\axp@MakeCommand*}
+\algblockdefx[For]{ForEach}{EndFor}{\axp@MakeCommand}{\axp@MakeCommand*}
+\algblockdefx[For]{ForAll}{EndFor}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\For}{ O{} m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{for}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{For}%
 }
-\algblockdefx{ForEach}{EndFor}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{foreach}~}%
-    \Keyword{foreach}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
-}{%
-    \Keyword{end}\~\Keyword{for}%
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\ForEach}{ O{} m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{foreach}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{ForEach}%
 }
-\algblockdefx{ForAll}{EndFor}[2][]{%
-    \settowidth{\axp@CurrentIndent}{\Keyword{forall}~}%
-    \Keyword{forall}~\algparbox[#1]{#2~\Keyword{do}}{0pt}%
-}{%
-    \Keyword{end}~\Keyword{for}%
+% #1: old style comment
+% #2: text
+% #3: comment
+% #4: options
+\RenewDocumentCommand{\ForAll}{ O{} m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{forall}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{For}%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndFor}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{for}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndFor}%
+    \axp@EndGroup
 }
 
-% %% Procedure, function, calls
-% \newlength{\axp@procedurewidth}
-% \newlength{\axp@namewidth}
-% \algblockdefx{Procedure}{EndProcedure}%
-% [3][]{%
-%     \settowidth{\axp@procedurewidth}{\algorithmicprocedure~}%
-%     \settowidth{\axp@namewidth}{\textsc{#2}(}%
-%     \addtolength{\axp@procedurewidth}{0.6\axp@namewidth}%
-%     \algparbox[#1]{\algorithmicprocedure\ \textsc{#2}(#3)}{0pt}
-% }%
-% {\Keyword{end}\ \algorithmicprocedure}
-% \newlength{\axp@functionwidth}
-% \algblockdefx{Function}{EndFunction}%
-% [3][]{%
-%     \settowidth{\axp@functionwidth}{\algorithmicfunction~}%
-%     \settowidth{\axp@namewidth}{\textsc{#2}(}%
-%     \addtolength{\axp@functionwidth}{0.6\axp@namewidth}%
-%     \algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{0pt}
-% }%
-% {\Keyword{end}\ \algorithmicfunction}
-% \algrenewcommand\Call[2]{%
-%     \def\argstmp{#2}%
-%     \textsc{#1}\ifx\argstmp\empty\mbox{(\hskip0.5ex)}\else(#2)\fi%
-% }
+
+%% Procedure, function, calls
+\newlength{\axp@procedurewidth}
+\newlength{\axp@namewidth}
+\algblockdefx[Procedure]{Procedure}{EndProcedure}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: old style comment
+% #2: name
+% #3: arguments
+% #4: comment
+% #5: options
+\RenewDocumentCommand{\Procedure}{ O{} m m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{procedure}~\Module{#2}(}{#3)}{}{#4}{#5}%
+    \ALG@makeentity{Procedure}%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndProcedure}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{procedure}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndProcedure}%
+    \axp@EndGroup
+}
+
+
+
+\newlength{\axp@functionwidth}
+\algblockdefx{Function}{EndFunction}%
+[3][]{%
+    \settowidth{\axp@functionwidth}{\algorithmicfunction~}%
+    \settowidth{\axp@namewidth}{\textsc{#2}(}%
+    \addtolength{\axp@functionwidth}{0.6\axp@namewidth}%
+    \algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{0pt}
+}%
+{\Keyword{end}\ \algorithmicfunction}
+\algrenewcommand\Call[2]{%
+    \def\argstmp{#2}%
+    \textsc{#1}\ifx\argstmp\empty\mbox{(\hskip0.5ex)}\else(#2)\fi%
+}
 
 %% NewLine
 \newcommand{\NewLine}{\par}
@@ -434,9 +620,12 @@
 % }
 %
 %% axp@algparbox
-\newlength{\axp@commentwidth}
+
+\endinput
+
 \setlength{\axp@commentwidth}{0pt}
 \newcommand{\algparbox}[3][]{\axp@algparbox{#1}{#2}{#3}{1}}
+
 
 \newlength{\axp@largestcommentwidth}
 \setlength{\axp@largestcommentwidth}{0.3\linewidth}
@@ -475,16 +664,3 @@
 %! formatter = on
 
 
-%! formatter = off
-\ifaxp@NoEnd
-    \algtext*{EndWhile}
-    \algtext*{EndFor}
-    \algtext*{EndLoop}
-    \algtext*{EndIf}
-    \algtext*{EndProcedure}
-    \algtext*{EndFunction}
-    \algtext*{EndSwitch}
-    \algtext*{EndCase}
-    \algtext*{EndOtherwise}
-\fi
-%! formatter = on
