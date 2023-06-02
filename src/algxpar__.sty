@@ -14,11 +14,11 @@
 \RequirePackage{algpseudocode}
 \RequirePackage{ragged2e}
 \RequirePackage{listings}
-\RequirePackage{amsmath, amssymb}
 \RequirePackage{xcolor}
 \RequirePackage{tcolorbox} % to save verbatim
 \RequirePackage{fancyvrb} % to load verbatim preserving tabs
 \RequirePackage{pgfopts}
+\RequirePackage{amssymb}
 
 
 %%% Internal commands
@@ -86,8 +86,36 @@
 
 \ExplSyntaxOff
 
+\NewDocumentCommand{\axp@DisableEnds}{}{%
+    \RenewDocumentCommand{\ALG@noend}{}{t}%
+    \algtext*{EndWhile}%
+    \algtext*{EndFor}%
+    \algtext*{EndLoop}%
+    \algtext*{EndIf}%
+    \algtext*{EndProcedure}%
+    \algtext*{EndFunction}%
+    \algtext*{EndSwitch}%
+    \algtext*{EndCase}%
+    \algtext*{EndOtherwise}%
+}
+
+\NewDocumentCommand{\axp@EnableEnds}{}{%
+    \RenewDocumentCommand{\ALG@noend}{}{f}%
+    \algrenewtext{EndWhile}{\Keyword{end}~\Keyword{while}}%
+    \algrenewtext{EndFor}{\Keyword{end}~\Keyword{for}}%
+    \algrenewtext{EndLoop}{\Keyword{end}~\Keyword{loop}}%
+    \algrenewtext{EndIf}{\Keyword{end}~\Keyword{if}}%
+    \algrenewtext{EndProcedure}{\Keyword{end}~\Keyword{procedure}}%
+    \algrenewtext{EndFunction}{\Keyword{end}~\Keyword{function}}%
+    \algrenewtext{EndSwitch}{\Keyword{end}~\Keyword{switch}}%
+    \algrenewtext{EndCase}{\Keyword{end}~\Keyword{case}}%
+    \algrenewtext{EndOtherwise}{\Keyword{end}~\Keyword{otherwise}}%
+}
+
+
 %% Settings
 \newlength{\axp@MaximumCommentWidth}
+\newlength{\axp@MinimumCommentWidth}
 \newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
 
 
@@ -113,6 +141,10 @@
     %
     comment symbol/.store in = \axp@CommentSymbol,
     maximum comment width/.code = {\setlength{\axp@MaximumCommentWidth}{#1}},
+    comment separator width/.store in = \axp@CommentSeparatorWidth,
+    %
+    disable ends/.code = {\axp@DisableEnds},
+    enable ends/.code = {\axp@EnableEnds},
 }
 %! formatter = on
 
@@ -158,39 +190,16 @@
     module font = \scshape,
     module color = .,
     comment symbol = $\triangleright$,
-    maximum comment width = 0.35\linewidth,
+    maximum comment width = 0.3\linewidth,
+    comment separator width = 1em,
 }
 
-\NewDocumentCommand{\axp@DisableEnds}{}{%
-    \PackageWarning{algxpar}{Disabling ends}
-    \algtext*{EndWhile}%
-    \algtext*{EndFor}%
-    \algtext*{EndLoop}%
-    \algtext*{EndIf}%
-    \algtext*{EndProcedure}%
-    \algtext*{EndFunction}%
-    \algtext*{EndSwitch}%
-    \algtext*{EndCase}%
-    \algtext*{EndOtherwise}%
-}
-
-\NewDocumentCommand{\axp@EnableEnds}{}{%
-    \algtext{EndWhile}%
-    \algtext{EndFor}%
-    \algtext{EndLoop}%
-    \algtext{EndIf}%
-    \algtext{EndProcedure}%
-    \algtext{EndFunction}%
-    \algtext{EndSwitch}%
-    \algtext{EndCase}%
-    \algtext{EndOtherwise}%
-}
 
 %% Package options
 \pgfkeys{
     /algxpar/.cd,
     language/.store in = \axp@Language,
-    noend/.code = {\axp@NoEndtrue\axp@DisableEnds},
+    noend/.is if = axp@NoEnd,
     .unknown/.code = {
         \input{\pgfkeyscurrentname.kw}
         \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
@@ -261,11 +270,12 @@
 \newlength{\axp@CommentWidth}
 
 % axp@CalculateDimensions: calculates the dimensions for the text and comment boxes
+% #1: comment
 % sets:
 % \axp@CommentWidth
 % \axp@NoCommetsPresent
-\NewDocumentCommand{\axp@CheckNoCommentPresent}{}{%
-    \settowidth{\axp@CommentWidth}{\axp@CommentText}%
+\NewDocumentCommand{\axp@CheckNoCommentPresent}{ m }{%
+    \settowidth{\axp@CommentWidth}{#1}%
     %! formatter = off
     \ifdim\axp@CommentWidth=0pt\relax%
         \axp@NoCommentPresenttrue% no comments present
@@ -277,12 +287,13 @@
 
 % axp@CalculateDimensions: evaluate space needed for text and comments
 % #1: nesting ajustment (1 when openning a block; 0 when closing)
+% #2: comment
 % sets:
 % \axp@TextWidth
 % \axp@CommentWidth, when needed
 \newlength{\axp@CommentSymbolWidth}
-\NewDocumentCommand{\axp@CalculateDimensions}{ m }{%
-    \axp@CheckNoCommentPresent%
+\NewDocumentCommand{\axp@CalculateDimensions}{ m m }{%
+    \axp@CheckNoCommentPresent{#2}%
     %! formatter = off
     \ifaxp@NoCommentPresent%
         \setlength{\axp@TextWidth}{
@@ -290,7 +301,7 @@
         }%
     \else%
         % With comments
-        \settowidth{\axp@CommentSymbolWidth}{\CommentSymbol{}~}%
+        \settowidth{\axp@CommentSymbolWidth}{\hspace{\axp@CommentSeparatorWidth}\CommentSymbol{}~}%
         \ifdim\axp@CommentWidth>\axp@MaximumCommentWidth\relax%
             \axp@CommentWidth\axp@MaximumCommentWidth%
         \fi%
@@ -302,40 +313,61 @@
     %! formatter = on
 }
 
-% todo: remove this command
-\renewcommand\fbox{\fcolorbox{.}{.!5}}
+% todo: remove these commands
+\renewcommand\fbox{\fcolorbox{.!20}{.!5}}
+\setlength{\fboxrule}{0.001pt}
+
 
 % axp@MakeCommand: builds the command (see axp@DefineCommand)
-\newlength{\axp@CurrentTokenWidth}
+% #1 (star): star = end block; no star = begin block
 \NewDocumentCommand{\axp@MakeCommand}{ s }{%
-    \AlgSet{\axp@CommandOptions}%
-    % Dimensions
-    \settowidth{\axp@CurrentTokenWidth}{\axp@MakeSingleToken{}{\axp@CommandKeyword}{~}}%
-    \IfBooleanTF{#1}{%
-        \axp@CalculateDimensions{0}% close block
-    }{%
-        \axp@CalculateDimensions{1}% open/continue block
+    \axp@DoCommand{%  ajustment for opening/closing blocks
+        \IfBooleanTF{#1}{0}{1}%
+    }{%  command
+        \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
+    }{%  text
+        \axp@CommandText%
+    }{%  command complement
+        \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}%
+    }{%  comment
+        \axp@CommentText%
+    }{%  options
+        \axp@CommandOptions%
     }%
-    %! formatter = off
-    % Making the line: text
-    \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
+}
+
+% axp@MakeCommand: builds the command (see axp@DefineCommand)
+% #1: 1 when openning block; 0 when closing
+% #2: command
+% #3: text
+% #4: command complement
+% #5: comment
+% #6: options
+\newlength{\axp@CurrentTokenWidth}
+\NewDocumentCommand{\axp@DoCommand}{ m m m m m m }{%
+    \AlgSet{#6}%
+    % Dimensions
+    \settowidth{\axp@CurrentTokenWidth}{#2}%
+    \axp@CalculateDimensions{#1}{#5}%
+    %
+    % Making the line: body
+    #2%
     \setlength{\fboxsep}{0pt}\fbox{%
         \parbox[t]{\axp@TextWidth}{%
-            \RaggedRight%
             \axp@TextStyle%
-            \textcolor{\axp@TextColor}{\axp@CommandText}%
-            \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}\strut%
-        }\strut%
+            \axp@TextFont%
+            \textcolor{\axp@TextColor}{#3}#4\strut%
+        }%
     }%  fbox
+    %! formatter = off
     % Making the line: comment
     \ifaxp@NoCommentPresent\else%
-        \CommentSymbol{}~%
+        \hspace{\axp@CommentSeparatorWidth}\CommentSymbol{}~%
         \setlength{\fboxsep}{0pt}\fbox{%
             \parbox[t]{\axp@CommentWidth}{%
-                \RaggedRight%
                 \axp@CommentStyle%
-                \textcolor{\axp@CommentColor}{\axp@CommentFont\axp@CommentText}\strut%
-            }\strut%
+                \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+            }%
         }%  fbox
     \fi%
     %! formatter = on
@@ -346,6 +378,8 @@
 \NewDocumentCommand{\To}{}{\axp@MakeSingleToken{ }{\Keyword{to}}{ }}
 \NewDocumentCommand{\DownTo}{}{\axp@MakeSingleToken{ }{\Keyword{downto}}{ }}
 \NewDocumentCommand{\Step}{}{\axp@MakeSingleToken{ }{\Keyword{step}}{ }}
+\NewDocumentCommand{\Continue}{}{\Keyword{continue}}
+\NewDocumentCommand{\Break}{}{\Keyword{break}}
 
 \NewDocumentCommand{\True}{}{\Constant{true}}
 \NewDocumentCommand{\False}{}{\Constant{false}}
@@ -390,12 +424,13 @@
     \setlength{\ALG@tlm}{\axp@SaveIndent}%
 }
 
-%% Statep
-\newlength{\axp@stateindent}
-\setlength{\axp@stateindent}{\dimexpr\algorithmicindent/2\relax}
-\algnewcommand{\Statep}[2][]{%
-    \setlength{\axp@CurrentIndent}{0.75pt}%  I don't know why
-    \State\algparbox[#1]{#2}{1.5em}%
+%% Statep: statement
+% #1: old style comment
+% #2: text
+% #3: comments
+% #4: options
+\NewDocumentCommand{\Statep}{ O{} +m O{} D<>{} }{%
+    \State\axp@DoCommand{1}{}{#2}{}{#1#3}{#4}%
 }
 
 
@@ -437,6 +472,24 @@
     \ALG@makeentity{Until}%
     \axp@EndGroup
 }
+
+%% Loop
+\algblockdefx[Loop]{Loop}{EndLoop}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\Loop}{ O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{loop}}{}{}{#1}{#2}%
+    \ALG@makeentity{Loop}%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndLoop}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{end}~\Keyword{loop}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndLoop}%
+    \axp@EndGroup
+}
+
 
 
 %% If
@@ -635,6 +688,11 @@
 % }
 %
 %% axp@algparbox
+
+%! formatter = off
+\ifaxp@NoEnd\axp@DisableEnds\fi
+%! formatter = on
+
 
 \endinput
 
