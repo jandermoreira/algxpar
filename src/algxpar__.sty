@@ -116,7 +116,9 @@
 %% Settings
 \newlength{\axp@MaximumCommentWidth}
 \newlength{\axp@MinimumCommentWidth}
+\newlength{\axp@StatementIndent}
 \newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
+\newif\ifaxp@IsStatement\axp@IsStatementfalse % set in \Statep
 
 
 %% General options
@@ -143,8 +145,11 @@
     maximum comment width/.code = {\setlength{\axp@MaximumCommentWidth}{#1}},
     comment separator width/.store in = \axp@CommentSeparatorWidth,
     %
-    disable ends/.code = {\axp@DisableEnds},
-    enable ends/.code = {\axp@EnableEnds},
+    statement indent/.code = {\setlength{\axp@StatementIndent}{#1}},
+    %
+    noend/.code = {\axp@DisableEnds},
+    no end/.code = {\axp@DisableEnds},
+    end/.code = {\axp@EnableEnds},
 }
 %! formatter = on
 
@@ -181,15 +186,16 @@
     text color = .,
     text style = \RaggedRight,
     comment font = \slshape,
-    comment color = .,
+    comment color = .!80,
     comment style = \RaggedRight,
+    comment symbol = $\triangleright$,
     keyword font = \bfseries,
     keyword color = .,
     constant font = \scshape,
     constant color = .,
     module font = \scshape,
     module color = .,
-    comment symbol = $\triangleright$,
+    statement indent = 1em,
     maximum comment width = 0.3\linewidth,
     comment separator width = 1em,
 }
@@ -313,9 +319,9 @@
     %! formatter = on
 }
 
-% todo: remove these commands
-\renewcommand\fbox{\fcolorbox{.!20}{.!5}}
-\setlength{\fboxrule}{0.001pt}
+% % todo: remove these commands
+% \renewcommand\fbox{\fcolorbox{.!20}{.!5}}
+% \setlength{\fboxrule}{0.001pt}
 
 
 % axp@MakeCommand: builds the command (see axp@DefineCommand)
@@ -324,11 +330,11 @@
     \axp@DoCommand{%  ajustment for opening/closing blocks
         \IfBooleanTF{#1}{0}{1}%
     }{%  command
-        \axp@MakeSingleToken{}{\axp@CommandKeyword}{~}%
+        \axp@MakeSingleToken{}{\axp@CommandKeyword}{ }%
     }{%  text
         \axp@CommandText%
     }{%  command complement
-        \axp@MakeSingleToken{~}{\axp@CommandComplementKeyword}{}%
+        \axp@MakeSingleToken{ }{\axp@CommandComplementKeyword}{}%
     }{%  comment
         \axp@CommentText%
     }{%  options
@@ -352,32 +358,35 @@
     %
     % Making the line: body
     #2%
-    \setlength{\fboxsep}{0pt}\fbox{%
+    %! formatter = off
+    % \setlength{\fboxsep}{0pt}\fbox{%
         \parbox[t]{\axp@TextWidth}{%
             \axp@TextStyle%
             \axp@TextFont%
+            \ifaxp@IsStatement%
+                \setlength{\hangindent}{\axp@StatementIndent}%
+            \fi%
             \textcolor{\axp@TextColor}{#3}#4\strut%
         }%
-    }%  fbox
-    %! formatter = off
+    % }%  fbox
     % Making the line: comment
     \ifaxp@NoCommentPresent\else%
         \hspace{\axp@CommentSeparatorWidth}\CommentSymbol{}~%
-        \setlength{\fboxsep}{0pt}\fbox{%
+        % \setlength{\fboxsep}{0pt}\fbox{%
             \parbox[t]{\axp@CommentWidth}{%
                 \axp@CommentStyle%
                 \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
             }%
-        }%  fbox
+        % }%  fbox
     \fi%
     %! formatter = on
 }
 
 
 %% Keyword quick references
-\NewDocumentCommand{\To}{}{\axp@MakeSingleToken{ }{\Keyword{to}}{ }}
-\NewDocumentCommand{\DownTo}{}{\axp@MakeSingleToken{ }{\Keyword{downto}}{ }}
-\NewDocumentCommand{\Step}{}{\axp@MakeSingleToken{ }{\Keyword{step}}{ }}
+\NewDocumentCommand{\To}{}{\axp@MakeSingleToken{}{\Keyword{to}}{ }}
+\NewDocumentCommand{\DownTo}{}{\axp@MakeSingleToken{}{\Keyword{downto}}{ }}
+\NewDocumentCommand{\Step}{}{\axp@MakeSingleToken{}{\Keyword{step}}{ }}
 \NewDocumentCommand{\Continue}{}{\Keyword{continue}}
 \NewDocumentCommand{\Break}{}{\Keyword{break}}
 
@@ -397,23 +406,32 @@
 \RenewDocumentCommand{\Require}{}{\item[\Keyword{require}:]}
 
 % Read, write
-%\NewDocumentCommand{\Set}{ m m }{\Id{#1} \gets #2}
+\NewDocumentCommand{\Set}{ m m }{%
+    \PackageWarning{alxpar}{The macro \string\Set\ is no longer supported.}%
+    \Id{#1} \gets #2%
+}
 \NewDocumentCommand{\Read}{}{\Keyword{read} }
 \NewDocumentCommand{\Write}{}{\Keyword{write} }
 
 % %% Comments
 \newcommand{\axp@commentleftsymbol}{$\triangleright$}
-% \newcommand{\axp@commentrightsymbol}{$\triangleleft$}
-% \algnewcommand{\CommentIn}[1]{%
-%     \axp@commentleftsymbol~\textsl{#1}~\axp@commentrightsymbol%
-% }
-% \algnewcommand{\Commentl}[1]{\axp@commentleftsymbol~\textsl{#1}}
-% \algrenewcommand{\algorithmiccomment}[1]{%
-%     \def\tmp{#1}%
-%     \ifx\tmp\empty\else%
-%     \hfill\Commentl{#1}%
-%     \fi
-% }
+\algnewcommand{\CommentIn}[1]{%
+    \axp@commentleftsymbol~\textsl{#1}~\axp@commentrightsymbol%
+}
+\NewDocumentCommand{\Commentl}{ m D<>{} }{%
+    \begingroup%
+    \AlgSet{#2}%
+    \textcolor{\axp@CommentColor}{\CommentSymbol{}~\axp@CommentFont#1}%
+    \endgroup%
+}
+\RenewDocumentCommand{\Comment}{ m D<>{} }{
+    % \settowidth{\axp@CommentWidth}{#1}%
+    % %! formatter = off
+    % \ifdim\axp@CommentWidth>0pt\relax%
+        \hfill\Commentl{#1}<#2>%
+    % \fi%
+    % %! formatter = on
+}
 
 \newlength{\axp@CurrentIndent}
 
@@ -430,7 +448,9 @@
 % #3: comments
 % #4: options
 \NewDocumentCommand{\Statep}{ O{} +m O{} D<>{} }{%
+    \axp@IsStatementtrue%
     \State\axp@DoCommand{1}{}{#2}{}{#1#3}{#4}%
+    \axp@IsStatementfalse%
 }
 
 
@@ -489,7 +509,6 @@
     \ALG@makeentity{EndLoop}%
     \axp@EndGroup
 }
-
 
 
 %% If
