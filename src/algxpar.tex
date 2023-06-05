@@ -1,15 +1,17 @@
 %! Author = Jander Moreira
 %! Date = 08/05/2023
-\documentclass[a4paper, 11pt, twocolumn, landscape]{article}
+\documentclass[a4paper, 11pt]{article}
 \usepackage[T1]{fontenc}
 
 \usepackage{amsfonts}
 \usepackage[
     brazilian,
-    language = english
+    language = english,
+% noend,
 ]{algxpar__}
+% \usepackage{algpseudocode}
 
-\usepackage[showframe]{geometry}
+\usepackage{geometry}
 \geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 4cm}
 \usepackage[backref=page]{hyperref}
 \hypersetup{
@@ -17,15 +19,21 @@
     urlcolor = blue!20!black,
     linkcolor = blue!10!black,
     citecolor = black!80,
+    hyperindex,
 }
-\usepackage{imakeidx}
+\usepackage{makeidx}
 \makeindex
 \usepackage[outputdir=../out]{minted}
-% \usepackage{tcolorbox}
+\usemintedstyle{tango}
+\newminted{latex}{autogobble, breaklines}
+\newmintinline{latex}{}
+
+\usepackage{tcolorbox}
 \tcbuselibrary{listings, minted}
 \tcbset{
     colback = blue!3,
     sharp corners,
+    box align = top,
     fontlower = \footnotesize,
     minted options={
         fontsize = \footnotesize,
@@ -35,18 +43,44 @@
         % numbersep = 3mm,
     },
     listing engine = minted,
-    sidebyside,
+% sidebyside,
 }
 \usepackage{tikz}
 \usepackage{etoolbox}
 \usepackage{textcomp}
 
-\colorlet{argumentcolor}{brown!50!black}
-\NewDocumentCommand{\Argument}{ m }{$\langle$\textcolor{argumentcolor}{\textsl{#1}}$\rangle$}
-\NewDocumentCommand{\MandatoryArgument}{ m }{\texttt{\{}\Argument{#1}\texttt{\}}}
-\NewDocumentCommand{\OptionalArgument}{ m }{\texttt{[}\Argument{#1}\texttt{]}}
+\colorlet{argumentcolor}{orange!50!black}
+\NewDocumentCommand{\Argument}{ m }{%
+    \textcolor{argumentcolor}{$\langle$\normalfont\small\textsl{#1}$\rangle$}%
+}
+\NewDocumentCommand{\MArg}{ m }{\texttt{\{}\Argument{#1}\texttt{\}}}
+\NewDocumentCommand{\OArg}{ m }{\texttt{[}\Argument{#1}\texttt{]}}
+\NewDocumentCommand{\LArg}{ m }{\texttt{<}\Argument{#1}\texttt{>}}
+\NewDocumentCommand{\PackageName}{ m }{\mbox{\textsf{#1}}}
+\NewDocumentCommand{\Deprecated}{}{\textcolor{red!80!black}{(deprecated)}}
+\NewDocumentCommand{\FromPackage}{m }{%
+    \hfill%
+    \tikz\node[draw, rounded corners = 1.5pt, inner sep = 1.5pt,
+        font = \sffamily\tiny] {#1};%
+}
+\NewDocumentCommand{\Option}{ m }{\mbox{\texttt{#1}}}
+\NewDocumentCommand{\OptionInd}{ m }{%
+    \Option{#1}%
+    \index{#1@\texttt{#1}~(option)}%
+}
+
+\NewDocumentCommand{\StatementOptions}{}{%
+    Any \Argument{options} specified here will affect only this statement.%
+}
+\NewDocumentCommand{\BlockOptions}{}{%
+    These \Argument{options} will affect this command and all items in the inner block, until (and including) the closing statement.%
+}
+
 
 \usepackage{color}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
 
 \newenvironment{commands}{
     \VerbatimEnvironment
@@ -128,20 +162,56 @@
 % }
 
 
-% ShowMacro: showw macro name and description
-\newmintinline{latex}{}
-\NewDocumentCommand{\Macro}{ m }{\expandafter\latexinline\expandafter{\csname#1\endcsname}}
-\NewDocumentEnvironment{macro}{ m O{} }{
-    \index{#1@\texttt{\textbackslash#1}}
-    \noindent
-    $\triangleright$ ~\Macro{#1}#2
-    \par
+% ShowMacro: show macro name and description
+\NewDocumentCommand{\LatexMacro}{ m }{%
+    \expandafter\latexinline\expandafter{\csname#1\endcsname}%
+}
+\NewDocumentCommand{\Macro}{ s m }{%
+    \IfBooleanTF{#1}{%
+        \LatexMacro{#2}%
+    }{%
+        \hyperref[macro:#2]{\LatexMacro{#2}}%
+    }%
+}
+\NewDocumentCommand{\MacroInd}{ s m }{%
+    \index{#2@\texttt{\textbackslash #2}}%
+    \IfBooleanTF{#1}{%
+        \label{macro:#2}%
+        \Macro*{#2}%
+    }{%
+        \Macro{#2}%
+    }%
+}
+\NewDocumentEnvironment{macro}{ m O{} o }{%
+    %! formatter = off
+    \index{#1@\texttt{\textbackslash#1}}%
+    \label{macro:#1}%
+    %! parser = off
+    \IfValueTF{#3}{%
+        \begin{macro*}{#1}{#2}
+    }{%
+        \begin{macro*}{#1}{#2}[#3]%
+    }
+    %! parser = on
+        }{%
+    %! parser = off
+    \end{macro*}
+    %! parser = on
+    %! formatter = off
+}
+\NewDocumentEnvironment{macro*}{ m m o }{
+    \medskip\par%
+    \noindent%
+    \Macro*{#1}#2%
+    \IfValueT{#3}{\latexinline!{{#3}}!}
+    \par%
+    \begin{list}{\rightmargin4cm}
+    \item%
     }{
-    \par
-    \medskip
+    \end{list}%
+    \medskip%
 }
 
-\NewDocumentCommand{\PackageName}{ m }{\mbox{\textsf{#1}}}
 
 
 \title{The \PackageName{algxpar} package\thanks{This document corresponds to \PackageName{algxpar}~v\AlgVersion, dated \AlgDate.}}
@@ -152,202 +222,444 @@
 \maketitle
 \sloppy
 
-% \begin{abstract}
-%     The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multiline text with the proper indentation.
-% \end{abstract}
-%
-% \tableofcontents
-% \vspace{2em}
-%
-% % \changes{v0.9}{2019/10/24}{First version}
-% % \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
-% % \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
-% % \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
-%
-%
-% \section{Introduction}
-% I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
-%
-% As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
-%
-% Unfortunately, \PackageName{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
-%
-%
-% \section{Package usage and options}
-% To use the package simply add it to preamble.
-%
-% \usemintedstyle{tango}
-% \newminted{latex}{autogobble}
-%
-% \begin{latexcode}
-%     \usepackage{algxpar}
-% \end{latexcode}
-% % Package options:
-% % \begin{itemize}
-% %     \item[\texttt{noend}] Suppress the line at the end of a block.
-% %     \item[\texttt{english}] Selects english keywords (default).
-% %     \item[\texttt{brazilian}] Selects portuguese/brazilian keywords.
-% % \end{itemize}
-% %
-% %
-% % \section{Writting pseudocode}
-% % All pseudocode is written inside the \texttt{algorithmic} environment.
-% %
-% % \subsection{Documentation}
-% % A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
-% \begin{macro}{Description}
-%     General description of the pseudocode.
-% \end{macro}
-% \begin{macro}{Require}
-%     The required initial state that the code relies on. These are \textit{preconditions}.
-% \end{macro}
-% \begin{macro}{Ensure}
-%     The final state produced by the code. These are \textit{preconditions}.
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Description Calculation of the factorial of a natural number through successive multiplications
-%         \Require $n \in \mathbb{N}$
-%         \Ensure $f = n!$
-%     \end{algorithmic}
-% \end{tcblisting}
-% %
-% % Also are provided:
-% % \DescribeMacro{Input}{Inputs.}
-% % \DescribeMacro{Output}{Outputs}
-% %
-% % \begin{tcblisting}{}
-% %     \begin{algorithmic}
-% %         \Description Calculation of the factorial of a natural number through successive multiplications
-% %         \Input $n$ (integer)
-% %         \Output $n!$ (integer)
-% %     \end{algorithmic}
-% % \end{tcblisting}
-% %
-% % \subsection{Constants and Identifiers}
-% %
-% % Constants: \True, \False\ and \Nil.
-% %
-% % Identifiers: |\Id{}|.
-% %
-% % \subsection{Assignments and I/O}
-% %
-% % \subsection{Comments}
-% %
-% % \subsection{Statements}
-% %
-% % The macro |\State| can still be used and was left unchanged. A replacement statement macro is |\Statep|.
-% %
-% % \subsection{Flow Control}
-% %
-% % \subsection{Procedures and Functions}
-% %
-% % \begin{tcblisting}{}
-% %     \begin{algorithmic}
-% %         \While{\False}
-% %         \EndWhile
-% %         \If{\True ou \False}
-% %             \Statep{Say ok}
-% %         \ElsIf{$a>\alpha$}
-% %         \ElsIf{$b>\beta$}[languages/else = intonces\ldots]
-% %         \Else[language = brazilian]
-% %         \EndIf[language = english]
-% %         \ForAll{}
-% %         \EndFor
-% %     \end{algorithmic}
-% % \end{tcblisting}
-% %
-% %
-% % \section{Customization and Fine Tunning}
-% %
-% % %
-% %
-% \begin{macro}{Keyword}[\OptionalArgument{language}\MandatoryArgument{keyword}]
-%     Macros like \Macro{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \Macro{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
-%     If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
-%
-%     Section~\ref{sec:languages} shows the predefined keywords.
-%
-%     \begin{tcblisting}{}
-%         In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
-%     \end{tcblisting}
-% \end{macro}
-%
-% \begin{macro}{SetKeyword}[\OptionalArgument{language}\MandatoryArgument{keyword}\MandatoryArgument{value}]
-%     The macro \Macro{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
-%     If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
-% \end{macro}
-%
-%
-% %
-% % \makeatletter
-% % \RenewDocumentCommand{\If}{ O{} m O{} }{%
-% %     \axp@ProcessCommandOptions{#1}{#3}%
-% %     \ALG@makeentity{If}[\axp@CurrentComment]{#2}%
-% % }
-% % \appto{\EndIf}{\endgroup}
-% %
-% % \RenewDocumentCommand{\Switch}{ O{} m O{} }{%
-% %     \axp@ProcessCommandOptions{#1}{#3}%
-% %     \ALG@makeentity{Switch}[\axp@CurrentComment]{#2}%
-% % }
-% % \appto{\EndSwitch}{\endgroup}
-% % \makeatother
-% %
-% %
-% % \begin{algorithmic}
-% %     \If{abc and \Nil}[language = brazilian, languages/end = fim do meu querido, comment is here]
-% %         \Statep{teste}
-% %     \EndIf%\endgroup
-% %     \While{abc}
-% %         \Statep{x}
-% %     \EndWhile
-% % \end{algorithmic}
-% % %
-% % % \AlgSet{
-% % %     brazilian
-% % % }
-% % % \AlgLanguageSet{brazilian}{switch = selecione a partir de}
-% % %
-% % % \begin{algorithmic}
-% % %     \Switch{asdf}[something in here a little longer, languages/switch = selecione]
-% % %     \Statep{$v \gets \True$}
-% % %     \EndSwitch
-% % % \end{algorithmic}
-% %
+\begin{abstract}
+    The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multiline text with the proper indentation.
+\end{abstract}
 
-\newcounter{state}
-\newcommand{\texto}{Do \rule{3cm}{1pt} \stepcounter{state}<<\thestate>>}
+\tableofcontents
 
-% \setlength{\algorithmicindent}{10pt}
+\vspace{2em}
 
-\begin{algorithmic}
-    \While{something}
-        % \Statep{\texto}
-        % \While{something}
-        %     \Statep{\texto}
-        % \EndWhile
-        % \Statep{\texto}
-        % \While{something}
-        %     \Statep{\texto}
-        % \EndWhile
-        \While{something}
-            <language = brazilian>
-            \While{something}
-                \While{something}
-                    \While{something}
-                        \Statep{\texto}
-                    \EndWhile
-                    \Statep{--- --- \texto}
-                \EndWhile
-                \Statep{*** \texto}
-            \EndWhile
-            \Statep{\texto}
+% \changes{v0.9}{2019/10/24}{First version}
+% \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
+% \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
+% \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
+
+
+\section{Introduction}
+I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
+
+As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
+
+Unfortunately, \PackageName{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
+
+
+
+
+\section{Package usage and options}
+To use the package simply add it to preamble.
+
+\begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
+    \bigskip
+    Currently, the package supports the following options:
+
+    \begin{description}
+        \item[\OptionInd{noend}] Suppresses the line that closes a block.
+        \item[\Argument{language name}] Loads the keywords for an specific language. The lastest language in the list is set as default. Supported languages:
+        \begin{itemize}
+            \item \OptionInd{english} (default language, always loaded)
+            \item \OptionInd{brazilian} Brazilian Portuguese
+        \end{itemize}
+        \item[\OptionInd{language}] Sets some language as default.
+    \end{description}
+\end{macro*}
+
+Examples:
+\begin{latexcode}
+    \usepackage[noend]{algxpar} %  Supresses all "end lines"
+
+    \usepackage[brazilian]{algxpar} %  Loads Brazilian keyword set and sets it as default
+
+    \usepackage[brazilian, language = english]{algxpar}  % Loads Brazilian keywords but keeps english as default
+\end{latexcode}
+
+
+\section{Writting pseudocode}
+All pseudocode is written inside the \texttt{algorithmic} environment.
+
+\subsection{Documentation}
+A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
+\begin{macro}{Description}
+    General description of the pseudocode.
+\end{macro}
+\begin{macro}{Require}
+    The required initial state that the code relies on. These are \textit{pre-conditions}.
+\end{macro}
+\begin{macro}{Ensure}
+    The final state produced by the code. These are \textit{post-conditions}.
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Description Calculation of the factorial of a natural number through successive multiplications
+        \Require $n \in \mathbb{N}$
+        \Ensure $f = n!$
+    \end{algorithmic}
+\end{tcblisting}
+
+Also are provided:
+\begin{macro}{Input}
+    Inputs.
+\end{macro}
+\begin{macro}{Output}
+    Outputs
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Description Calculation of the factorial of a natural number through successive multiplications
+        \Input $n$ (integer)
+        \Output $n!$ (integer)
+    \end{algorithmic}
+\end{tcblisting}
+
+\subsection{Constants and Identifiers}
+
+Constants: \MacroInd{True} is \True, \MacroInd{False} is \False\ and \MacroInd{Nil} is \Nil.
+
+\begin{macro}{Id}[\MArg{identifier}]
+    Identifiers are in italics: \latexinline!\Id{value}! is \Id{value}. Its designed to work in both text and math modes: \latexinline!$\Id{offer}_k$! is $\Id{offer}_k$.
+\end{macro}
+
+\subsection{Statements}
+
+The macros \Macro*{State} and \Macro*{Statex} can still be used and were left unchanged.
+
+\begin{macro}{State}[~\Argument{text}\FromPackage{algorithmicx}]
+\end{macro}
+
+\begin{macro}{Statex}[~\Argument{text}\FromPackage{algorithmicx}]
+\end{macro}
+
+A replacement to macro \Macro*{State} is \Macro*{Statep}.
+
+\begin{macro}{Statep}[\MArg{text}\OArg{comment}\LArg{options}]
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{minipage}{6cm}
+        \begin{algorithmic}
+            \State Collect all relevant information from the selected databases
+            \State Process all data\Comment{in parallel}
+            \State Present a report with the results and send to management
+        \end{algorithmic}
+
+        \bigskip
+        \begin{algorithmic}
+            \Statep{Collect all relevant information from the selected databases}
+            \Statep{Process all data}[in parallel]
+            \Statep{Present a report with the results and send to management}
+        \end{algorithmic}
+    \end{minipage}
+\end{tcblisting}
+
+
+\subsection{Assignments and I/O}
+
+To support teaching-like pseudocode writing, the macros \MacroInd*{Read} and \MacroInd*{Write} are provided.
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{\Read $v_1, v_2$}
+        \Statep{$\Id{mean} \gets \dfrac{v_1 + v_2}{2}$}[calculate]
+        \Statep{\Write \Id{mean}}
+    \end{algorithmic}
+\end{tcblisting}
+
+The macro \Macro*{Set} can be used for assignments.
+
+\begin{macro}{Set}[\MArg{lvalue}\MArg{expression} \Deprecated]
+    This macro expands to \latexinline!\Id{#1} \gets #2!.
+
+    As the handling of text and math modes should be done and its usage brings no evident advantage, this macro will no longer be supported. It will be kept as is for backward compatibility however.
+\end{macro}
+
+
+\subsection{Comments}
+The macro \Macro*{Comment} defined by \PackageName{algorithmicx} has the same original behaviour and was redefined to handle style options.
+
+\begin{macro}{Comment}[\MArg{text}\OArg{options}]
+    The redesigned version of \Macro*{Comment} can be used both with \Macro{State} and \Macro{Statep}. When used with \Macro{Statep} it must me put inside the brackets, but multiline statements will work differently.
+\end{macro}
+
+\bigskip
+\begin{tcblisting}{sidebyside = false}
+    \begin{minipage}{6.5cm} %  force limited space
+        \begin{algorithmic}
+            \State $x \gets 0$\Comment{only zeroes $x$}<comment color = orange>
+            \Statep{$x \gets 0$\Comment{only zeroes $x$}<comment font = \sffamily>}
+            \Statep{$x \gets 0$}[only zeroes $x$] %  better
+        \end{algorithmic}
+
+        \bigskip
+        \AlgSet{comment color = blue}
+        \begin{algorithmic}
+            \State Store the value zero in variable $x$\Comment{only zeroes $x$}
+            \Statep{Store the value zero in variable $x$\Comment{only zeroes $x$}}
+            \Statep{Store the value zero in variable $x$}[only zeroes $x$]
+        \end{algorithmic}
+    \end{minipage}
+\end{tcblisting}
+
+\begin{macro}{Commentl}[\MArg{text}\LArg{options}]
+    While \Macro{Comment} pushes text to the end of the line, the macro \Macro*{Commentl} is ``local''. In other words, it just put a comment in place.
+
+    Local comments follows regular text and no line changes are checked.
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \If{$a > 0$~~\Commentl{special case}\\
+                or\\
+                $a < b$~~\Commentl{general case}\\}
+            \Statep{Process data~~\Commentl{may take a while}}
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+
+
+\subsection{Flow Control}
+The macro \Macro*{If} stands for the \Keyword{if}/\Keyword{then}/\Keyword{else} conditional.
+
+\begin{macro}{If}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    In its simpler form, \Macro*{If} shows \Argument{text} (the condition) and must be closed with an \Macro{EndIf}, creating a block of nested commands.
+
+    There are two optional places to insert comments. Until v0.95, \Argument{comments*} should preceed \Argument{text}. From now on, the new \Argument{comments} argument should come after \Argument{text}. The earlier form is mantained for backward compatibility. For now, if both comments are used, they are concatenated.
+
+    A set of local \Argument{options} can also be specified between angle brackets. These options are defined within a latex group and will hold until the closing \Macro{EndIf}.
+\end{macro}
+
+\begin{macro}{EndIf}[\OArg{comment}\LArg{options}]
+    \Macro*{EndIf} closes its respective \Macro{If}.
+
+    An optional \Argument{comment} can be used, as well as \Argument{options}. These \Argument{options} will affect this specific \Macro*{EndIf} only.
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \State \Read $v$
+        \If{$v < 0$}[is it negative?]
+            \Statep{$v \gets -v$}[make it positive]
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+
+The macros \Macro*{Else} and \Macro*{ElsIf} are also available.
+
+\begin{macro}{Else}[\OArg{comment}\LArg{options}]
+    This macro defines the \Keyword{else} part of the \Macro{If} statement.
+
+    An optional \Argument{comment} can be specified.
+
+    The \Argument{options} will affect from this command to the corresponding \Macro{EndIf}.
+\end{macro}
+
+\begin{macro}{Elsif}[\OArg{comment}\MArg{text}\OArg{comment}\LArg{options}]
+    \Macro*{ElsIf} defines the \Keyword{if} chaining. The argument \Argument{text} is the new condition.
+
+    An optional \Argument{comment} can be specified.
+
+    The \Argument{options} will affect from this command to the corresponding \Macro{EndIf}.
+\end{macro}
+
+A selection-like conditional statement was added: \Macro*{Switch}. A \Keyword{switch} evaluates an expression and compares successively with a number of \Keyword{case} clauses.
+
+\begin{macro}{Switch}[\OArg{comment*}\MArg{expression}\OArg{comment}\LArg{options}]
+    The \Macro*{Switch} is closed by a matching \Macro{EndSwitch}.
+
+    \BlockOptions
+\end{macro}
+
+\begin{macro}{EndSwitch}[\OArg{comment}\LArg{options}]
+    This macro closes a \Macro{Switch} block.
+
+    \StatementOptions
+\end{macro}
+
+\begin{macro}{Case}[\OArg{comment*}\MArg{constant-list}\OArg{comment}\LArg{options}]
+    When the result of the \Keyword{switch} expression matches one of the constants in \Argument{constants-list}, then the \Keyword{case} is executed. Usually the \Argument{constant-list} is a single constant, a comma-separated list of constants or some kind of range specification.
+
+    \BlockOptions
+\end{macro}
+
+\begin{macro}{EndCase}[\OArg{comment}\LArg{options}]
+    This macro closes a corresponding \Macro{Case} statement.
+
+    \StatementOptions
+\end{macro}
+
+\begin{macro}{Otherwise}[\OArg{comment}\LArg{options}]
+    A \Keyword{switch} structure can optionally use an \Keyword{otherwise} clause, which is executed when no previous \Keyword{case}s had a hit.
+
+    \BlockOptions
+\end{macro}
+
+\begin{macro}{EndOtherwise}[\OArg{comment}\LArg{options}]
+    This macro closes a corresponding \Macro{Otherwise} statement.
+
+    \StatementOptions
+\end{macro}
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{Get \Id{option}}
+        \Switch{\Id{option}}
+            \Case{1}[inserts new record]
+                \Statep{\Call{Insert}{\Id{record}}}
+            \EndCase
+            \Case{2}[deletes a record]
+                \Statep{\Call{Delete}{\Id{key}}}
+            \EndCase
+            \Otherwise
+                \Statep{Print ``invalid option''}
+            \EndOtherwise
+        \EndSwitch
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+The classic loops are defined: \Keyword{for}, \Keyword{while} and \Keyword{repeat}.
+
+The \Keyword{for} loop uses \Macro*{For} and is also flavored with two variants: \Keyword{foreach} (\Macro*{ForEach}) and \Keyword{forall} (\Macro*{ForAll}).
+
+\begin{macro}{For}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    The \Argument{text} is used to establish the loop scope.
+
+    A comment can be added to the command both as \Argument{comment*} and \Argument{comment}.
+
+    \BlockOptions
+\end{macro}
+
+\begin{macro}{EndFor}[\OArg{comment}\LArg{option}]
+    This macro closes a corresponding \Macro{For}, \Macro{ForEach} or \Macro{ForAll}.
+
+    \StatementOptions
+\end{macro}
+
+\begin{macro}{ForEach}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    Same as \Macro{For}.
+\end{macro}
+
+\begin{macro}{ForAll}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    Same as \Macro{For}.
+\end{macro}
+
+%! parser = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \For{$i \gets 0$ \To $n$}
+            \Statep{Do something with $i$}
+        \EndFor
+        \ForAll{$\Id{item} \in C$}
+            \Statep{Do something with \Id{item}}
+        \EndFor
+        \ForEach{\Id{item} in queue $Q$}
+            \Statep{Do something with \Id{item}}
+        \EndFor
+    \end{algorithmic}
+\end{tcblisting}
+%! parser = on
+
+The loop with testing at the top is \Macro*{While}.
+
+\begin{macro}{While}[\OArg{comment}\MArg{text}\OArg{comment}\LArg{options}]
+    In \Argument{text} is the boolean expression that, when \False, will end the loop.
+
+    \BlockOptions
+\end{macro}
+
+
+\begin{macro}{EndWhile}[\OArg{comment}\LArg{options}]
+    This macro closes a matching \Macro{While} block.
+
+    \StatementOptions
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \While{$n > 0$}
+            \Statep{Do something}
+            \Statep{$n \gets n - 1$}
         \EndWhile
-        \Statep{\texto}
-    \EndWhile
-\end{algorithmic}
+    \end{algorithmic}
+\end{tcblisting}
+
+\begin{macro}{Repeat}[\OArg{comment}\LArg{options}]
+    This macro starts the \Keyword{repeat} loop, which is closed with \Macro{Until}.
+
+    \BlockOptions
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Repeat
+            \Statep{Do something}
+            \Statep{$n \gets n - 1$}
+        \Until{$n \leq 0$}
+    \end{algorithmic}
+\end{tcblisting}
+
+
+An additional generic loop is build with \Macro*{Loop}.
+
+\begin{macro}{Loop}[\OArg{comment}\LArg{options}]
+    The generic loop starts with \Macro*{Loop} and ends with \Macro{EndLoop}. Usually the infinit loop is interrupted by and internal \MacroInd{Break} or restarted with \MacroInd{Continue}.
+
+    \BlockOptions
+\end{macro}
+
+\begin{macro}{EndLoop}[\OArg{comment}\LArg{options}]
+    \Macro*{EndLoop} closes a matching \Macro{Loop} block.
+
+    \StatementOptions
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Loop
+            \Statep{Do something}
+            \Statep{$n \gets n + 1$}
+            \If{$n$ is multiple of 5}
+                \Statep{\Continue}[restarts loop]
+            \EndIf
+            \Statep{Do something else}
+            \If{$n \leq 0$}
+                \Statep{\Break}[ends loop]
+            \EndIf
+        \EndLoop
+    \end{algorithmic}
+\end{tcblisting}
+
+\subsection{Procedures and Functions}
+
+
+\section{Customization and Fine Tunning}
+
+\begin{macro}{Keyword}[\OArg{language}\MArg{keyword}]
+    Macros like \Macro*{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \Macro{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
+    If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
+
+    Section~\ref{sec:languages} shows the predefined keywords.
+
+    \begin{tcblisting}{}
+        In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
+    \end{tcblisting}
+\end{macro}
+
+\begin{macro}{SetKeyword}[\OArg{language}\MArg{keyword}\MArg{value}]
+    The macro \Macro{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
+    If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
+\end{macro}
+
+
+\section{Languages and translations}
+
+
+\tcbinputlisting{listing file = brazilian.kw.tex, listing only}
+
+
+
 
 \clearpage
 \printindex
