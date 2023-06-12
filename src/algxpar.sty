@@ -1,5 +1,6 @@
 %! Package: algxpar
 %! Author: Jander Moreira
+%! Email =  moreira.jander@gmail.com
 %! Date: May 8, 2023
 
 \NewDocumentCommand{\AlgVersion}{}{0.95}
@@ -30,7 +31,7 @@
 % #3: value (e.g, enquanto)
 \cs_new:Npn \set_keyword:nnn #1#2#3 {
     \tl_clear_new:c { g_keyword_#1_#2_tl }
-    \tl_gset:cn { g_keyword_#1_#2_tl } { #3 }
+    \tl_set:cn { g_keyword_#1_#2_tl } { #3 }
 }
 
 % get_keyword:nn returs a keyword in a language
@@ -38,7 +39,14 @@
 % #2: keyword (e.g. while)
 % returns: keyword text (e.g. enquanto)
 \cs_new:Npn \get_keyword:nn #1#2 {
-    \mbox{ \tl_use:c { g_keyword_#1_#2_tl } }
+    \cs_if_exist_use:cTF { g_keyword_#1_#2_tl } { } {
+        \cs_if_exist_use:cTF { g_keyword_english_#2_tl } { } {
+            \msg_new:nnn { algxpar } { keyword-not-found } {
+                Keyword~'#2'~not~found.
+            }
+            \msg_fatal:nn { algxpar } { keyword-not-found }
+        }
+    }
 }
 
 %%% User commands
@@ -150,12 +158,16 @@
     noend/.code = {\axp@DisableEnds},
     no end/.code = {\axp@DisableEnds},
     end/.code = {\axp@EnableEnds},
+    %
+    keywords/.code = {\pgfkeysalso{/algxpar/languages/.cd, #1}},
+    %
+    algorithmic indent/.store in = \algorithmicindent,
 }
 %! formatter = on
 
 \NewDocumentCommand{\AlgSet}{ > { \TrimSpaces } m }{%
-    \pgfkeys{
-        algxpar/options/.cd,
+    \pgfkeys{%
+        /algxpar/options/.cd,
         /utils/exec = \pgfkeysalsofrom{#1},
     }%
 }
@@ -164,17 +176,15 @@
 %% Languages and translations
 \pgfkeys{
     /algxpar/languages/.cd,
-    .unknown/.code = { \SetKeyword{\pgfkeyscurrentname}{#1}}
+    .unknown/.code = {\SetKeyword{\pgfkeyscurrentname}{#1}}
 }
 
 \NewDocumentCommand{\AlgLanguageSet}{ > { \TrimSpaces } m > { \TrimSpaces } m }{
-    \begingroup
     \AlgSet{language = #1}
     \pgfkeys{
         /algxpar/languages/.cd,
         #2
     }
-    \endgroup
 }
 \input{english.kw}  % always loads default language
 
@@ -198,6 +208,7 @@
     statement indent = 1em,
     maximum comment width = 0.3\linewidth,
     comment separator width = 1em,
+    algorithmic indent = 1.5em,
 }
 
 
@@ -319,7 +330,7 @@
     %! formatter = on
 }
 
-% % todo: remove these commands
+% todo: remove these commands
 % \renewcommand\fbox{\fcolorbox{.!20}{.!5}}
 % \setlength{\fboxrule}{0.001pt}
 
@@ -425,8 +436,8 @@
     \endgroup%
 }
 \RenewDocumentCommand{\Comment}{ m D<>{} }{
-    % \settowidth{\axp@CommentWidth}{#1}%
-    % %! formatter = off
+% \settowidth{\axp@CommentWidth}{#1}%
+% %! formatter = off
     % \ifdim\axp@CommentWidth>0pt\relax%
         \hfill\Commentl{#1}<#2>%
     % \fi%
@@ -468,7 +479,7 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndWhile}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{while}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endwhile}}{}{}{#1}{#2}%
     \ALG@makeentity{EndWhile}%
     \axp@EndGroup
 }
@@ -505,7 +516,7 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndLoop}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{loop}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endloop}}{}{}{#1}{#2}%
     \ALG@makeentity{EndLoop}%
     \axp@EndGroup
 }
@@ -543,7 +554,7 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndIf}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{if}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endif}}{}{}{#1}{#2}%
     \ALG@makeentity{EndIf}%
     \axp@EndGroup
 }
@@ -567,7 +578,7 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndSwitch}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{switch}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endswitch}}{}{}{#1}{#2}%
     \ALG@makeentity{EndSwitch}%
     \axp@EndGroup
 }
@@ -576,30 +587,30 @@
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\Case}{ O{} m O{} D<>{} }{%
-% \axp@BeginGroup
+    \axp@BeginGroup
     \axp@DefineCommand{\Keyword{case}}{#2}{\Keyword{do}}{#1#3}{#4}%
     \ALG@makeentity{Case}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndCase}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{case}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endcase}}{}{}{#1}{#2}%
     \ALG@makeentity{EndCase}%
-% \axp@EndGroup
+    \axp@EndGroup
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\Otherwise}{ O{} D<>{} }{%
-% \axp@BeginGroup
+    \axp@BeginGroup
     \axp@DefineCommand{\Keyword{otherwise}}{}{}{#1}{#2}%
     \ALG@makeentity{Otherwise}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndOtherwise}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{otherwise}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endotherwise}}{}{}{#1}{#2}%
     \ALG@makeentity{EndOtherwise}%
-% \axp@EndGroup
+    \axp@EndGroup
 }
 
 
@@ -647,7 +658,7 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndFor}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{for}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endfor}}{}{}{#1}{#2}%
     \ALG@makeentity{EndFor}%
     \axp@EndGroup
 }
@@ -670,7 +681,7 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndProcedure}{ O{} D<>{} }{%
-    \axp@DefineCommand{\Keyword{end}~\Keyword{procedure}}{}{}{#1}{#2}%
+    \axp@DefineCommand{\Keyword{endprocedure}}{}{}{#1}{#2}%
     \ALG@makeentity{EndProcedure}%
     \axp@EndGroup
 }
