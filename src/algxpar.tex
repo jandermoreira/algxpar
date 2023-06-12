@@ -1,65 +1,73 @@
 %! Author = Jander Moreira
+%! Email =  moreira.jander@gmail.com
 %! Date = 08/05/2023
+
 \documentclass[a4paper, 11pt]{article}
 \usepackage[T1]{fontenc}
 
+\usepackage{tikz}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[outputdir=../out]{minted}
 \usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{makeidx}
+\usepackage[all]{nowidow}
+\usepackage{cleveref}
+
 \usepackage[
     brazilian,
     language = english,
-% noend,
-]{algxpar__}
-% \usepackage{algpseudocode}
+]{algxpar}
 
-\usepackage{geometry}
+%% Layout
+% geometry
 \geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 4cm}
-\usepackage[backref=page]{hyperref}
+% hyperref
 \hypersetup{
     colorlinks,
     urlcolor = blue!20!black,
     linkcolor = blue!10!black,
     citecolor = black!80,
-    hyperindex,
+% backref = page,
+% hyperindex,
 }
-\usepackage{makeidx}
+% makeidx
 \makeindex
-\usepackage[outputdir=../out]{minted}
+% minted
 \usemintedstyle{tango}
-\newminted{latex}{autogobble, breaklines}
+\newminted{latex}{autogobble, breaklines, bgcolor = blue!5}
 \newmintinline{latex}{}
-
-\usepackage{tcolorbox}
-\tcbuselibrary{listings, minted}
+% tcolorbox
+\tcbuselibrary{skins, listings, minted, breakable}
 \tcbset{
     colback = blue!3,
     sharp corners,
     box align = top,
+    boxrule = 0pt,
     fontlower = \footnotesize,
     minted options={
         fontsize = \footnotesize,
         breaklines,
         autogobble,
-        % linenos,
-        % numbersep = 3mm,
     },
     listing engine = minted,
-% sidebyside,
 }
-\usepackage{tikz}
-\usepackage{etoolbox}
-\usepackage{textcomp}
 
+%% Text support
+% macro arguments formats
 \colorlet{argumentcolor}{orange!50!black}
 \NewDocumentCommand{\Argument}{ m }{%
     \textcolor{argumentcolor}{$\langle$\normalfont\small\textsl{#1}$\rangle$}%
 }
-\NewDocumentCommand{\MArg}{ m }{\texttt{\{}\Argument{#1}\texttt{\}}}
-\NewDocumentCommand{\OArg}{ m }{\texttt{[}\Argument{#1}\texttt{]}}
-\NewDocumentCommand{\LArg}{ m }{\texttt{<}\Argument{#1}\texttt{>}}
+\NewDocumentCommand{\MArg}{ m }{\mbox{\texttt{\{}\Argument{#1}\texttt{\}}}}
+\NewDocumentCommand{\OArg}{ m }{\mbox{\texttt{[}\Argument{#1}\texttt{]}}}
+\NewDocumentCommand{\LArg}{ m }{\mbox{\texttt{<}\Argument{#1}\texttt{>}}}
 \NewDocumentCommand{\PackageName}{ m }{\mbox{\textsf{#1}}}
 \NewDocumentCommand{\Deprecated}{}{\textcolor{red!80!black}{(deprecated)}}
-\NewDocumentCommand{\FromPackage}{m }{%
-    \hfill%
+\NewDocumentCommand{\FromPackage}{ m }{%
     \tikz\node[draw, rounded corners = 1.5pt, inner sep = 1.5pt,
         font = \sffamily\tiny] {#1};%
 }
@@ -68,101 +76,6 @@
     \Option{#1}%
     \index{#1@\texttt{#1}~(option)}%
 }
-
-\NewDocumentCommand{\StatementOptions}{}{%
-    Any \Argument{options} specified here will affect only this statement.%
-}
-\NewDocumentCommand{\BlockOptions}{}{%
-    These \Argument{options} will affect this command and all items in the inner block, until (and including) the closing statement.%
-}
-
-
-\usepackage{color}
-\usepackage{amssymb}
-\usepackage{stmaryrd}
-\usepackage{amsmath}
-
-\newenvironment{commands}{
-    \VerbatimEnvironment
-    \tcolorbox[
-    bottomrule = 0pt,
-    toprule = 0pt,
-    leftrule = 0pt,
-    rightrule = 0pt,
-    titlerule = 0pt,
-    colframe = white,
-    colback = white,
-    sharp corners,
-    pad at break*=1pc,
-    enhanced jigsaw,
-    overlay first and middle={
-        \coordinate (A1) at ($(interior.south east) + (-10pt,5pt)$);
-        \coordinate (C1) at ($(interior.south east) + (-6pt,7.5pt)$);
-        \draw[fill=tcbcolframe] (A1) -- +(0,5pt) -- (C1) -- cycle;
-    },
-    ]%
-    \Verbatim[gobble = 4, tabsize=4, commandchars = &\[\]]%
-    }
-%     {%
-%     \endVerbatim%
-%     \endtcolorbox%
-% }
-
-        \newtcolorbox{codigo}[1]{%
-    bottomrule = 0pt,
-    toprule = 0pt,
-    leftrule = 0pt,
-    rightrule = 0pt,
-    titlerule = 0pt,
-    sharp corners,
-    sidebyside,
-    sidebyside align = top,
-    #1
-}
-
-\usetikzlibrary{calc}
-\newenvironment{example}{
-    \begingroup\tcbverbatimwrite{\jobname_code.tmp}
-    }{
-    \endtcbverbatimwrite\endgroup%
-    \begin{tcolorbox}
-        [
-        bottomrule = 0pt,
-        toprule = 0pt,
-        leftrule = 0pt,
-        rightrule = 0pt,
-        titlerule = 0pt,
-        colframe = white,
-        segmentation style = {black!30, solid},
-        colback = white,
-        sharp corners,
-        pad at break* = 1pc,
-        enhanced jigsaw,
-        breakable,
-        overlay first and middle={
-            \coordinate (A1) at ($(interior.south east) + (-10pt,5pt)$);
-            \coordinate (C1) at ($(interior.south east) + (-6pt,7.5pt)$);
-            \draw[fill=tcbcolframe] (A1) -- +(0,5pt) -- (C1) -- cycle;
-        },
-        ]%
-        \small\VerbatimInput[tabsize=4, gobble = 2]{\jobname_code.tmp}
-        \tcblower
-% 	\begin{minipage}{0.85\linewidth}
-        \begin{algorithmic}
-            \input{\jobname_code.tmp}
-        \end{algorithmic}
-% 	\end{minipage}
-    \end{tcolorbox}
-}
-
-% \NewDocumentCommand{\DefineMacro}{ m m }{
-%     \begin{tikzpicture}%[overlay]
-%         \node[fill = black!10, rounded corners = 2pt, font = \tiny] {#1};
-%     \end{tikzpicture}
-% }
-
-
-% ShowMacro: show macro name and description
 \NewDocumentCommand{\LatexMacro}{ m }{%
     \expandafter\latexinline\expandafter{\csname#1\endcsname}%
 }
@@ -182,6 +95,21 @@
         \Macro{#2}%
     }%
 }
+
+%
+% % \newtcolorbox{codigo}[1]{%
+% %     bottomrule = 0pt,
+% %     toprule = 0pt,
+% %     leftrule = 0pt,
+% %     rightrule = 0pt,
+% %     titlerule = 0pt,
+% %     sharp corners,
+% %     sidebyside,
+% %     sidebyside align = top,
+% %     #1
+% % }
+
+
 \NewDocumentEnvironment{macro}{ m O{} o }{%
     %! formatter = off
     \index{#1@\texttt{\textbackslash#1}}%
@@ -197,33 +125,60 @@
     %! parser = off
     \end{macro*}
     %! parser = on
-    %! formatter = off
+    %! formatter = on
 }
 \NewDocumentEnvironment{macro*}{ m m o }{
     \medskip\par%
     \noindent%
-    \Macro*{#1}#2%
-    \IfValueT{#3}{\latexinline!{{#3}}!}
+    % \Macro*{#1}#2%
+    % \IfValueT{#3}{\latexinline!{{#3}}!}%
     \par%
-    \begin{list}{\rightmargin4cm}
-    \item%
+    \begin{tcolorbox}[
+        title = {\hspace{-2em}\Macro*{#1}#2\IfValueT{#3}{\latexinline!{{#3}}!}},
+        coltitle = black,
+        colbacktitle = white,
+        titlerule = 0.001pt,
+        enhanced jigsaw,
+        breakable,
+    % attach boxed title to top left = {xshift = -2em},
+        width = \dimexpr \linewidth - 2em \relax,
+        flush right,
+        top = 0.5ex,
+        bottom = 0pt,
+        left = 0pt,
+        right = 0pt,
+        opacitybacktitle = 0,
+        opacityframe = 0,
+        opacityback = 0,
+    ]
     }{
-    \end{list}%
+    \end{tcolorbox}
+% \end{list}%
     \medskip%
 }
 
+%% Repetitive text
+\NewDocumentCommand{\StatementOptions}{}{%
+    Any \Argument{options} specified for this macro uniquely affect this statement.%
+}
+\NewDocumentCommand{\BlockOptions}{}{%
+    Any of the \Argument{options} specified in this macro will affect this command and all items in the inner block, propagating up to and including the closing macro.%
+}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{The \PackageName{algxpar} package\thanks{This document corresponds to \PackageName{algxpar}~v\AlgVersion, dated \AlgDate.}}
 \author{Jander Moreira\\\texttt{moreira.jander@gmail.com}}
 \date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 \maketitle
 \sloppy
 
 \begin{abstract}
-    The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multiline text with the proper indentation.
+    The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multi-line text with the proper indentation.
 \end{abstract}
 
 \tableofcontents
@@ -241,18 +196,15 @@ I teach algorithms and programming and have adopted the \PackageName{algorithmic
 
 As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
 
-Unfortunately, \PackageName{algorithmx} doesn't natively support multiline statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
-
-
+Unfortunately, \PackageName{algorithmx} doesn't natively support multi-line statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
 
 
 \section{Package usage and options}
 To use the package simply add it to preamble.
 
-\begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
-    \bigskip
-    Currently, the package supports the following options:
 
+\begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
+    Currently, the package supports the following options:
     \begin{description}
         \item[\OptionInd{noend}] Suppresses the line that closes a block.
         \item[\Argument{language name}] Loads the keywords for an specific language. The lastest language in the list is set as default. Supported languages:
@@ -260,7 +212,7 @@ To use the package simply add it to preamble.
             \item \OptionInd{english} (default language, always loaded)
             \item \OptionInd{brazilian} Brazilian Portuguese
         \end{itemize}
-        \item[\OptionInd{language}] Sets some language as default.
+        \item[\OptionInd{language}] Sets a language as default.
     \end{description}
 \end{macro*}
 
@@ -277,15 +229,60 @@ Examples:
 \section{Writting pseudocode}
 All pseudocode is written inside the \texttt{algorithmic} environment.
 
+\subsection{How comments and options are handled}
+Until \PackageName{algxpar} v0.95, comment text was added as an optional argument before the text of a given command. For example:
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{Get first $k$}
+        \While[loop though all $k$]{$k$ is valid}
+            \Statep[do some work]{\Call{Process}{$k$}}
+            \Statep{Get next $k$}
+        \EndWhile
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+Using the comment before the text bothered me a lot as it seemed more natural to have it after. As of v0.99, the comment can be placed after the text, making writing more user-friendly.
+
+To maintain backward compatibility, using comments before the text is still supported, although its use is discouraged.
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{Get first $k$}
+        \While{$k$ is valid}[loop though all $k$]
+            \Statep{\Call{Process}{$k$}}[do some work]
+            \Statep{Get next $k$}
+        \EndWhile
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+In this section, comments in the old style are indicated as \Argument{comment*}, while the new format uses \Argument{comment}.
+
+In addition to this change, block end specifications (like \Macro{EndWhile}, for example) also accept the new form of comments. This new approach will, however, make it unfeasible to use local comments with \Macro{Comment} after the closing block macro. See \cref{sec:comments}.
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \While{\textit{condition}}[tested \textbf{before}]
+            \Statep{Some command}
+        \EndWhile[bottom of the loop]
+    \end{algorithmic}
+\end{tcblisting}
+
 \subsection{Documentation}
 A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
-\begin{macro}{Description}
-    General description of the pseudocode.
+\begin{macro}{Description}[~\Argument{text}]
+    The \Macro*{Description} is intended to hold the general description of the pseudocode.
 \end{macro}
-\begin{macro}{Require}
+
+\begin{macro}{Require}[~\Argument{text}]
     The required initial state that the code relies on. These are \textit{pre-conditions}.
 \end{macro}
-\begin{macro}{Ensure}
+
+\begin{macro}{Ensure}[~\Argument{text}]
     The final state produced by the code. These are \textit{post-conditions}.
 \end{macro}
 
@@ -298,10 +295,10 @@ A series of macros are defined to provide the header documentation for a pseudoc
 \end{tcblisting}
 
 Also are provided:
-\begin{macro}{Input}
+\begin{macro}{Input}[~\Argument{text}]
     Inputs.
 \end{macro}
-\begin{macro}{Output}
+\begin{macro}{Output}[~\Argument{text}]
     Outputs
 \end{macro}
 
@@ -323,15 +320,7 @@ Constants: \MacroInd{True} is \True, \MacroInd{False} is \False\ and \MacroInd{N
 
 \subsection{Statements}
 
-The macros \Macro*{State} and \Macro*{Statex} can still be used and were left unchanged.
-
-\begin{macro}{State}[~\Argument{text}\FromPackage{algorithmicx}]
-\end{macro}
-
-\begin{macro}{Statex}[~\Argument{text}\FromPackage{algorithmicx}]
-\end{macro}
-
-A replacement to macro \Macro*{State} is \Macro*{Statep}.
+The macros \MacroInd*{State} and \MacroInd*{Statex} can still be used and were left unchanged. A replacement to macro \Macro*{State} is \Macro*{Statep}.
 
 \begin{macro}{Statep}[\MArg{text}\OArg{comment}\LArg{options}]
 \end{macro}
@@ -353,7 +342,6 @@ A replacement to macro \Macro*{State} is \Macro*{Statep}.
     \end{minipage}
 \end{tcblisting}
 
-
 \subsection{Assignments and I/O}
 
 To support teaching-like pseudocode writing, the macros \MacroInd*{Read} and \MacroInd*{Write} are provided.
@@ -369,34 +357,27 @@ To support teaching-like pseudocode writing, the macros \MacroInd*{Read} and \Ma
 The macro \Macro*{Set} can be used for assignments.
 
 \begin{macro}{Set}[\MArg{lvalue}\MArg{expression} \Deprecated]
-    This macro expands to \latexinline!\Id{#1} \gets #2!.
+    This macro expands to \Macro{Id}\latexinline!{#1} \gets #2!.
 
     As the handling of text and math modes should be done and its usage brings no evident advantage, this macro will no longer be supported. It will be kept as is for backward compatibility however.
 \end{macro}
 
+\subsection{Comments}\label{sec:comments}
+The \Macro*{Comment} macro defined by \PackageName{algorithmicx} has the same original behavior and has been redefined to handle styling options. It can be used, however, only within the text argument of some command. See more information about this at the end of this section.
 
-\subsection{Comments}
-The macro \Macro*{Comment} defined by \PackageName{algorithmicx} has the same original behaviour and was redefined to handle style options.
+\begin{macro}{Comment}[\MArg{text}\LArg{options}]
+    The redesigned version of \Macro*{Comment} can be used with \Macro{State}, \Macro{Statex} and \Macro{Statep}. When used with \Macro{Statep}, it must be enclosed inside the text braces, but multi-line statements should work differently than expected.
 
-\begin{macro}{Comment}[\MArg{text}\OArg{options}]
-    The redesigned version of \Macro*{Comment} can be used both with \Macro{State} and \Macro{Statep}. When used with \Macro{Statep} it must me put inside the brackets, but multiline statements will work differently.
+    \StatementOptions
 \end{macro}
 
-\bigskip
 \begin{tcblisting}{sidebyside = false}
-    \begin{minipage}{6.5cm} %  force limited space
+    \begin{minipage}{6.5cm}
+        \AlgSet{comment color = blue}%  for viewing purposes only
         \begin{algorithmic}
-            \State $x \gets 0$\Comment{only zeroes $x$}<comment color = orange>
-            \Statep{$x \gets 0$\Comment{only zeroes $x$}<comment font = \sffamily>}
-            \Statep{$x \gets 0$}[only zeroes $x$] %  better
-        \end{algorithmic}
-
-        \bigskip
-        \AlgSet{comment color = blue}
-        \begin{algorithmic}
-            \State Store the value zero in variable $x$\Comment{only zeroes $x$}
-            \Statep{Store the value zero in variable $x$\Comment{only zeroes $x$}}
-            \Statep{Store the value zero in variable $x$}[only zeroes $x$]
+            \State Store the value zero in variable $x$\Comment{just zeroes $x$}
+            \Statep{Store the value zero in variable $x$\Comment{just zeroes $x$}}
+            \Statep{Store the value zero in variable $x$}[just zeroes $x$]% best choice
         \end{algorithmic}
     \end{minipage}
 \end{tcblisting}
@@ -405,18 +386,31 @@ The macro \Macro*{Comment} defined by \PackageName{algorithmicx} has the same or
     While \Macro{Comment} pushes text to the end of the line, the macro \Macro*{Commentl} is ``local''. In other words, it just put a comment in place.
 
     Local comments follows regular text and no line changes are checked.
+    
+    \StatementOptions
 \end{macro}
 
 \begin{tcblisting}{}
     \begin{algorithmic}
         \If{$a > 0$~~\Commentl{special case}\\
-                or\\
-                $a < b$~~\Commentl{general case}\\}
+        or\\
+            $a < b$~~\Commentl{general case}\\}
             \Statep{Process data~~\Commentl{may take a while}}
         \EndIf
     \end{algorithmic}
 \end{tcblisting}
 
+To incorporate multi-line handling while maintaining a consistent visual appearance, none of these macros can be used outside the text of a given command.
+
+\begin{tcblisting}{}
+    % This worked fine with package algorithmicx
+    % Now it is broken...
+    \begin{algorithmic}
+        \If{$a > b$}\Comment{simple test}
+            \Statep{$b \gets a$}
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
 
 \subsection{Flow Control}
 The macro \Macro*{If} stands for the \Keyword{if}/\Keyword{then}/\Keyword{else} conditional.
@@ -424,15 +418,13 @@ The macro \Macro*{If} stands for the \Keyword{if}/\Keyword{then}/\Keyword{else} 
 \begin{macro}{If}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
     In its simpler form, \Macro*{If} shows \Argument{text} (the condition) and must be closed with an \Macro{EndIf}, creating a block of nested commands.
 
-    There are two optional places to insert comments. Until v0.95, \Argument{comments*} should preceed \Argument{text}. From now on, the new \Argument{comments} argument should come after \Argument{text}. The earlier form is mantained for backward compatibility. For now, if both comments are used, they are concatenated.
-
-    A set of local \Argument{options} can also be specified between angle brackets. These options are defined within a latex group and will hold until the closing \Macro{EndIf}.
+    \BlockOptions
 \end{macro}
 
 \begin{macro}{EndIf}[\OArg{comment}\LArg{options}]
     \Macro*{EndIf} closes its respective \Macro{If}.
 
-    An optional \Argument{comment} can be used, as well as \Argument{options}. These \Argument{options} will affect this specific \Macro*{EndIf} only.
+    \StatementOptions
 \end{macro}
 
 \begin{tcblisting}{}
@@ -449,17 +441,13 @@ The macros \Macro*{Else} and \Macro*{ElsIf} are also available.
 \begin{macro}{Else}[\OArg{comment}\LArg{options}]
     This macro defines the \Keyword{else} part of the \Macro{If} statement.
 
-    An optional \Argument{comment} can be specified.
-
-    The \Argument{options} will affect from this command to the corresponding \Macro{EndIf}.
+    \BlockOptions
 \end{macro}
 
-\begin{macro}{Elsif}[\OArg{comment}\MArg{text}\OArg{comment}\LArg{options}]
+\begin{macro}{Elsif}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
     \Macro*{ElsIf} defines the \Keyword{if} chaining. The argument \Argument{text} is the new condition.
 
-    An optional \Argument{comment} can be specified.
-
-    The \Argument{options} will affect from this command to the corresponding \Macro{EndIf}.
+    \BlockOptions
 \end{macro}
 
 A selection-like conditional statement was added: \Macro*{Switch}. A \Keyword{switch} evaluates an expression and compares successively with a number of \Keyword{case} clauses.
@@ -563,12 +551,11 @@ The \Keyword{for} loop uses \Macro*{For} and is also flavored with two variants:
 
 The loop with testing at the top is \Macro*{While}.
 
-\begin{macro}{While}[\OArg{comment}\MArg{text}\OArg{comment}\LArg{options}]
+\begin{macro}{While}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
     In \Argument{text} is the boolean expression that, when \False, will end the loop.
 
     \BlockOptions
 \end{macro}
-
 
 \begin{macro}{EndWhile}[\OArg{comment}\LArg{options}]
     This macro closes a matching \Macro{While} block.
@@ -590,6 +577,13 @@ The loop with testing at the top is \Macro*{While}.
 
     \BlockOptions
 \end{macro}
+
+\begin{macro}{Until}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    In \Argument{text} is the boolean expression that, when \True, will end the loop.
+
+    \StatementOptions
+\end{macro}
+
 
 \begin{tcblisting}{}
     \begin{algorithmic}
@@ -640,7 +634,7 @@ An additional generic loop is build with \Macro*{Loop}.
     Macros like \Macro*{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \Macro{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
     If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
 
-    Section~\ref{sec:languages} shows the predefined keywords.
+    Section~\ref{sec:languages-and-translations} shows the predefined keywords.
 
     \begin{tcblisting}{}
         In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
@@ -653,7 +647,7 @@ An additional generic loop is build with \Macro*{Loop}.
 \end{macro}
 
 
-\section{Languages and translations}
+\section{Languages and translations}\label{sec:languages-and-translations}
 
 
 \tcbinputlisting{listing file = brazilian.kw.tex, listing only}
@@ -665,3 +659,4 @@ An additional generic loop is build with \Macro*{Loop}.
 \printindex
 
 \end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
