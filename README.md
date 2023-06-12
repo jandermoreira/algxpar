@@ -1,10 +1,10 @@
 # algxpar
 This package extends the algorithmicx package (algpseudocode) to support multiline text.
 
-# How to use
+## How to use
 Copy `algxpar.sty` and `*.kw.tex` from `src` to somewhere in your TeX path.
 
-# Licence
+## Licence
 Copyright (C) 2019 by Jander Moreira (moreira.jander@gmail.com)
 
 This work may be distributed and/or modified under the
