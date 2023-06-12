@@ -4,6 +4,8 @@ This package extends the algorithmicx package (algpseudocode) to support multili
 ## How to use
 Copy `algxpar.sty` and `*.kw.tex` from `src` to somewhere in your TeX path.
 
+**Important**: as `algxpar` is included in the CTAN distribuition, make sure this versions comes first in the search path.
+
 ## Licence
 Copyright (C) 2019 by Jander Moreira (moreira.jander@gmail.com)
 
