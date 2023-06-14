@@ -6,15 +6,11 @@
 \usepackage[T1]{fontenc}
 
 \usepackage{tikz}
-\usepackage{etoolbox}
 \usepackage{textcomp}
 \usepackage{amsfonts}
 \usepackage{amsmath}
-\usepackage{hyperref}
-\usepackage{geometry}
 \usepackage{makeidx}
 \usepackage[all]{nowidow}
-\usepackage{cleveref}
 
 \usepackage[
     brazilian,
@@ -36,6 +32,9 @@
     linkcolor = blue!10!black,
     citecolor = black!80,
 }
+
+% cleveref
+\usepackage{cleveref}
 
 % makeidx
 \usepackage{imakeidx}
@@ -275,18 +274,19 @@ In addition to this change, block end specifications (like \Macro{EndWhile}, for
     \end{algorithmic}
 \end{tcblisting}
 
-All options are an optional argument enclosed in angle-brackets (\latexinline{<>}) at the end of each command.
+A list of options can be added to each command by locally changing some algorithm presentation settings. These settings are optional and must be entered using angle brackets at the end of the command.
 
+%! formatter = off
 \begin{tcblisting}{}
     \begin{algorithmic}
         \If{$a > b$}
-            \While{$a > 0$}
-                <keyword color = blue!50>
+            \While{$a > 0$}<keyword color = blue!70>
                 \Statep{\Call{Process}{$a$}}
             \EndWhile
         \EndIf
     \end{algorithmic}
 \end{tcblisting}
+%! formatter = on
 
 \subsection{Documentation}
 A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
