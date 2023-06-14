@@ -8,7 +8,6 @@
 \usepackage{tikz}
 \usepackage{etoolbox}
 \usepackage{textcomp}
-\usepackage[outputdir=../out, cache = true]{minted}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{hyperref}
@@ -22,25 +21,33 @@
     language = english,
 ]{algxpar}
 
+
 %% Layout
+
 % geometry
+\usepackage{geometry}
 \geometry{top = 2.5cm, bottom = 2cm, right = 2.5cm, left = 4cm}
+
 % hyperref
+\usepackage{hyperref}
 \hypersetup{
     colorlinks,
     urlcolor = blue!20!black,
     linkcolor = blue!10!black,
     citecolor = black!80,
-% backref = page,
-% hyperindex,
 }
+
 % makeidx
+\usepackage{imakeidx}
 \makeindex
+
 % minted
-\usemintedstyle{tango}
+\usepackage[outputdir = ../out]{minted}
 \newminted{latex}{autogobble, breaklines, bgcolor = blue!5}
 \newmintinline{latex}{}
+%
 % tcolorbox
+\usepackage{tcolorbox}
 \tcbuselibrary{skins, listings, minted, breakable}
 \tcbset{
     colback = blue!3,
@@ -57,6 +64,7 @@
 }
 
 %% Text support
+
 % macro arguments formats
 \colorlet{argumentcolor}{orange!50!black}
 \NewDocumentCommand{\Argument}{ m }{%
@@ -96,18 +104,18 @@
     }%
 }
 
-%
-% % \newtcolorbox{codigo}[1]{%
-% %     bottomrule = 0pt,
-% %     toprule = 0pt,
-% %     leftrule = 0pt,
-% %     rightrule = 0pt,
-% %     titlerule = 0pt,
-% %     sharp corners,
-% %     sidebyside,
-% %     sidebyside align = top,
-% %     #1
-% % }
+
+% \newtcolorbox{codigo}[1]{%
+%     bottomrule = 0pt,
+%     toprule = 0pt,
+%     leftrule = 0pt,
+%     rightrule = 0pt,
+%     titlerule = 0pt,
+%     sharp corners,
+%     sidebyside,
+%     sidebyside align = top,
+%     #1
+% }
 
 
 \NewDocumentEnvironment{macro}{ m O{} o }{%
@@ -129,18 +137,13 @@
 }
 \NewDocumentEnvironment{macro*}{ m m o }{
     \medskip\par%
-    \noindent%
-    % \Macro*{#1}#2%
-    % \IfValueT{#3}{\latexinline!{{#3}}!}%
-    \par%
     \begin{tcolorbox}[
-        title = {\hspace{-2em}\Macro*{#1}#2\IfValueT{#3}{\latexinline!{{#3}}!}},
+        title = {\hspace{-2em}\Macro*{#1}#2\IfValueT{#3}{\latexinline!{#3} !}},
         coltitle = black,
         colbacktitle = white,
         titlerule = 0.001pt,
         enhanced jigsaw,
         breakable,
-    % attach boxed title to top left = {xshift = -2em},
         width = \dimexpr \linewidth - 2em \relax,
         flush right,
         top = 0.5ex,
@@ -153,7 +156,6 @@
     ]
     }{
     \end{tcolorbox}
-% \end{list}%
     \medskip%
 }
 
@@ -172,6 +174,7 @@
 \date{\today}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \begin{document}
 \maketitle
@@ -201,7 +204,6 @@ Unfortunately, \PackageName{algorithmx} doesn't natively support multi-line stat
 
 \section{Package usage and options}
 To use the package simply add it to preamble.
-
 
 \begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
     Currently, the package supports the following options:
@@ -266,23 +268,40 @@ In addition to this change, block end specifications (like \Macro{EndWhile}, for
 
 \begin{tcblisting}{}
     \begin{algorithmic}
-        \While{\textit{condition}}[tested \textbf{before}]
+        \While{\textit{condition}}
+            [tested \textbf{before}]
             \Statep{Some command}
         \EndWhile[bottom of the loop]
     \end{algorithmic}
 \end{tcblisting}
 
+All options are an optional argument enclosed in angle-brackets (\latexinline{<>}) at the end of each command.
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \If{$a > b$}
+            \While{$a > 0$}
+                <keyword color = blue!50>
+                \Statep{\Call{Process}{$a$}}
+            \EndWhile
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+
 \subsection{Documentation}
 A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
-\begin{macro}{Description}[~\Argument{text}]
+\begin{macro}{Description}
+    [~\Argument{text}]
     The \Macro*{Description} is intended to hold the general description of the pseudocode.
 \end{macro}
 
-\begin{macro}{Require}[~\Argument{text}]
+\begin{macro}{Require}
+    [~\Argument{text}]
     The required initial state that the code relies on. These are \textit{pre-conditions}.
 \end{macro}
 
-\begin{macro}{Ensure}[~\Argument{text}]
+\begin{macro}{Ensure}
+    [~\Argument{text}]
     The final state produced by the code. These are \textit{post-conditions}.
 \end{macro}
 
@@ -295,10 +314,12 @@ A series of macros are defined to provide the header documentation for a pseudoc
 \end{tcblisting}
 
 Also are provided:
-\begin{macro}{Input}[~\Argument{text}]
+\begin{macro}{Input}
+    [~\Argument{text}]
     Inputs.
 \end{macro}
-\begin{macro}{Output}[~\Argument{text}]
+\begin{macro}{Output}
+    [~\Argument{text}]
     Outputs
 \end{macro}
 
@@ -386,7 +407,7 @@ The \Macro*{Comment} macro defined by \PackageName{algorithmicx} has the same or
     While \Macro{Comment} pushes text to the end of the line, the macro \Macro*{Commentl} is ``local''. In other words, it just put a comment in place.
 
     Local comments follows regular text and no line changes are checked.
-    
+
     \StatementOptions
 \end{macro}
 
@@ -406,7 +427,8 @@ To incorporate multi-line handling while maintaining a consistent visual appeara
     % This worked fine with package algorithmicx
     % Now it is broken...
     \begin{algorithmic}
-        \If{$a > b$}\Comment{simple test}
+        \If{$a > b$}
+            \Comment{simple test}
             \Statep{$b \gets a$}
         \EndIf
     \end{algorithmic}
