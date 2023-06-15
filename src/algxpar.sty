@@ -74,10 +74,10 @@
 % Module: returns a formatted name for a procedure ou function
 % #1: name
 \NewDocumentCommand{\Module} { m }{
-    \mbox{\axp@ModuleStyle\textsc{#1}}
+    \mbox{\textcolor{\axp@ModuleColor}{\axp@ModuleFont#1}}
 }
 
-% Module: returns a formatted name for a procedure ou function
+% CommentSymbol: returns the formatted comment symbol
 % #1: name
 \NewDocumentCommand{\CommentSymbol} { m }{
     \mbox{\textcolor{\axp@CommentColor}{\axp@CommentFont\axp@CommentSymbol}}
@@ -122,9 +122,6 @@
 
 
 %% Settings
-\newlength{\axp@MaximumCommentWidth}
-\newlength{\axp@MinimumCommentWidth}
-\newlength{\axp@StatementIndent}
 \newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
 \newif\ifaxp@IsStatement\axp@IsStatementfalse % set in \Statep
 
@@ -150,10 +147,8 @@
     module color/.store in = \axp@ModuleColor,
     %
     comment symbol/.store in = \axp@CommentSymbol,
-    maximum comment width/.code = {\setlength{\axp@MaximumCommentWidth}{#1}},
+    maximum comment width/.store in = \axp@MaximumCommentWidth,
     comment separator width/.store in = \axp@CommentSeparatorWidth,
-    %
-    statement indent/.code = {\setlength{\axp@StatementIndent}{#1}},
     %
     noend/.code = {\axp@DisableEnds},
     no end/.code = {\axp@DisableEnds},
@@ -162,6 +157,8 @@
     keywords/.code = {\pgfkeysalso{/algxpar/languages/.cd, #1}},
     %
     algorithmic indent/.store in = \algorithmicindent,
+    statement indent/.store in = \axp@StatementIndent,
+    parameter indent/.store in = \axp@ParameterIndent,
 }
 %! formatter = on
 
@@ -205,10 +202,11 @@
     constant color = .,
     module font = \scshape,
     module color = .,
-    statement indent = 1em,
     maximum comment width = 0.3\linewidth,
     comment separator width = 1em,
     algorithmic indent = 1.5em,
+    statement indent = 1em,
+    parameter indent = 0pt,
 }
 
 
@@ -218,6 +216,7 @@
     language/.store in = \axp@Language,
     noend/.is if = axp@NoEnd,
     .unknown/.code = {
+        %! suppress = FileNotFound
         \input{\pgfkeyscurrentname.kw}
         \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
     }
@@ -340,10 +339,10 @@
 \NewDocumentCommand{\axp@MakeCommand}{ s }{%
     \axp@DoCommand{%  ajustment for opening/closing blocks
         \IfBooleanTF{#1}{0}{1}%
-    }{%  command
-        \axp@MakeSingleToken{}{\axp@CommandKeyword}{ }%
-    }{%  text
-        \axp@CommandText%
+    }{%  command or module+name
+        \axp@MakeSingleToken{}{\axp@CommandKeyword}{\ifaxp@IsModule(\else\ \fi}%
+    }{%  text or module arguments
+        \axp@CommandText\ifaxp@IsModule)\fi%
     }{%  command complement
         \axp@MakeSingleToken{ }{\axp@CommandComplementKeyword}{}%
     }{%  comment
@@ -353,7 +352,7 @@
     }%
 }
 
-% axp@MakeCommand: builds the command (see axp@DefineCommand)
+% axp@DoCommand: builds the command (see axp@DefineCommand)
 % #1: 1 when openning block; 0 when closing
 % #2: command
 % #3: text
@@ -370,19 +369,24 @@
     % Making the line: body
     #2%
     %! formatter = off
-    % \setlength{\fboxsep}{0pt}\fbox{%
+    \setlength{\fboxsep}{0pt}\fbox{%
+        \ifaxp@IsModule\hspace{\axp@ParameterIndent}\fi%
         \parbox[t]{\axp@TextWidth}{%
             \axp@TextStyle%
             \axp@TextFont%
             \ifaxp@IsStatement%
                 \setlength{\hangindent}{\axp@StatementIndent}%
             \fi%
+            \ifaxp@IsModule%
+                \ifaxp@IsModule\hspace{-\axp@ParameterIndent}\fi%
+                % \setlength{\hangindent}{\axp@ParameterIndent}%
+            \fi%
             \textcolor{\axp@TextColor}{#3}#4\strut%
         }%
-    % }%  fbox
+    }%  fbox
     % Making the line: comment
     \ifaxp@NoCommentPresent\else%
-        \hspace{\axp@CommentSeparatorWidth}\CommentSymbol{}~%
+        \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol{}~%
         % \setlength{\fboxsep}{0pt}\fbox{%
             \parbox[t]{\axp@CommentWidth}{%
                 \axp@CommentStyle%
@@ -400,6 +404,8 @@
 \NewDocumentCommand{\Step}{}{\axp@MakeSingleToken{}{\Keyword{step}}{ }}
 \NewDocumentCommand{\Continue}{}{\Keyword{continue}}
 \NewDocumentCommand{\Break}{}{\Keyword{break}}
+\RenewDocumentCommand{\Return}{}{\axp@MakeSingleToken{}{\Keyword{return}}{ }}
+
 
 \NewDocumentCommand{\True}{}{\Constant{true}}
 \NewDocumentCommand{\False}{}{\Constant{false}}
@@ -665,8 +671,7 @@
 
 
 %% Procedure, function, calls
-\newlength{\axp@procedurewidth}
-\newlength{\axp@namewidth}
+\newif\ifaxp@IsModule
 \algblockdefx[Procedure]{Procedure}{EndProcedure}{\axp@MakeCommand}{\axp@MakeCommand*}
 % #1: old style comment
 % #2: name
@@ -675,8 +680,10 @@
 % #5: options
 \RenewDocumentCommand{\Procedure}{ O{} m m O{} D<>{} }{%
     \axp@BeginGroup
-    \axp@DefineCommand{\Keyword{procedure}~\Module{#2}(}{#3)}{}{#4}{#5}%
+    \axp@IsModuletrue%
+    \axp@DefineCommand{\Keyword{procedure}~\Module{#2}}{#3}{}{#4}{#5}%
     \ALG@makeentity{Procedure}%
+    \axp@IsModulefalse%
 }
 % #1: comment
 % #2: options
@@ -686,17 +693,26 @@
     \axp@EndGroup
 }
 
-
-
-\newlength{\axp@functionwidth}
-\algblockdefx{Function}{EndFunction}%
-[3][]{%
-    \settowidth{\axp@functionwidth}{\algorithmicfunction~}%
-    \settowidth{\axp@namewidth}{\textsc{#2}(}%
-    \addtolength{\axp@functionwidth}{0.6\axp@namewidth}%
-    \algparbox[#1]{\algorithmicfunction\ \textsc{#2}(#3)}{0pt}
-}%
-{\Keyword{end}\ \algorithmicfunction}
+\algblockdefx[Function]{Function}{EndFunction}{\axp@MakeCommand}{\axp@MakeCommand*}
+% #1: old style comment
+% #2: name
+% #3: arguments
+% #4: comment
+% #5: options
+\RenewDocumentCommand{\Function}{ O{} m m O{} D<>{} }{%
+    \axp@BeginGroup
+    \axp@IsModuletrue%
+    \axp@DefineCommand{\Keyword{function}~\Module{#2}}{#3}{}{#4}{#5}%
+    \ALG@makeentity{Function}%
+    \axp@IsModulefalse%
+}
+% #1: comment
+% #2: options
+\RenewDocumentCommand{\EndFunction}{ O{} D<>{} }{%
+    \axp@DefineCommand{\Keyword{endfunction}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndFunction}%
+    \axp@EndGroup
+}
 \algrenewcommand\Call[2]{%
     \def\argstmp{#2}%
     \textsc{#1}\ifx\argstmp\empty\mbox{(\hskip0.5ex)}\else(#2)\fi%
@@ -725,45 +741,3 @@
 
 
 \endinput
-
-\setlength{\axp@commentwidth}{0pt}
-\newcommand{\algparbox}[3][]{\axp@algparbox{#1}{#2}{#3}{1}}
-
-
-\newlength{\axp@largestcommentwidth}
-\setlength{\axp@largestcommentwidth}{0.3\linewidth}
-%! formatter = off
-\newcommand{\axp@algparbox}[4]{%
-    \begingroup%
-    \def\temp{#1}%
-    \ifx\temp\relax%
-    \setlength{\axp@commentwidth}{-2em}%
-    \else%
-    \settowidth{\axp@commentwidth}{\axp@commentleftsymbol~#1}%
-    \ifdim\axp@commentwidth>\axp@largestcommentwidth\relax%
-    \setlength{\axp@commentwidth}{\axp@largestcommentwidth}%
-    \fi%
-    \fi%
-    \RenewDocumentCommand{\NewLine}{}{%
-        \\\hspace{#3}%
-    % \raisebox{0.2ex}{\scalebox{0.75}{\rotatebox{90}{$\curvearrowleft$}~}}%
-    }%
-    % \setlength{\fboxsep}{0pt}\fbox{%
-        \begin{minipage}[t]{\dimexpr\linewidth - (\algorithmicindent)*(\theALG@nested - 1) - \axp@CurrentIndent - \axp@commentwidth - 2em}
-            \setlength{\hangindent}{#3}%
-            \begin{flushleft}
-                #2%
-            \end{flushleft}
-        \end{minipage}\strut%
-    % }%
-%    \ifx\temp\relax\else%
-%    \hfill\axp@commentleftsymbol\hspace{0.25em}%
-%    % \fbox{%
-%        \parbox[t]{\axp@commentwidth}{\slshape\RaggedRight#1}%
-%    % }%
-%    \fi%
-    \endgroup%
-}
-%! formatter = on
-
-
