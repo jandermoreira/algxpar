@@ -190,763 +190,749 @@
 
 
 \begin{document}
-% \maketitle
-% \sloppy
-%
-% \begin{abstract}
-%     The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multi-line text with the proper indentation.
-% \end{abstract}
-%
-% \tableofcontents
-%
-% \vspace{2em}
-%
-% % \changes{v0.9}{2019/10/24}{First version}
-% % \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
-% % \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
-% % \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
-%
-%
-% \section{Introduction}
-% I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
-%
-% As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
-%
-% Unfortunately, \PackageName{algorithmx} doesn't natively support multi-line statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
-%
-%
-% \section{Package usage and options}\label{sec:package-usage-and-options}
-% To use the package simply add it to preamble.
-%
-% \begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
-%     Currently, the package supports the following options:
-%     \begin{description}
-%         \item[\OptionInd{noend}] Suppresses the line that closes a block.
-%         \item[\Argument{language name}] Loads the keywords for an specific language. The lastest language in the list is set as default. Supported languages:
-%         \begin{itemize}
-%             \item \OptionInd{english} (default language, always loaded)
-%             \item \OptionInd{brazilian} Brazilian Portuguese
-%         \end{itemize}
-%         \item[\OptionInd{language}] Sets a language as default.
-%     \end{description}
-% \end{macro*}
-%
-% Examples:
-% \begin{latexcode}
-%     \usepackage[noend]{algxpar} %  Supresses all "end lines"
-%
-%     \usepackage[brazilian]{algxpar} %  Loads Brazilian keyword set and sets it as default
-%
-%     \usepackage[brazilian, language = english]{algxpar}  % Loads Brazilian keywords but keeps english as default
-% \end{latexcode}
-%
-%
-% \section{Writting pseudocode}
-% All pseudocode is written inside the \texttt{algorithmic} environment.
-%
-% \subsection{How comments and options are handled}
-% Until \PackageName{algxpar} v0.95, comment text was added as an optional argument before the text of a given command. For example:
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Statep{Get first $k$}
-%         \While[loop though all $k$]{$k$ is valid}
-%             \Statep[do some work]{\Call{Process}{$k$}}
-%             \Statep{Get next $k$}
-%         \EndWhile
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% Using the comment before the text bothered me a lot as it seemed more natural to have it after. As of v0.99, the comment can be placed after the text, making writing more user-friendly.
-%
-% To maintain backward compatibility, using comments before the text is still supported, although its use is discouraged.
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Statep{Get first $k$}
-%         \While{$k$ is valid}[loop though all $k$]
-%             \Statep{\Call{Process}{$k$}}[do some work]
-%             \Statep{Get next $k$}
-%         \EndWhile
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% In this section, comments in the old style are indicated as \Argument{comment*}, while the new format uses \Argument{comment}.
-%
-% In addition to this change, block end specifications (like \MacroRef{EndWhile}, for example) also accept the new form of comments. This new approach will, however, make it unfeasible to use local comments with \MacroRef{Comment} after the closing block macro. See \cref{sec:comments}.
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \While{\textit{condition}}
-%             [tested \textbf{before}]
-%             \Statep{Some command}
-%         \EndWhile[bottom of the loop]
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% A list of options can be added to each command by locally changing some algorithm presentation settings. These settings are optional and must be entered using angle brackets at the end of the command.
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \If{$a > b$}
-%             \While{$a > 0$}<keyword color = blue!70>
-%                 \Statep{\Call{Process}{$a$}}
-%             \EndWhile
-%         \EndIf
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% \subsection{Documentation}\label{sec:documentation}
-% A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
-% \begin{macro}{Description}
-%     [~\Argument{description text}]
-%     The \Macro{Description} is intended to hold the general description of the pseudocode.
-% \end{macro}
-%
-% \begin{macro}{Require}
-%     [~\Argument{pre-conditions}]
-%     The required initial state that the code relies on. These are \textit{pre-conditions}.
-% \end{macro}
-%
-% \begin{macro}{Ensure}
-%     [~\Argument{post-conditions}]
-%     The final state produced by the code. These are \textit{post-conditions}.
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Description Calculation of the factorial of a natural number through successive multiplications
-%         \Require $n \in \mathbb{N}$
-%         \Ensure $f = n!$
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% Also are provided:
-% \begin{macro}{Input}
-%     [~\Argument{inputs}]
-%     Inputs.
-% \end{macro}
-% \begin{macro}{Output}
-%     [~\Argument{outputs}]
-%     Outputs
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Description Calculation of the factorial of a natural number through successive multiplications
-%         \Input $n$ (integer)
-%         \Output $n!$ (integer)
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% \subsection{Constants and Identifiers}\label{sec:constants-and-identifiers}
-% Constants: \MacroDef{True} is \True, \MacroDef{False} is \False\ and \MacroDef{Nil} is \Nil.
-%
-% \begin{macro}{Id}[\MArg{identifier}]
-%     Identifiers are in italics: \latexinline!\Id{value}! is \Id{value}. Its designed to work in both text and math modes: \latexinline!$\Id{offer}_k$! is $\Id{offer}_k$.
-% \end{macro}
-%
-% \subsection{Statements}\label{sec:statements}
-%
-% The macros \Macro{State} and \Macro{Statex} can still be used and were left unchanged. A replacement to macro \Macro{State} is \Macro{Statep}.
-%
-% \begin{macro}{Statep}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{minipage}{6cm}
-%         \begin{algorithmic}
-%             \State Collect all relevant information from the selected databases
-%             \State Process all data\Comment{in parallel}
-%             \State Present a report with the results and send to management
-%         \end{algorithmic}
-%
-%         \bigskip
-%         \begin{algorithmic}
-%             \Statep{Collect all relevant information from the selected databases}
-%             \Statep{Process all data}[in parallel]
-%             \Statep{Present a report with the results and send to management}
-%         \end{algorithmic}
-%     \end{minipage}
-% \end{tcblisting}
-%
-% \subsection{Assignments and I/O}\label{sec:assignments-and-i/o}
-%
-% To support teaching-like pseudocode writing, the macros \MacroDef{Read} and \MacroDef{Write} are provided.
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Statep{\Read $v_1, v_2$}
-%         \Statep{$\Id{mean} \gets \dfrac{v_1 + v_2}{2}$}[calculate]
-%         \Statep{\Write \Id{mean}}
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% The macro \Macro{Set} can be used for assignments.
-%
-% \begin{macro}{Set}[\MArg{lvalue}\MArg{expression} \Deprecated]
-%     This macro expands to \MacroRef{Id}\latexinline!{#1} \gets #2!.
-%
-%     As the handling of text and math modes should be done and its usage brings no evident advantage, this macro will no longer be supported. It will be kept as is for backward compatibility however.
-% \end{macro}
-%
-% \subsection{Comments}\label{sec:comments}
-% The \Macro{Comment} macro defined by \PackageName{algorithmicx} has the same original behavior and has been redefined to handle styling options. It can be used, however, only within the text argument of some command. See more information about this at the end of this section.
-%
-% \begin{macro}{Comment}[\MArg{text}\LArg{options}]
-%     The redesigned version of \Macro{Comment} can be used with \MacroRef{State}, \MacroRef{Statex} and \MacroRef{Statep}. When used with \MacroRef{Statep}, it must be enclosed inside the text braces, but multi-line statements should work differently than expected.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{tcblisting}{sidebyside = false}
-%     \begin{minipage}{6.5cm}
-%         \AlgSet{comment color = blue}%  for viewing purposes only
-%         \begin{algorithmic}
-%             \State Store the value zero in variable $x$\Comment{just zeroes $x$}
-%             \Statep{Store the value zero in variable $x$\Comment{just zeroes $x$}}
-%             \Statep{Store the value zero in variable $x$}[just zeroes $x$]% best choice
-%         \end{algorithmic}
-%     \end{minipage}
-% \end{tcblisting}
-%
-% \begin{macro}{Commentl}[\MArg{text}\LArg{options}]
-%     While \MacroRef{Comment} pushes text to the end of the line, the macro \Macro{Commentl} is ``local''. In other words, it just puts a comment in place.
-%
-%     Local comments follows regular text and no line changes are checked.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \If{$a > 0$~~\Commentl{special case}
-%         or
-%             $a < b$~~\Commentl{general case} }
-%             \Statep{Process data~~\Commentl{may take a while}}
-%         \EndIf
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% To incorporate multi-line handling while maintaining a consistent visual appearance, none of these macros can be used outside the text of a given command.
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     % This worked fine with package algorithmicx
-%     % Now it is broken...
-%     \begin{algorithmic}
-%         \If{$a > b$}\Comment{simple test}
-%             \Statep{$b \gets a$}
-%         \EndIf
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% \subsection{Flow Control}\label{sec:flow-control}
-% The macro \Macro{If} stands for the \Keyword{if}/\Keyword{then}/\Keyword{else} conditional.
-%
-% \begin{macro}{If}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     In its simpler form, \Macro{If} shows \Argument{text} (the condition) and must be closed with an \MacroRef{EndIf}, creating a block of nested commands.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndIf}[\OArg{comment}\LArg{options}]
-%     \Macro{EndIf} closes its respective \MacroRef{If}.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \State \Read $v$
-%         \If{$v < 0$}[is it negative?]
-%             \Statep{$v \gets -v$}[make it positive]
-%         \EndIf
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% The macros \Macro{Else} and \Macro{ElsIf} are also available.
-%
-% \begin{macro}{Else}[\OArg{comment}\LArg{options}]
-%     This macro defines the \Keyword{else} part of the \MacroRef{If} statement.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{Elsif}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     \Macro{ElsIf} defines the \Keyword{if} chaining. The argument \Argument{text} is the new condition.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% A selection-like conditional statement was added: \Macro{Switch}. A \Keyword{switch} evaluates an expression and compares successively with a number of \Keyword{case} clauses.
-%
-% \begin{macro}{Switch}[\OArg{comment*}\MArg{expression}\OArg{comment}\LArg{options}]
-%     The \Macro{Switch} is closed by a matching \MacroRef{EndSwitch}.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndSwitch}[\OArg{comment}\LArg{options}]
-%     This macro closes a \MacroRef{Switch} block.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{macro}{Case}[\OArg{comment*}\MArg{constant-list}\OArg{comment}\LArg{options}]
-%     When the result of the \Keyword{switch} expression matches one of the constants in \Argument{constants-list}, then the \Keyword{case} is executed. Usually the \Argument{constant-list} is a single constant, a comma-separated list of constants or some kind of range specification.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndCase}[\OArg{comment}\LArg{options}]
-%     This macro closes a corresponding \MacroRef{Case} statement.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{macro}{Otherwise}[\OArg{comment}\LArg{options}]
-%     A \Keyword{switch} structure can optionally use an \Keyword{otherwise} clause, which is executed when no previous \Keyword{case}s had a hit.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndOtherwise}[\OArg{comment}\LArg{options}]
-%     This macro closes a corresponding \MacroRef{Otherwise} statement.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Statep{Get \Id{option}}
-%         \Switch{\Id{option}}
-%             \Case{1}[inserts new record]
-%                 \Statep{\Call{Insert}{\Id{record}}}
-%             \EndCase
-%             \Case{2}[deletes a record]
-%                 \Statep{\Call{Delete}{\Id{key}}}
-%             \EndCase
-%             \Otherwise
-%                 \Statep{Print ``invalid option''}
-%             \EndOtherwise
-%         \EndSwitch
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% The classic loops are defined: \Keyword{for}, \Keyword{while} and \Keyword{repeat}.
-%
-% The \Keyword{for} loop uses \Macro{For} and is also flavored with two variants: \Keyword{foreach} (\Macro{ForEach}) and \Keyword{forall} (\Macro{ForAll}).
-%
-% \begin{macro}{For}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     The \Argument{text} is used to establish the loop scope.
-%
-%     A comment can be added to the command both as \Argument{comment*} and \Argument{comment}.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndFor}[\OArg{comment}\LArg{option}]
-%     This macro closes a corresponding \MacroRef{For}, \MacroRef{ForEach} or \MacroRef{ForAll}.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{macro}{ForEach}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     Same as \MacroRef{For}.
-% \end{macro}
-%
-% \begin{macro}{ForAll}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     Same as \MacroRef{For}.
-% \end{macro}
-%
-% %! parser = off
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \For{$i \gets 0$ \To $n$}
-%             \Statep{Do something with $i$}
-%         \EndFor
-%         \ForAll{$\Id{item} \in C$}
-%             \Statep{Do something with \Id{item}}
-%         \EndFor
-%         \ForEach{\Id{item} in queue $Q$}
-%             \Statep{Do something with \Id{item}}
-%         \EndFor
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! parser = on
-%
-% The loop with testing at the top is \Macro{While}.
-%
-% \begin{macro}{While}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     In \Argument{text} is the boolean expression that, when \False, will end the loop.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndWhile}[\OArg{comment}\LArg{options}]
-%     This macro closes a matching \MacroRef{While} block.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \While{$n > 0$}
-%             \Statep{Do something}
-%             \Statep{$n \gets n - 1$}
-%         \EndWhile
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% \begin{macro}{Repeat}[\OArg{comment}\LArg{options}]
-%     This macro starts the \Keyword{repeat} loop, which is closed with \MacroRef{Until}.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{Until}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
-%     In \Argument{text} is the boolean expression that, when \MacroRef{True}, will end the loop.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Repeat
-%             \Statep{Do something}
-%             \Statep{$n \gets n - 1$}
-%         \Until{$n \leq 0$}
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-%
-% An additional generic loop is build with \Macro{Loop}.
-%
-% \begin{macro}{Loop}[\OArg{comment}\LArg{options}]
-%     The generic loop starts with \Macro{Loop} and ends with \MacroRef{EndLoop}. Usually the infinite loop is interrupted by and internal \MacroDef{Break} or restarted with \MacroDef{Continue}.
-%
-%     \BlockOptionsText
-% \end{macro}
-%
-% \begin{macro}{EndLoop}[\OArg{comment}\LArg{options}]
-%     \Macro{EndLoop} closes a matching \MacroRef{Loop} block.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Loop
-%             \Statep{Do something}
-%             \Statep{$n \gets n + 1$}
-%             \If{$n$ is multiple of 5}
-%                 \Statep{\Continue}[restarts loop]
-%             \EndIf
-%             \Statep{Do something else}
-%             \If{$n \leq 0$}
-%                 \Statep{\Break}[ends loop]
-%             \EndIf
-%         \EndLoop
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% \subsection{Procedures and Functions}\label{sec:procedures-and-functions}
-% Modularization uses \Macro{Procedure} or \Macro{Function}.
-%
-% \begin{macro}{Procedure}[{\MArg{name}\MArg{argument list}}]
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     \begin{algorithmic}
-%         \Procedure{Abs}{\Id{value}}[comment]
-%             \If{$\Id{value} > 0$}
-%                 \Statep{\Return \Id{value}}
-%             \Else
-%                 \Statep{\Return $-\Id{value}$}[switch to positive]
-%             \EndIf
-%
-%         \EndProcedure
-%     \end{algorithmic}
-% \end{tcblisting}
-%
-% \begin{macro}{Function}[{\MArg{name}\MArg{argument list}}]
-% \end{macro}
-%
-% Calls, like \Call{Fat}{$n$}<module color = red>.
-%
-% \begin{macro}{Call}[\MArg{name}\MArg{arguments}\LArg{options}]
-%     \label{call}
-%     \Macro{Call} is used to state a function or procedure call. The module's \Argument{name} and \Argument{arguments} are mandatory.
-%
-%     \MacroOptionsText
-% \end{macro}
-%
-%
-% \section{Customization and Fine Tunning}\label{sec:customization-and-fine-tunning}
-% As of version 0.99 of \PackageName{algxpar}, a series of options have been introduced to customize the presentation of algorithms. Colors and fonts that only apply to keywords, for example, can be specified, providing an easier and more convenient way to customize each algorithm.
-%
-% The \MacroRef{AlgSet} macro serves this purpose.
-%
-% \begin{macro}{AlgSet}[\MArg{options list}]
-%     This macro sets algorithmic settings as specified in the \Argument{options list}, which is key/value comma-separated list.
-%
-%     All settings will be applied to the entire document, starting from the point of the macro call. The scope of a definition made with \MacroRef{AlgSet} can be restricted to a part of the document simply by including it in a \TeX\ group.
-% \end{macro}
-%
-% \begin{tcblisting}{}
-%     Default indentation:
-%     \begin{algorithmic}
-%         \Statep{\Read $k$}
-%         \If{$k < 0$}
-%             \Statep{$k \gets -k$}
-%         \EndIf
-%         \Statep{\Write $k$}
-%     \end{algorithmic}
-%
-%     \medskip
-%     New indentation:
-%     \begingroup%  starts a scope
-%     \AlgSet{algorithmic indent = 1.5cm}
-%     \begin{algorithmic}
-%         \Statep{\Read $k$}
-%         \If{$k < 0$}
-%             \Statep{$k \gets -k$}
-%         \EndIf
-%         \Statep{\Write $k$}
-%     \end{algorithmic}
-%     \endgroup%  ends the scope
-% \end{tcblisting}
-%
-% If the settings are only applied to a single algorithm and not a group of algorithms in a text section, the easiest way is to include the options in the \texttt{algorithmicx} environment.
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \begin{algorithmic}<keyword font = \sffamily\bfseries\itshape>
-%         \Statep{\Read $k$}
-%         \If{$k < 0$}
-%             \Statep{$k \gets -k$}
-%         \EndIf
-%         \Statep{\Write $k$}
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% Named styles can also be defined using the \PackageName{pgfkeys} syntax.
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \AlgSet{
-%         fancy/.style = {
-%             text color = green!40!black,
-%             keyword color = blue!75!black,
-%             comment color = brown!80!black,
-%             comment symbol = \texttt{//},
-%         }
-%     }
-%     \begin{algorithmic}<fancy>
-%         \Statep{\Commentl{Process $k$}}
-%         \Statep{\Read $k$}
-%         \If{$k < 0$}
-%             \Statep{$k \gets -k$}[back to positive]
-%         \EndIf
-%         \Statep{\Write $k$}
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% Sometimes some settings need to be applied exclusively to one command, for example to highlight a segment of the algorithm. Each command that defines a block, like \MacroRef{If} or \MacroRef{While}, for example, defines its own scope and settings are restricted to it.
-%
-% %! formatter = off
-% \begin{tcblisting}{}
-%     \AlgSet{
-%         highlight/.style = {
-%             text color = red!60!black,
-%             keyword color = red!60!black,
-%         }
-%     }
-%     \begin{algorithmic}
-%         \Statep{\Commentl{Process $k$}}
-%         \Statep{\Read $k$}
-%         \If{$k < 0$}<highlight>
-%             \Statep{$k \gets -k$}[back to positive]
-%         \EndIf
-%         \Statep{\Write $k$}
-%     \end{algorithmic}
-% \end{tcblisting}
-% %! formatter = on
-%
-% \subsection{Options}
-%
-% \begin{option}{language}{\Argument{language}}[english]
-%     This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
-% \end{option}
-%
-% \begin{option}{algorithmic indent}{\Argument{width}}[1em]
-%     This sets the \PackageName{algorithmicx}'s \Macro{algorithmicindent}.
-% \end{option}
-%
-% \begin{option}{comment symbol}{\Argument{symbol}}[\Macro{triangleright}]
-%     The default symbol that preceeds the text in comments is \Macro{triangleright} (\CommentSymbol), as used by \PackageName{algorithmicx}, and can be changed with this key.
-%
-%     The current comment symbol is available with \MacroDef{CommentSymbol}.
-% \end{option}
-%
-%
-%
-% \subsubsection{Fonts, shapes and sizes}
-%
-% \begin{option}{text font}{\Argument{font, shape and size}}[\Empty]
-%     This setting corresponds to the font family, its shape and size and applies to the \Argument{text} field in each of the commands. The default empty value implies that the text will follow the font, shape and size of the current context.
-% \end{option}
-%
-% \begin{option}{comment font}{\Argument{font, shape and size}}[\Macro{slshape}]
-%     This setting corresponds to the font family, its shape and size and applies to all comments.
-% \end{option}
-%
-% \begin{option}{keyword font}{\Argument{font, shape and size}}[\Macro{bfseries}]
-%     This setting sets the font family, shape, and size, and applies to all keywords, such as \Keyword{function} or \Keyword{end}. The default value just changes the shape to bold, leaving the font and size unchanged.
-% \end{option}
-%
-% \begin{option}{constant font}{\Argument{font, shape and size}}[\Macro{scshape}]
-%     This setting sets the font family, shape, and size, and applies to all constants, such as \Nil, \True\ and \False. The default value just changes the shape to smallcaps, leaving the other attributes unchanged.
-%
-%     This setting also apply when \MacroRef{Constant} is used.
-% \end{option}
-%
-% \begin{option}{module font}{\Argument{font, shape and size}}[\Macro{scshape}]
-%     This setting sets the font family, shape, and size, and applies to both procedure and function identifiers, as well as theirs calls (\MacroRef{Call}). The default value just changes the shape to smallcaps, leaving the other attributes unchanged.
-% \end{option}
-%
-% \subsubsection{Colors}
-% Colors are defined as done in the \PackageName{colors} package.
-%
-% \begin{option}{text color}{\Argument{color}}
-%     [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
-%     This setting corresponds to the color that applies to the \Argument{text} field in each of the commands. The default \Option{.} (dot) value implies that the text will follow the color of the current context.
-% \end{option}
-%
-% \begin{option}{comment color}{\Argument{color}}[.!80]
-%     This setting corresponds to the color that applies to all comments. The default value implies that the color will have 80\% of opacity of the text color in the current context.
-% \end{option}
-%
-% \begin{option}{keyword color}{\Argument{color}}
-%     [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
-%     This key is used to set the color for all keywords. The default value, \Option{.} (dot), implies that the text color of the current context is used. In particular, it is relevant to note that the use of the \MacroRef{Keyword} macro, in this configuration, uses the surrounding color . If this macro is used inside a comment, for example, \OptionRef{comment color} is used.
-% \end{option}
-%
-% \begin{option}{constant color}{\Argument{color}}
-%     [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
-%     This setting corresponds to the color that applies to the defined constant (see \cref{sec:constants-and-identifiers}) and also when macro \MacroRef{Constant} is used. The default \Option{.} (dot) value implies that the text will follow the color of the current context.
-% \end{option}
-%
-% \begin{option}{module color}{\Argument{color}}
-%     [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
-%     This color is applied to the identifier used in both \MacroRef{Procedure} and \MacroRef{Function} definitions, as well as module calls with \MacroRef{Call}.
-% \end{option}
-%
-% \subsubsection{Paragraph show boxes}
-%
-% \begin{option}{text style}{\Argument{style}}[\Macro{RaggedRight}]
-%     This \Argument{style} is applied to the paragraph box that holds the \Argument{text} field in all commands.
-% \end{option}
-%
-% \begin{option}{comment style}{\Argument{style}}[\Macro{RaggedRight}]
-%     This \Argument{style} is applied to the paragraph box that holds the \Argument{comment} field in all algorithmic commands. This setting will not be used with \MacroRef{Comment} and \MacroRef{Commentl}.
-% \end{option}
-%
-% \begin{option}{maximum comment width}{\Argument{width}}[0.3\Macro{linewidth}]
-%     The maximum width a comment can get.
-% \end{option}
-%
-% \begin{option}{comment separator width}{\Argument{width}}[1em]
-%     The space between the text box and the \Macro{CommentSymbol}
-% \end{option}
-%
-% \begin{option}{statement indent}{\Argument{width}}[1em]
-%     This is the \Macro{hangindent} set inside \MacroRef{Statep} statements.
-% \end{option}
-%
-% % todo: insert the parameter indent whei it starts working
-% \begin{comment}
-%     parameter indent = 0pt,
-% \end{comment}
-%
-% todo: insert text-comment ratio option
-%
-% % \Cref{tab:options} presents the list of available configurations with their descriptions and default values.
-% %
-% % \begin{table}[h]
-% %     \caption{List of options.}\label{tab:options}
-% %     \centering
-% %     \begin{tabular}{ccp{0.6\linewidth}}
-% %         \OptionInd{language} & --- & Defines the language for the keyword set
-% %         \\
-% %         \OptionInd{text font} & \textit{empty} & The font and shape used in all commands \Argument{text} (except algortihm documentation); ``\textit{empty}'' means to follow document current font settings.
-% %         \\
-% %     \end{tabular}
-% % \end{table}
-%
-%
-% \section{Other tools}
-%
-%
-% \section{Languages and translations}\label{sec:languages-and-translations}
-%
-% \begin{option}{language}{\Argument{language}}[english]
-%     This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
-% \end{option}
-%
-%
-%
-% \begin{macro}{SetKeyword}[\OArg{language}\MArg{keyword}\MArg{value}]
-%     The macro \MacroRef{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
-%     If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
-% \end{macro}
-%
-% \begin{macro}{Keyword}[\OArg{language}\MArg{keyword}]
-%     Macros like \Macro{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \MacroRef{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
-%     If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
-%
-%     Section~\ref{sec:languages-and-translations} shows the predefined keywords.
-%
-%     % \begin{tcblisting}{}
-%     %     In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
-%     % \end{tcblisting}
-% \end{macro}
-%
-% \begin{macro}{Constant}[\OArg{name}]
-% \end{macro}
-%
-% \MacroRef{If}, \MacroRef{While}, \MacroRef{Loop}, \MacroRef{Break}.
-%
-% \tcbinputlisting{listing file = brazilian.kw.tex, listing only}
-%
-% \clearpage
-% \printindex
+\maketitle
+\sloppy
 
-% \begin{algorithmic}
-%     <comment style = {}, show boxes>
-%     \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}
-%         \Statep{$b \gets a$}
-%     \EndIf[fim]
-%     \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}[simple]
-%         \Statep{$b \gets a$}
-%     \EndIf
-%     \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}[asdf asdf  afds afds asdf fdas]
-%         \Statep{$b \gets a$}
-%     \EndIf
-% \end{algorithmic}
+\begin{abstract}
+    The \PackageName{algxpar} packages is an extension of the \PackageName{algorithmicx} package to handle multi-line text with the proper indentation.
+\end{abstract}
+
+\tableofcontents
+
+\vspace{2em}
+
+% \changes{v0.9}{2019/10/24}{First version}
+% \changes{v0.91}{2020/04/30}{Macro now can be used as super-/subscripts in math formulas, while still preventing hyphenaton in text mode.}
+% \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
+% \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
+
+
+\section{Introduction}
+I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) to write my algorithms as it provides clear and easy-to-read pseudocodes with a minimum of effort to achieve visually pleasing code.
+
+As part of the teaching process, I use very detailed commands in my algorithms before students start using a more synthetic form. For example, I initially write ``Start a counter $c$ with the value $0$'', which later becomes ``${c \gets 0}$''. This leads to sentences that often span text over two or more lines, especially in two-column documents with nested commands.
+
+Unfortunately, \PackageName{algorithmx} doesn't natively support multi-line statements. This package therefore extends the macros to handle multiple lines properly. Some new commands and features were also added.
+
+
+\section{Package usage and options}\label{sec:package-usage-and-options}
+To use the package simply add it to preamble.
+
+\begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
+    Currently, the package supports the following options:
+    \begin{description}
+        \item[\OptionInd{noend}] Suppresses the line that closes a block.
+        \item[\Argument{language name}] Loads the keywords for an specific language. The lastest language in the list is set as default. Supported languages:
+        \begin{itemize}
+            \item \OptionInd{english} (default language, always loaded)
+            \item \OptionInd{brazilian} Brazilian Portuguese
+        \end{itemize}
+        \item[\OptionInd{language}] Sets a language as default.
+    \end{description}
+\end{macro*}
+
+Examples:
+\begin{latexcode}
+    \usepackage[noend]{algxpar} %  Supresses all "end lines"
+
+    \usepackage[brazilian]{algxpar} %  Loads Brazilian keyword set and sets it as default
+
+    \usepackage[brazilian, language = english]{algxpar}  % Loads Brazilian keywords but keeps english as default
+\end{latexcode}
+
+
+\section{Writting pseudocode}
+All pseudocode is written inside the \texttt{algorithmic} environment.
+
+\subsection{How comments and options are handled}
+Until \PackageName{algxpar} v0.95, comment text was added as an optional argument before the text of a given command. For example:
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{Get first $k$}
+        \While[loop though all $k$]{$k$ is valid}
+            \Statep[do some work]{\Call{Process}{$k$}}
+            \Statep{Get next $k$}
+        \EndWhile
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+Using the comment before the text bothered me a lot as it seemed more natural to have it after. As of v0.99, the comment can be placed after the text, making writing more user-friendly.
+
+To maintain backward compatibility, using comments before the text is still supported, although its use is discouraged.
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{Get first $k$}
+        \While{$k$ is valid}[loop though all $k$]
+            \Statep{\Call{Process}{$k$}}[do some work]
+            \Statep{Get next $k$}
+        \EndWhile
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+In this section, comments in the old style are indicated as \Argument{comment*}, while the new format uses \Argument{comment}.
+
+In addition to this change, block end specifications (like \MacroRef{EndWhile}, for example) also accept the new form of comments. This new approach will, however, make it unfeasible to use local comments with \MacroRef{Comment} after the closing block macro. See \cref{sec:comments}.
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \While{\textit{condition}}
+            [tested \textbf{before}]
+            \Statep{Some command}
+        \EndWhile[bottom of the loop]
+    \end{algorithmic}
+\end{tcblisting}
+
+A list of options can be added to each command by locally changing some algorithm presentation settings. These settings are optional and must be entered using angle brackets at the end of the command.
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \If{$a > b$}
+            \While{$a > 0$}<keyword color = blue!70>
+                \Statep{\Call{Process}{$a$}}
+            \EndWhile
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+\subsection{Documentation}\label{sec:documentation}
+A series of macros are defined to provide the header documentation for a pseudocode. The basics are:
+\begin{macro}{Description}
+    [~\Argument{description text}]
+    The \Macro{Description} is intended to hold the general description of the pseudocode.
+\end{macro}
+
+\begin{macro}{Require}
+    [~\Argument{pre-conditions}]
+    The required initial state that the code relies on. These are \textit{pre-conditions}.
+\end{macro}
+
+\begin{macro}{Ensure}
+    [~\Argument{post-conditions}]
+    The final state produced by the code. These are \textit{post-conditions}.
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Description Calculation of the factorial of a natural number through successive multiplications
+        \Require $n \in \mathbb{N}$
+        \Ensure $f = n!$
+    \end{algorithmic}
+\end{tcblisting}
+
+Also are provided:
+\begin{macro}{Input}
+    [~\Argument{inputs}]
+    Inputs.
+\end{macro}
+\begin{macro}{Output}
+    [~\Argument{outputs}]
+    Outputs
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Description Calculation of the factorial of a natural number through successive multiplications
+        \Input $n$ (integer)
+        \Output $n!$ (integer)
+    \end{algorithmic}
+\end{tcblisting}
+
+\subsection{Constants and Identifiers}\label{sec:constants-and-identifiers}
+Constants: \MacroDef{True} is \True, \MacroDef{False} is \False\ and \MacroDef{Nil} is \Nil.
+
+\begin{macro}{Id}[\MArg{identifier}]
+    Identifiers are in italics: \latexinline!\Id{value}! is \Id{value}. Its designed to work in both text and math modes: \latexinline!$\Id{offer}_k$! is $\Id{offer}_k$.
+\end{macro}
+
+\subsection{Statements}\label{sec:statements}
+
+The macros \Macro{State} and \Macro{Statex} can still be used and were left unchanged. A replacement to macro \Macro{State} is \Macro{Statep}.
+
+\begin{macro}{Statep}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{minipage}{6cm}
+        \begin{algorithmic}
+            \State Collect all relevant information from the selected databases
+            \State Process all data\Comment{in parallel}
+            \State Present a report with the results and send to management
+        \end{algorithmic}
+
+        \bigskip
+        \begin{algorithmic}
+            \Statep{Collect all relevant information from the selected databases}
+            \Statep{Process all data}[in parallel]
+            \Statep{Present a report with the results and send to management}
+        \end{algorithmic}
+    \end{minipage}
+\end{tcblisting}
+
+\subsection{Assignments and I/O}\label{sec:assignments-and-i/o}
+
+To support teaching-like pseudocode writing, the macros \MacroDef{Read} and \MacroDef{Write} are provided.
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{\Read $v_1, v_2$}
+        \Statep{$\Id{mean} \gets \dfrac{v_1 + v_2}{2}$}[calculate]
+        \Statep{\Write \Id{mean}}
+    \end{algorithmic}
+\end{tcblisting}
+
+The macro \Macro{Set} can be used for assignments.
+
+\begin{macro}{Set}[\MArg{lvalue}\MArg{expression} \Deprecated]
+    This macro expands to \MacroRef{Id}\latexinline!{#1} \gets #2!.
+
+    As the handling of text and math modes should be done and its usage brings no evident advantage, this macro will no longer be supported. It will be kept as is for backward compatibility however.
+\end{macro}
+
+\subsection{Comments}\label{sec:comments}
+The \Macro{Comment} macro defined by \PackageName{algorithmicx} has the same original behavior and has been redefined to handle styling options. It can be used, however, only within the text argument of some command. See more information about this at the end of this section.
+
+\begin{macro}{Comment}[\MArg{text}\LArg{options}]
+    The redesigned version of \Macro{Comment} can be used with \MacroRef{State}, \MacroRef{Statex} and \MacroRef{Statep}. When used with \MacroRef{Statep}, it must be enclosed inside the text braces, but multi-line statements should work differently than expected.
+
+    \MacroOptionsText
+\end{macro}
+
+%! formatter = off
+\begin{tcblisting}{sidebyside = false}
+    \begin{minipage}{7.5cm}
+        \begin{algorithmic}<comment color = blue>%  for viewing purposes only
+            \State Store the value zero in variable $x$\Comment{first assignment}
+            \Statep{Store the value zero in variable $x$\Comment{first assignment}}
+            \Statep{Store the value zero in variable $x$}[first assignment]% best choice
+        \end{algorithmic}
+    \end{minipage}
+\end{tcblisting}
+%! formatter = on
+
+\begin{macro}{Commentl}[\MArg{text}\LArg{options}]
+    While \MacroRef{Comment} pushes text to the end of the line, the macro \Macro{Commentl} is ``local''. In other words, it just puts a comment in place.
+
+    Local comments follows regular text and no line changes are checked.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{\Read $a, b$}
+        \If{$a > 0$~~\Commentl{special case}\\
+                or\\
+                $a < b$~~\Commentl{general case}~~}
+            \Statep{Process data~~\Commentl{may take a while}}
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+
+\subsection{Flow Control}\label{sec:flow-control}
+The macro \Macro{If} stands for the \Keyword{if}/\Keyword{then}/\Keyword{else} conditional.
+
+\begin{macro}{If}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    In its simpler form, \Macro{If} shows \Argument{text} (the condition) and must be closed with an \MacroRef{EndIf}, creating a block of nested commands.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndIf}[\OArg{comment}\LArg{options}]
+    \Macro{EndIf} closes its respective \MacroRef{If}.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \State \Read $v$
+        \If{$v < 0$}[is it negative?]
+            \Statep{$v \gets -v$}[make it positive]
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+
+The macros \Macro{Else} and \Macro{ElsIf} are also available.
+
+\begin{macro}{Else}[\OArg{comment}\LArg{options}]
+    This macro defines the \Keyword{else} part of the \MacroRef{If} statement.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{Elsif}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    \Macro{ElsIf} defines the \Keyword{if} chaining. The argument \Argument{text} is the new condition.
+
+    \BlockOptionsText
+\end{macro}
+
+A selection-like conditional statement was added: \Macro{Switch}. A \Keyword{switch} evaluates an expression and compares successively with a number of \Keyword{case} clauses.
+
+\begin{macro}{Switch}[\OArg{comment*}\MArg{expression}\OArg{comment}\LArg{options}]
+    The \Macro{Switch} is closed by a matching \MacroRef{EndSwitch}.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndSwitch}[\OArg{comment}\LArg{options}]
+    This macro closes a \MacroRef{Switch} block.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{macro}{Case}[\OArg{comment*}\MArg{constant-list}\OArg{comment}\LArg{options}]
+    When the result of the \Keyword{switch} expression matches one of the constants in \Argument{constants-list}, then the \Keyword{case} is executed. Usually the \Argument{constant-list} is a single constant, a comma-separated list of constants or some kind of range specification.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndCase}[\OArg{comment}\LArg{options}]
+    This macro closes a corresponding \MacroRef{Case} statement.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{macro}{Otherwise}[\OArg{comment}\LArg{options}]
+    A \Keyword{switch} structure can optionally use an \Keyword{otherwise} clause, which is executed when no previous \Keyword{case}s had a hit.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndOtherwise}[\OArg{comment}\LArg{options}]
+    This macro closes a corresponding \MacroRef{Otherwise} statement.
+
+    \MacroOptionsText
+\end{macro}
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Statep{Get \Id{option}}
+        \Switch{\Id{option}}
+            \Case{1}[inserts new record]
+                \Statep{\Call{Insert}{\Id{record}}}
+            \EndCase
+            \Case{2}[deletes a record]
+                \Statep{\Call{Delete}{\Id{key}}}
+            \EndCase
+            \Otherwise
+                \Statep{Print ``invalid option''}
+            \EndOtherwise
+        \EndSwitch
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+The classic loops are defined: \Keyword{for}, \Keyword{while} and \Keyword{repeat}.
+
+The \Keyword{for} loop uses \Macro{For} and is also flavored with two variants: \Keyword{foreach} (\Macro{ForEach}) and \Keyword{forall} (\Macro{ForAll}).
+
+\begin{macro}{For}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    The \Argument{text} is used to establish the loop scope.
+
+    A comment can be added to the command both as \Argument{comment*} and \Argument{comment}.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndFor}[\OArg{comment}\LArg{option}]
+    This macro closes a corresponding \MacroRef{For}, \MacroRef{ForEach} or \MacroRef{ForAll}.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{macro}{ForEach}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    Same as \MacroRef{For}.
+\end{macro}
+
+\begin{macro}{ForAll}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    Same as \MacroRef{For}.
+\end{macro}
+
+%! parser = off
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \For{$i \gets 0$ \To $n$}
+            \Statep{Do something with $i$}
+        \EndFor
+        \ForAll{$\Id{item} \in C$}
+            \Statep{Do something with \Id{item}}
+        \EndFor
+        \ForEach{\Id{item} in queue $Q$}
+            \Statep{Do something with \Id{item}}
+        \EndFor
+    \end{algorithmic}
+\end{tcblisting}
+%! parser = on
+
+The loop with testing at the top is \Macro{While}.
+
+\begin{macro}{While}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    In \Argument{text} is the boolean expression that, when \False, will end the loop.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndWhile}[\OArg{comment}\LArg{options}]
+    This macro closes a matching \MacroRef{While} block.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \While{$n > 0$}
+            \Statep{Do something}
+            \Statep{$n \gets n - 1$}
+        \EndWhile
+    \end{algorithmic}
+\end{tcblisting}
+
+\begin{macro}{Repeat}[\OArg{comment}\LArg{options}]
+    This macro starts the \Keyword{repeat} loop, which is closed with \MacroRef{Until}.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{Until}[\OArg{comment*}\MArg{text}\OArg{comment}\LArg{options}]
+    In \Argument{text} is the boolean expression that, when \MacroRef{True}, will end the loop.
+
+    \MacroOptionsText
+\end{macro}
+
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Repeat
+            \Statep{Do something}
+            \Statep{$n \gets n - 1$}
+        \Until{$n \leq 0$}
+    \end{algorithmic}
+\end{tcblisting}
+
+
+An additional generic loop is build with \Macro{Loop}.
+
+\begin{macro}{Loop}[\OArg{comment}\LArg{options}]
+    The generic loop starts with \Macro{Loop} and ends with \MacroRef{EndLoop}. Usually the infinite loop is interrupted by and internal \MacroDef{Break} or restarted with \MacroDef{Continue}.
+
+    \BlockOptionsText
+\end{macro}
+
+\begin{macro}{EndLoop}[\OArg{comment}\LArg{options}]
+    \Macro{EndLoop} closes a matching \MacroRef{Loop} block.
+
+    \MacroOptionsText
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Loop
+            \Statep{Do something}
+            \Statep{$n \gets n + 1$}
+            \If{$n$ is multiple of 5}
+                \Statep{\Continue}[restarts loop]
+            \EndIf
+            \Statep{Do something else}
+            \If{$n \leq 0$}
+                \Statep{\Break}[ends loop]
+            \EndIf
+        \EndLoop
+    \end{algorithmic}
+\end{tcblisting}
+
+\subsection{Procedures and Functions}\label{sec:procedures-and-functions}
+Modularization uses \Macro{Procedure} or \Macro{Function}.
+
+\begin{macro}{Procedure}[{\MArg{name}\MArg{argument list}}]
+\end{macro}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \Procedure{Abs}{\Id{value}}[comment]
+            \If{$\Id{value} > 0$}
+                \Statep{\Return \Id{value}}
+            \Else
+                \Statep{\Return $-\Id{value}$}[switch to positive]
+            \EndIf
+
+        \EndProcedure
+    \end{algorithmic}
+\end{tcblisting}
+
+\begin{macro}{Function}[{\MArg{name}\MArg{argument list}}]
+\end{macro}
+
+Calls, like \Call{Fat}{$n$}<module color = red>.
+
+\begin{macro}{Call}[\MArg{name}\MArg{arguments}\LArg{options}]
+    \label{call}
+    \Macro{Call} is used to state a function or procedure call. The module's \Argument{name} and \Argument{arguments} are mandatory.
+
+    \MacroOptionsText
+\end{macro}
+
+
+\section{Customization and Fine Tunning}\label{sec:customization-and-fine-tunning}
+As of version 0.99 of \PackageName{algxpar}, a series of options have been introduced to customize the presentation of algorithms. Colors and fonts that only apply to keywords, for example, can be specified, providing an easier and more convenient way to customize each algorithm.
+
+The \MacroRef{AlgSet} macro serves this purpose.
+
+\begin{macro}{AlgSet}[\MArg{options list}]
+    This macro sets algorithmic settings as specified in the \Argument{options list}, which is key/value comma-separated list.
+
+    All settings will be applied to the entire document, starting from the point of the macro call. The scope of a definition made with \MacroRef{AlgSet} can be restricted to a part of the document simply by including it in a \TeX\ group.
+\end{macro}
+
+\begin{tcblisting}{}
+    Default indentation:
+    \begin{algorithmic}
+        \Statep{\Read $k$}
+        \If{$k < 0$}
+            \Statep{$k \gets -k$}
+        \EndIf
+        \Statep{\Write $k$}
+    \end{algorithmic}
+
+    \medskip
+    New indentation:
+    \begingroup%  starts a scope
+    \AlgSet{algorithmic indent = 1.5cm}
+    \begin{algorithmic}
+        \Statep{\Read $k$}
+        \If{$k < 0$}
+            \Statep{$k \gets -k$}
+        \EndIf
+        \Statep{\Write $k$}
+    \end{algorithmic}
+    \endgroup%  ends the scope
+\end{tcblisting}
+
+If the settings are only applied to a single algorithm and not a group of algorithms in a text section, the easiest way is to include the options in the \texttt{algorithmicx} environment.
+
+%! formatter = off
+\begin{tcblisting}{}
+    \begin{algorithmic}<keyword font = \sffamily\bfseries\itshape>
+        \Statep{\Read $k$}
+        \If{$k < 0$}
+            \Statep{$k \gets -k$}
+        \EndIf
+        \Statep{\Write $k$}
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+Named styles can also be defined using the \PackageName{pgfkeys} syntax.
+
+%! formatter = off
+\begin{tcblisting}{}
+    \AlgSet{
+        fancy/.style = {
+            text color = green!40!black,
+            keyword color = blue!75!black,
+            comment color = brown!80!black,
+            comment symbol = \texttt{//},
+        }
+    }
+    \begin{algorithmic}<fancy>
+        \Statep{\Commentl{Process $k$}}
+        \Statep{\Read $k$}
+        \If{$k < 0$}
+            \Statep{$k \gets -k$}[back to positive]
+        \EndIf
+        \Statep{\Write $k$}
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+Sometimes some settings need to be applied exclusively to one command, for example to highlight a segment of the algorithm. Each command that defines a block, like \MacroRef{If} or \MacroRef{While}, for example, defines its own scope and settings are restricted to it.
+
+%! formatter = off
+\begin{tcblisting}{}
+    \AlgSet{
+        highlight/.style = {
+            text color = red!60!black,
+            keyword color = red!60!black,
+        }
+    }
+    \begin{algorithmic}
+        \Statep{\Commentl{Process $k$}}
+        \Statep{\Read $k$}
+        \If{$k < 0$}<highlight>
+            \Statep{$k \gets -k$}[back to positive]
+        \EndIf
+        \Statep{\Write $k$}
+    \end{algorithmic}
+\end{tcblisting}
+%! formatter = on
+
+\subsection{Options}
+
+\begin{option}{language}{\Argument{language}}[english]
+    This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
+\end{option}
+
+\begin{option}{algorithmic indent}{\Argument{width}}[1em]
+    This sets the \PackageName{algorithmicx}'s \Macro{algorithmicindent}.
+\end{option}
+
+\begin{option}{comment symbol}{\Argument{symbol}}[\Macro{triangleright}]
+    The default symbol that preceeds the text in comments is \Macro{triangleright} (\CommentSymbol), as used by \PackageName{algorithmicx}, and can be changed with this key.
+
+    The current comment symbol is available with \MacroDef{CommentSymbol}.
+\end{option}
+
+\subsubsection{Fonts, shapes and sizes}
+
+\begin{option}{text font}{\Argument{font, shape and size}}[\Empty]
+    This setting corresponds to the font family, its shape and size and applies to the \Argument{text} field in each of the commands. The default empty value implies that the text will follow the font, shape and size of the current context.
+\end{option}
+
+\begin{option}{comment font}{\Argument{font, shape and size}}[\Macro{slshape}]
+    This setting corresponds to the font family, its shape and size and applies to all comments.
+\end{option}
+
+\begin{option}{keyword font}{\Argument{font, shape and size}}[\Macro{bfseries}]
+    This setting sets the font family, shape, and size, and applies to all keywords, such as \Keyword{function} or \Keyword{end}. The default value just changes the shape to bold, leaving the font and size unchanged.
+\end{option}
+
+\begin{option}{constant font}{\Argument{font, shape and size}}[\Macro{scshape}]
+    This setting sets the font family, shape, and size, and applies to all constants, such as \Nil, \True\ and \False. The default value just changes the shape to smallcaps, leaving the other attributes unchanged.
+
+    This setting also apply when \MacroRef{Constant} is used.
+\end{option}
+
+\begin{option}{module font}{\Argument{font, shape and size}}[\Macro{scshape}]
+    This setting sets the font family, shape, and size, and applies to both procedure and function identifiers, as well as theirs calls (\MacroRef{Call}). The default value just changes the shape to smallcaps, leaving the other attributes unchanged.
+\end{option}
+
+\subsubsection{Colors}
+Colors are defined as done in the \PackageName{colors} package.
+
+\begin{option}{text color}{\Argument{color}}
+    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+    This setting corresponds to the color that applies to the \Argument{text} field in each of the commands. The default \Option{.} (dot) value implies that the text will follow the color of the current context.
+\end{option}
+
+\begin{option}{comment color}{\Argument{color}}[.!80]
+    This setting corresponds to the color that applies to all comments. The default value implies that the color will have 80\% of opacity of the text color in the current context.
+\end{option}
+
+\begin{option}{keyword color}{\Argument{color}}
+    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+    This key is used to set the color for all keywords. The default value, \Option{.} (dot), implies that the text color of the current context is used. In particular, it is relevant to note that the use of the \MacroRef{Keyword} macro, in this configuration, uses the surrounding color . If this macro is used inside a comment, for example, \OptionRef{comment color} is used.
+\end{option}
+
+\begin{option}{constant color}{\Argument{color}}
+    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+    This setting corresponds to the color that applies to the defined constant (see \cref{sec:constants-and-identifiers}) and also when macro \MacroRef{Constant} is used. The default \Option{.} (dot) value implies that the text will follow the color of the current context.
+\end{option}
+
+\begin{option}{module color}{\Argument{color}}
+    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+    This color is applied to the identifier used in both \MacroRef{Procedure} and \MacroRef{Function} definitions, as well as module calls with \MacroRef{Call}.
+\end{option}
+
+\subsubsection{Paragraph show boxes}
+
+\begin{option}{text style}{\Argument{style}}[\Macro{RaggedRight}]
+    This \Argument{style} is applied to the paragraph box that holds the \Argument{text} field in all commands.
+\end{option}
+
+\begin{option}{comment style}{\Argument{style}}[\Macro{RaggedRight}]
+    This \Argument{style} is applied to the paragraph box that holds the \Argument{comment} field in all algorithmic commands. This setting will not be used with \MacroRef{Comment} and \MacroRef{Commentl}.
+\end{option}
+
+\begin{option}{maximum comment width}{\Argument{width}}
+    [0.3\Macro{linewidth}]
+    The maximum width a comment can get.
+\end{option}
+
+\begin{option}{comment separator width}{\Argument{width}}[1em]
+    The space between the text box and the \Macro{CommentSymbol}
+\end{option}
+
+\begin{option}{statement indent}{\Argument{width}}[1em]
+    This is the \Macro{hangindent} set inside \MacroRef{Statep} statements.
+\end{option}
+
+% todo: insert the parameter indent whei it starts working
+\begin{comment}
+    parameter indent = 0pt,
+\end{comment}
+
+todo: insert text-comment ratio option
+
+% \Cref{tab:options} presents the list of available configurations with their descriptions and default values.
+%
+% \begin{table}[h]
+%     \caption{List of options.}\label{tab:options}
+%     \centering
+%     \begin{tabular}{ccp{0.6\linewidth}}
+%         \OptionInd{language} & --- & Defines the language for the keyword set
+%         \\
+%         \OptionInd{text font} & \textit{empty} & The font and shape used in all commands \Argument{text} (except algortihm documentation); ``\textit{empty}'' means to follow document current font settings.
+%         \\
+%     \end{tabular}
+% \end{table}
+
+
+\section{Other tools}
+
+
+\section{Languages and translations}\label{sec:languages-and-translations}
+
+\begin{option}{language}{\Argument{language}}[english]
+    This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
+\end{option}
+
+
+
+\begin{macro}{SetKeyword}[\OArg{language}\MArg{keyword}\MArg{value}]
+    The macro \MacroRef{SetKeyword} changes a given \Argument{keyword} to \Argument{value} if it exists; otherwise new keyword is created.
+    If \Argument{language} is not specified, then the current language is affected. Changes are local if the macro is used inside a group.
+\end{macro}
+
+\begin{macro}{Keyword}[\OArg{language}\MArg{keyword}]
+    Macros like \Macro{algorithmicwhile} from \PackageName{algorithimicx} where replaced with \MacroRef{Keyword}, using \latexinline{\Keyword{while}} or \latexinline{\Keyword[brazilian]{while}}, for example.
+    If \Argument{language} is not specified, the current language is used. \Argument{keyword} is any keyword defined for a language, including custom ones.
+
+    Section~\ref{sec:languages-and-translations} shows the predefined keywords.
+
+    % \begin{tcblisting}{}
+    %     In English, the ``for all'' loop uses \Keyword{forall}, while it is \Keyword[brazilian]{forall} in Brazilian Portuguese.
+    % \end{tcblisting}
+\end{macro}
+
+\begin{macro}{Constant}[\OArg{name}]
+\end{macro}
+
+
+\tcbinputlisting{listing file = brazilian.kw.tex, listing only}
+
+\clearpage
+\printindex
+
+\begin{algorithmic}
+    <comment style = {}, show boxes>
+    \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}
+        \Statep{$b \gets a$}
+    \EndIf[fim]
+    \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}[simple]
+        \Statep{$b \gets a$}
+    \EndIf
+    \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}[asdf asdf afds afds asdf fdas]
+        \Statep{$b \gets a$}
+    \EndIf
+\end{algorithmic}
 
 \vspace{1cm}
 When balancing a line, the following factors
@@ -961,7 +947,7 @@ Algoritmo:
 \small
 
 \begin{algorithmic}[1]
-    <show boxes>
+    <show boxes, language = brazilian>
     \Statep{\Commentl{Comandos sem comentários}}
     \If{somente com o texto curto, sem comentário}
         \Statep{Faça algo}
