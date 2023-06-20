@@ -241,30 +241,16 @@
 \ifaxp@NoEnd\axp@DisableEnds\fi%  globally disable 'ends'
 
 
-% % \axp@ProcessCommandOptions: process command options
-% % #1: comment (earlier version, before command text)
-% % #2: options to the command
-% \NewDocumentCommand{\axp@ProcessCommandOptions}{ m m }{
-%     \def\temp{#1}
-%     %! formatter = off
-%     \ifx\temp\emtpy
-%     \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
-%     \else
-%     \DeclareDocumentCommand{\axp@CurrentComment}{}{\relax}
-%     \fi
-%     %! formatter = on
-%     \pgfkeys{
-%         /algxpar/.cd,
-%         .unknown/.code = {
-%             \RenewFullyExpandedDocumentCommand{\axp@CurrentComment}{\pgfkeyscurrentname}
-%         }
-%     }
-%     \pgfkeys{
-%         /algxpar/.cd,
-%         #2,
-%     }
-% }
-
+% axp@SetToWidth: \settowidth allowing multi-line text
+% #1: existing length
+% #2: text
+\NewDocumentCommand{\axp@SetToWidth}{ m m }{%
+    \settowidth{#1}{%
+        \begin{varwidth}{500cm}%  5 meters = infinity
+            #2
+        \end{varwidth}%
+    }%
+}
 
 % axp@DefineCommand: defines command structure
 % #1: keyword (e.g, while)
@@ -319,8 +305,8 @@
 \newlength{\axp@CurrentLineWidth}
 \newlength{\axp@RemainingWidth}
 \NewDocumentCommand{\axp@CalculateDimensions}{ m m m }{%
-    \settowidth{\axp@FullTextWidth}{\axp@TextFont#2}% text
-    \settowidth{\axp@FullCommentWidth}{\axp@CommentFont#3}% comment
+    \axp@SetToWidth{\axp@FullTextWidth}{\axp@TextFont#2}% text
+    \axp@SetToWidth{\axp@FullCommentWidth}{\axp@CommentFont#3}% comment
     %! formatter = off
     \ifdim\axp@FullCommentWidth=0pt\relax%
         % No comments present
@@ -336,7 +322,7 @@
             \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
         }%
         \ifaxp@LineBalanceAuto%
-            % auto: decide here how to balance text and comment widths
+            % 'auto': decide here how to balance text and comment widths
             \setlength{\axp@RemainingWidth}{
                 \dimexpr \axp@CurrentLineWidth - \axp@FullTextWidth - \axp@FullCommentWidth - \axp@CommentSymbolWidth
             }%
@@ -377,8 +363,8 @@
                         \textcolor{\axp@CommentColor}{\axp@CommentFont#3}\strut%
                     \end{varwidth}%
                 }%
-                \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}
-                \setlength{\axp@TextWidth}{\pgfmathresult pt}
+                \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
+                \setlength{\axp@TextWidth}{\pgfmathresult pt}%
             \fi%
         \else
             % 'fixed': limit comment width
@@ -474,7 +460,7 @@
     \end{axp@FBox}%
     % Making the line: comment
     \ifaxp@NoCommentPresent\else%
-        \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol{}~%
+        \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
         \begin{axp@FBox}%
             \ifaxp@LineBalanceAuto
                 \begin{varwidth}[t]{\axp@CommentWidth}%
@@ -535,9 +521,9 @@
     \AlgSet{#2}%
     \textcolor{\axp@CommentColor}{%
         \CommentSymbol~%
-        \begin{axp@FBox}%
+        % \begin{axp@FBox}%
             \axp@CommentFont#1\strut%
-        \end{axp@FBox}%
+        % \end{axp@FBox}%
     }%
     \endgroup%
 }
