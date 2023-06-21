@@ -48,6 +48,7 @@
 % tcolorbox
 \usepackage{tcolorbox}
 \usepackage{color}
+\usepackage{comment}
 \tcbuselibrary{skins, listings, minted, breakable}
 \tcbset{
     colback = blue!3,
@@ -87,7 +88,7 @@
 }
 \NewDocumentCommand{\OptionInd}{ m }{%
     \Option{#1}%
-    \index{#1@\texttt{#1}~(option)}%
+    \index{#1@\texttt{#1}}%
 }
 \NewDocumentCommand{\OptionRef}{ m }{%
     \hyperref[option:#1]{\Option{#1}}%
@@ -427,10 +428,17 @@ The \Macro{Comment} macro defined by \PackageName{algorithmicx} has the same ori
 
 \begin{tcblisting}{}
     \begin{algorithmic}
-        \Statep{\Read $a, b$}
         \If{$a > 0$~~\Commentl{special case}\\
-                or\\
-                $a < b$~~\Commentl{general case}~~}
+        or\\
+            $a < b$~~\Commentl{general case}\\}
+            \Statep{Process data~~\Commentl{may take a while}}
+        \EndIf
+    \end{algorithmic}
+\end{tcblisting}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        \If{$a > 0$ \CommentIn{special case} or $a < b$ \CommentIn{general case}}
             \Statep{Process data~~\Commentl{may take a while}}
         \EndIf
     \end{algorithmic}
@@ -780,6 +788,24 @@ Sometimes some settings need to be applied exclusively to one command, for examp
     This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
 \end{option}
 
+\begin{option}{keyword}{\Argument{list of keywords assignments}}
+    This options allows to change locally a keyword (or define a new one). For example, \latexinline{keywords = {while = whilst}}. See \cref{sec:languages-and-translations} for more information on keywords and translations.
+\end{option}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}
+        <
+        keyword color = orange!80!black,
+        keywords = {terminate = Terminate, then = then \{, endif = \}, while = whilst}
+        >
+        \While{\True}
+            \If{$t < 0$}
+                \Statep{Run the \Keyword{terminate} module}
+            \EndIf
+        \EndWhile
+    \end{algorithmic}
+\end{tcblisting}
+
 \begin{option}{algorithmic indent}{\Argument{width}}[1em]
     This sets the \PackageName{algorithmicx}'s \Macro{algorithmicindent}.
 \end{option}
@@ -822,8 +848,8 @@ Colors are defined as done in the \PackageName{colors} package.
     This setting corresponds to the color that applies to the \Argument{text} field in each of the commands. The default \Option{.} (dot) value implies that the text will follow the color of the current context.
 \end{option}
 
-\begin{option}{comment color}{\Argument{color}}[.!80]
-    This setting corresponds to the color that applies to all comments. The default value implies that the color will have 80\% of opacity of the text color in the current context.
+\begin{option}{comment color}{\Argument{color}}[.!70]
+    This setting corresponds to the color that applies to all comments. The default value implies that the color will have 70\% of opacity of the text color in the current context.
 \end{option}
 
 \begin{option}{keyword color}{\Argument{color}}
@@ -851,25 +877,20 @@ Colors are defined as done in the \PackageName{colors} package.
     This \Argument{style} is applied to the paragraph box that holds the \Argument{comment} field in all algorithmic commands. This setting will not be used with \MacroRef{Comment} and \MacroRef{Commentl}.
 \end{option}
 
-\begin{option}{maximum comment width}{\Argument{width}}
-    [0.3\Macro{linewidth}]
-    The maximum width a comment can get.
-\end{option}
-
 \begin{option}{comment separator width}{\Argument{width}}[1em]
-    The space between the text box and the \Macro{CommentSymbol}
+    The minimum space between the text box and the \Macro{CommentSymbol}
 \end{option}
 
 \begin{option}{statement indent}{\Argument{width}}[1em]
     This is the \Macro{hangindent} set inside \MacroRef{Statep} statements.
 \end{option}
 
-% todo: insert the parameter indent whei it starts working
+% todo: insert the parameter indent when it starts working
 \begin{comment}
     parameter indent = 0pt,
 \end{comment}
 
-todo: insert text-comment ratio option
+% todo: insert text-comment ratio option
 
 % \Cref{tab:options} presents the list of available configurations with their descriptions and default values.
 %
@@ -966,12 +987,14 @@ Algoritmo:
         \EndFor
         \Statep{Faça algo}
     \EndWhile
+    \AlgSet{noend}
     \If{texto curto}[com comentário muito longo, longo o suficiente para ultrapassar o limite de uma linha inteira]
         \Statep{Faça algo}
     \EndIf
     \If{texto muito longo, longo o suficiente para ultrapassar o limite de uma linha inteira}[comentário curto]
         \Statep{Faça algo}
     \EndIf
+    \AlgSet{end}
 
     \Statex\strut
     \AlgSet{line balance = auto}
@@ -990,6 +1013,7 @@ Algoritmo:
         \Statep{Faça algo}
     \EndIf
 \end{algorithmic}
+
 
 \end{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
