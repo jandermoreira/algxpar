@@ -83,6 +83,11 @@
     \mbox{\textcolor{\axp@CommentColor}{\axp@CommentFont\axp@CommentSymbol}}
 }
 
+% CommentSymbol: returns the formatted comment symbol right
+\NewDocumentCommand{\CommentSymbolRight} { }{
+    \mbox{\textcolor{\axp@CommentColor}{\axp@CommentFont\axp@CommentSymbolRight}}
+}
+
 
 % RenewFullyExpandedDocumentCommand: fully expands argument before
 %   renewing document command
@@ -109,17 +114,17 @@
 
 \NewDocumentCommand{\axp@EnableEnds}{}{%
     \RenewDocumentCommand{\ALG@noend}{}{f}%
-    \algrenewtext{EndWhile}{\Keyword{end}~\Keyword{while}}%
-    \algrenewtext{EndFor}{\Keyword{end}~\Keyword{for}}%
-    \algrenewtext{EndLoop}{\Keyword{end}~\Keyword{loop}}%
-    \algrenewtext{EndIf}{\Keyword{end}~\Keyword{if}}%
-    \algrenewtext{EndProcedure}{\Keyword{end}~\Keyword{procedure}}%
-    \algrenewtext{EndFunction}{\Keyword{end}~\Keyword{function}}%
-    \algrenewtext{EndSwitch}{\Keyword{end}~\Keyword{switch}}%
-    \algrenewtext{EndCase}{\Keyword{end}~\Keyword{case}}%
-    \algrenewtext{EndOtherwise}{\Keyword{end}~\Keyword{otherwise}}%
+    \algrenewtext{EndWhile}{\Keyword{endwhile}}%
+    \algrenewtext{EndFor}{\Keyword{endfor}}%
+    \algrenewtext{EndLoop}{\Keyword{endloop}}%
+    \algrenewtext{EndIf}{\Keyword{endif}}%
+    \algrenewtext{EndProcedure}{\Keyword{endprocedure}}%
+    \algrenewtext{EndFunction}{\Keyword{endfunction}}%
+    \algrenewtext{EndSwitch}{\Keyword{endswitch}}%
+    \algrenewtext{EndCase}{\Keyword{endcase}}%
+    \algrenewtext{EndOtherwise}{\Keyword{endotherwise}}%
 }
-
+\axp@EnableEnds  % update end-line texts
 
 %% Settings
 \newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
@@ -148,6 +153,7 @@
     module color/.store in = \axp@ModuleColor,
     %
     comment symbol/.store in = \axp@CommentSymbol,
+    comment symbol right/.store in = \axp@CommentSymbolRight,
     maximum comment width/.store in = \axp@MaximumCommentWidth,
     comment separator width/.store in = \axp@CommentSeparatorWidth,
     %
@@ -201,7 +207,7 @@
     text color = .,
     text style = \RaggedRight,
     comment font = \slshape,
-    comment color = .!80,
+    comment color = .!70,
     comment style = \RaggedRight,
     keyword font = \bfseries,
     keyword color = .,
@@ -210,6 +216,7 @@
     module font = \scshape,
     module color = .,
     comment symbol = $\triangleright$,
+    comment symbol right = $\triangleleft$,
     maximum comment width = 0.3\linewidth,
     comment separator width = 1em,
     algorithmic indent = 1.5em,
@@ -283,18 +290,10 @@
 \newlength{\axp@TextWidth}
 \newlength{\axp@CommentWidth}
 
-% axp@CheckNoCommentPresent: checks if there is a comment or not
-% #1: comment
-% sets:
-% \axp@NoCommentsPresent
-\NewDocumentCommand{\axp@CheckNoCommentPresent}{ m }{%
-    %! formatter = off
-    %! formatter = on
-}
 
 % axp@CalculateDimensions: evaluate space needed for text and comments
 % #1: nesting ajustment (1 when openning a block; 0 when closing)
-% #2: text6
+% #2: text
 % #3: comment
 % sets:
 % \axp@TextWidth
@@ -512,28 +511,19 @@
 \NewDocumentCommand{\Write}{}{\Keyword{write} }
 
 % %% Comments
-\newcommand{\axp@commentleftsymbol}{$\triangleright$}
 \algnewcommand{\CommentIn}[1]{%
-    \axp@commentleftsymbol~\textsl{#1}~\axp@commentrightsymbol%
+    \begin{axp@FBox}
+        \textcolor{\axp@CommentColor}{\CommentSymbol~\axp@CommentFont#1~\CommentSymbolRight}%
+    \end{axp@FBox}%
 }
 \NewDocumentCommand{\Commentl}{ m D<>{} }{%
     \begingroup%
     \AlgSet{#2}%
-    \textcolor{\axp@CommentColor}{%
-        \CommentSymbol~%
-        % \begin{axp@FBox}%
-            \axp@CommentFont#1\strut%
-        % \end{axp@FBox}%
-    }%
+    \textcolor{\axp@CommentColor}{\CommentSymbol~\axp@CommentFont#1\strut}%
     \endgroup%
 }
-\RenewDocumentCommand{\Comment}{ m D<>{} }{
-% \settowidth{\axp@CommentWidth}{#1}%
-% %! formatter = off
-    % \ifdim\axp@CommentWidth>0pt\relax%
-        \hfill\Commentl{#1}<#2>%
-    % \fi%
-    % %! formatter = on
+\RenewDocumentCommand{\Comment}{ m D<>{} }{%
+    \hfill\Commentl{#1}<#2>%
 }
 
 \newlength{\axp@CurrentIndent}
@@ -544,6 +534,7 @@
     \endgroup%
     \setlength{\ALG@tlm}{\axp@SaveIndent}%
 }
+
 
 %% Statep: statement
 % #1: old style comment
