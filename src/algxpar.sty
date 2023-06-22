@@ -154,14 +154,14 @@
     %
     comment symbol/.store in = \axp@CommentSymbol,
     comment symbol right/.store in = \axp@CommentSymbolRight,
-    maximum comment width/.store in = \axp@MaximumCommentWidth,
     comment separator width/.store in = \axp@CommentSeparatorWidth,
     %
     noend/.code = {\axp@DisableEnds},
     no end/.code = {\axp@DisableEnds},
     end/.code = {\axp@EnableEnds},
     %
-    keywords/.code = {\pgfkeysalso{/algxpar/languages/.cd, #1}},
+    % keywords/.code = {\pgfkeysalso{/algxpar/languages/.cd, \trim@spaces{#1}}},
+    keywords/.code = {\axp@LanguageSet{#1}},
     %
     algorithmic indent/.store in = \algorithmicindent,
     statement indent/.store in = \axp@StatementIndent,
@@ -172,7 +172,7 @@
     line balance/.is choice,
     line balance/fixed/.code = {\axp@LineBalanceAutofalse},
     line balance/auto/.code = {\axp@LineBalanceAutotrue},
-    text-comment ratio/.store in = \axp@TextCommentRatio,
+    comment width/.store in = \axp@CommentFixedWidth,
 }
 %! formatter = on
 
@@ -190,13 +190,20 @@
     .unknown/.code = {\SetKeyword{\pgfkeyscurrentname}{#1}}
 }
 
-\NewDocumentCommand{\AlgLanguageSet}{ > { \TrimSpaces } m > { \TrimSpaces } m }{
+\NewDocumentCommand{\AlgLanguageSet}{ > { \TrimSpaces } m > { \TrimSpaces } m }{%
     \AlgSet{language = #1}
     \pgfkeys{
         /algxpar/languages/.cd,
         #2
     }
 }
+\NewDocumentCommand{\axp@LanguageSet}{ > { \TrimSpaces } m }{%
+    \pgfkeys{
+        /algxpar/languages/.cd,
+        #1
+    }
+}
+
 \input{english.kw}  % always loads default language
 
 
@@ -217,13 +224,12 @@
     module color = .,
     comment symbol = $\triangleright$,
     comment symbol right = $\triangleleft$,
-    maximum comment width = 0.3\linewidth,
     comment separator width = 1em,
     algorithmic indent = 1.5em,
     statement indent = 1em,
     parameter indent = 0pt,
     show boxes = false,
-    text-comment ratio = 0.6,
+    comment width = 0.4\linewidth,
     line balance = auto,
 }
 
@@ -325,21 +331,12 @@
             \setlength{\axp@RemainingWidth}{
                 \dimexpr \axp@CurrentLineWidth - \axp@FullTextWidth - \axp@FullCommentWidth - \axp@CommentSymbolWidth
             }%
-            % \hspace{\axp@CurrentTokenWidth}~\begin{axp@FBox}%
-            %     \parbox{\axp@CurrentLineWidth}{>>\\
-            %     Linha: De \the\axp@CurrentLineWidth~sobram \the\axp@RemainingWidth
-            %
-            %     {\axp@TextFont#2}\hspace{\axp@CommentSeparatorWidth}\CommentSymbol~\axp@CommentFont#3
-            %     \strut}%
-            % \end{axp@FBox}\\
             \ifdim\axp@RemainingWidth>0pt\relax%
                 % Both text and comment fit the line
-                % [tem espaço]\\
                 \axp@TextWidth\axp@FullTextWidth%
                 \axp@CommentWidth\axp@FullCommentWidth%
             \else%
                 % Text/comment will go multi-line
-                % [não cabe]\\
                 \pgfmathsetmacro{\axp@CurrentRatio}{
                     int(round(\axp@FullTextWidth/(\axp@FullTextWidth + \axp@FullCommentWidth) * 100))
                 }%
@@ -365,15 +362,13 @@
                 \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
                 \setlength{\axp@TextWidth}{\pgfmathresult pt}%
             \fi%
-        \else
+        \else%
             % 'fixed': limit comment width
             % todo: think about using \axp@CurrentLineWidth instead of \linewidth
-            \pgfmathparse{\linewidth * (1 - \axp@TextCommentRatio) - \axp@CommentSymbolWidth/2}%
-            \setlength{\axp@CommentWidth}{\pgfmathresult pt}%
+            \setlength{\axp@CommentWidth}{\axp@CommentFixedWidth}%
             \setlength{\axp@TextWidth}{
                 \dimexpr \axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth
             }%
-            % [[fixed]]\\
         \fi%
         \setlength{\axp@RemainingWidth}{
             \dimexpr \linewidth - \axp@CurrentTokenWidth -
