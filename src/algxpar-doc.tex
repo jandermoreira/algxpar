@@ -87,8 +87,8 @@
     \mbox{\textcolor{green!40!black}{\texttt{#1}}}%
 }
 \NewDocumentCommand{\OptionInd}{ m }{%
-    \Option{#1}%
     \index{#1@\texttt{#1}}%
+    \Option{#1}%
 }
 \NewDocumentCommand{\OptionRef}{ m }{%
     \hyperref[option:#1]{\Option{#1}}%
@@ -796,7 +796,12 @@ Sometimes some settings need to be applied exclusively to one command, for examp
     \begin{algorithmic}
         <
         keyword color = orange!80!black,
-        keywords = {terminate = Terminate, then = then \{, endif = \}, while = whilst}
+        keywords = {
+            terminate = Terminate, %  new keyword
+            then = then \{, %  redefined
+            endif = \}, %  redefined
+            while = whilst,  %  redefined
+        }
         >
         \While{\True}
             \If{$t < 0$}
@@ -867,7 +872,7 @@ Colors are defined as done in the \PackageName{colors} package.
     This color is applied to the identifier used in both \MacroRef{Procedure} and \MacroRef{Function} definitions, as well as module calls with \MacroRef{Call}.
 \end{option}
 
-\subsubsection{Paragraph show boxes}
+\subsubsection{Paragraph boxes}
 
 \begin{option}{text style}{\Argument{style}}[\Macro{RaggedRight}]
     This \Argument{style} is applied to the paragraph box that holds the \Argument{text} field in all commands.
@@ -885,26 +890,22 @@ Colors are defined as done in the \PackageName{colors} package.
     This is the \Macro{hangindent} set inside \MacroRef{Statep} statements.
 \end{option}
 
+\begin{option}{line balance}{\Option{auto}|\Option{fixed}}[auto]
+    There are two ways to balance the lengths of \Argument{text} and \Argument{comments} on a line, each providing different visual experiences.
+
+    In automatic mode (\Option{auto}), the balance is chosen considering the widths that the actual text and comment have, trying to reduce the total number of lines, given there is not enough space in a single line for the keywords, text , comment and comment symbol. The consequence is that each line with a comment will have its own balance.
+
+    The second mode, \Option{fixed}, sets a fixed width for the entire algorithm, maintaining consistency across all comments. In that case, longer comments will tend to span a larger number of lines. The comment width is defined by the \OptionRef{comment width} option.
+\end{option}
+
+\begin{option}{comment width}{\Argument{width}}[0.4\Macro{linewidth}]
+    When \OptionRef{line balance} is set to \Option{fixed}, this is the width for all comments.
+\end{option}
+
 % todo: insert the parameter indent when it starts working
 \begin{comment}
     parameter indent = 0pt,
 \end{comment}
-
-% todo: insert text-comment ratio option
-
-% \Cref{tab:options} presents the list of available configurations with their descriptions and default values.
-%
-% \begin{table}[h]
-%     \caption{List of options.}\label{tab:options}
-%     \centering
-%     \begin{tabular}{ccp{0.6\linewidth}}
-%         \OptionInd{language} & --- & Defines the language for the keyword set
-%         \\
-%         \OptionInd{text font} & \textit{empty} & The font and shape used in all commands \Argument{text} (except algortihm documentation); ``\textit{empty}'' means to follow document current font settings.
-%         \\
-%     \end{tabular}
-% \end{table}
-
 
 \section{Other tools}
 
@@ -939,11 +940,18 @@ Colors are defined as done in the \PackageName{colors} package.
 
 \tcbinputlisting{listing file = brazilian.kw.tex, listing only}
 
+
+\section{To do}
+This is a \textit{todo} list:
+\begin{itemize}
+    \item Add font, shape, size and color settings to line numbers.
+\end{itemize}
+
 \clearpage
 \printindex
 
 \begin{algorithmic}
-    <comment style = {}, show boxes>
+    % <comment style = {}, show boxes>
     \If{$a > b$ simple test simple simple test simple simple test simple simple test simple simple test simple}
         \Statep{$b \gets a$}
     \EndIf[fim]
@@ -955,20 +963,8 @@ Colors are defined as done in the \PackageName{colors} package.
     \EndIf
 \end{algorithmic}
 
-\vspace{1cm}
-When balancing a line, the following factors
-need to be taken into account:
-- the required output rate or cycle time to (which
-depends on the demand for the product),
-
-\noindent\rule{\linewidth}{1ex}
-
-Algoritmo:
-
-\small
-
 \begin{algorithmic}[1]
-    <show boxes, language = brazilian>
+    % <show boxes, language = brazilian>
     \Statep{\Commentl{Comandos sem comentários}}
     \If{somente com o texto curto, sem comentário}
         \Statep{Faça algo}
