@@ -789,7 +789,7 @@
 \RenewDocumentCommand{\Call}{ m m D<>{} }{%
     \begingroup%
     \AlgSet{#3}%
-    \Module{#1}(#2)%
+    \Module{#1}\textcolor{\axp@TextColor}{\axp@TextFont(#2)}%
     \endgroup%
 }
 
@@ -816,7 +816,7 @@
 \NewCommandCopy{\axp@AlgorithmicxEndAlgorithmic}{\endalgorithmic}
 \RenewDocumentCommand{\algorithmic}{ O{} D<>{} }{%
     \begingroup%
-    \AlgSet{#2}
+    \AlgSet{#2}%
     \axp@AlgorithmicxAlgorithmic[#1]%
 }
 \RenewDocumentCommand{\endalgorithmic}{}{%
