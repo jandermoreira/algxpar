@@ -3,7 +3,7 @@
 %! Email =  moreira.jander@gmail.com
 %! Date: May 8, 2023
 
-\NewDocumentCommand{\AlgVersion}{}{0.95}
+\NewDocumentCommand{\AlgVersion}{}{0.99}
 \NewDocumentCommand{\AlgDate}{}{2023/05/08}
 
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
@@ -169,10 +169,13 @@
     %
     show boxes/.is if = axp@ShowBoxes,
     %
-    line balance/.is choice,
-    line balance/fixed/.code = {\axp@LineBalanceAutofalse},
-    line balance/auto/.code = {\axp@LineBalanceAutotrue},
-    comment width/.store in = \axp@CommentFixedWidth,
+    comment width/.is choice,
+    comment width/auto/.code = {\axp@LineBalanceAutotrue},
+    comment width/nice/.code = {%
+        \axp@LineBalanceAutofalse%
+        \DeclareDocumentCommand{\axp@CommentFixedWidth}{}{0.4\linewidth}%
+    },
+    comment width/.unknown/.store in = \axp@CommentFixedWidth,
 }
 %! formatter = on
 
@@ -229,8 +232,7 @@
     statement indent = 1em,
     parameter indent = 0pt,
     show boxes = false,
-    comment width = 0.4\linewidth,
-    line balance = auto,
+    comment width = auto,
 }
 
 
@@ -432,7 +434,7 @@
     \AlgSet{#6}%
     % Dimensions
     \settowidth{\axp@CurrentTokenWidth}{#2}%
-    \axp@CalculateDimensions{#1}{\axp@TextStyle\axp@TextFont#3#4}{#5}%
+    \axp@CalculateDimensions{#1}{{\axp@TextStyle\axp@TextFont#3}#4}{#5}%
     %
     % Making the line: body
     #2%
@@ -440,16 +442,11 @@
     \begin{axp@FBox}%
     \ifaxp@IsModule\hspace{\axp@ParameterIndent}\fi%
         \parbox[t]{\axp@TextWidth}{%
-            \axp@TextStyle%
-            \axp@TextFont%
             \ifaxp@IsStatement%
                 \setlength{\hangindent}{\axp@StatementIndent}%
             \fi%
-            % \ifaxp@IsModule%
-            %     \ifaxp@IsModule\hspace{-\axp@ParameterIndent}\fi%
-            %     % \setlength{\hangindent}{\axp@ParameterIndent}%
-            % \fi%
-            \textcolor{\axp@TextColor}{#3}#4\strut%
+            \axp@TextStyle%
+            \textcolor{\axp@TextColor}{\axp@TextFont{#3}}#4\strut%
         }%
     \end{axp@FBox}%
     % Making the line: comment
@@ -464,7 +461,7 @@
             \else
                 \parbox[t]{\axp@CommentWidth}{%
                     \axp@CommentStyle%
-                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+                    \textcolor{\axp@CommentColor}{\axp@CommentFont{#5}}\strut%
                 }%
             \fi%
         \end{axp@FBox}%
@@ -540,6 +537,9 @@
     \axp@IsStatementtrue%
     \State\axp@DoCommand{1}{}{#2}{}{#1#3}{#4}%
     \axp@IsStatementfalse%
+}
+\RenewDocumentCommand{\Statex}{}{%
+    \item[]\strut%
 }
 
 
