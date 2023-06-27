@@ -9,6 +9,7 @@
 \NewDocumentCommand{\AlgVersion}{}{0.99}
 \NewDocumentCommand{\AlgDate}{}{2023/06/26}
 
+
 %% Required packages
 \RequirePackage{algorithmicx}
 \RequirePackage{algpseudocode}
@@ -19,6 +20,7 @@
 \RequirePackage{amssymb}
 \RequirePackage{pgfmath}
 \RequirePackage{varwidth}
+\RequirePackage{ifthen}
 % \RequirePackage{listings} % to load verbatim with tabs
 % \RequirePackage{tcolorbox} % to save verbatim
 
@@ -168,13 +170,19 @@
     %
     show boxes/.is if = axp@ShowBoxes,
     %
-    comment width/.is choice,
-    comment width/auto/.code = {\axp@LineBalanceAutotrue},
-    comment width/nice/.code = {%
-        \axp@LineBalanceAutofalse%
-        \DeclareDocumentCommand{\axp@CommentFixedWidth}{}{0.4\linewidth}%
+    comment width/.code = {%
+        \axp@LineBalanceAutotrue%
+        \ifthenelse{\equal{auto}{#1}}{%
+            \axp@LineBalanceAutotrue%
+        }{%
+            \axp@LineBalanceAutofalse%
+            \ifthenelse{\equal{nice}{#1}}{%
+                \DeclareDocumentCommand{\axp@CommentFixedWidth}{}{0.4\linewidth}%
+            }{%
+                \DeclareDocumentCommand{\axp@CommentFixedWidth}{}{#1}%
+            }%
+        }%
     },
-    comment width/.unknown/.store in = \axp@CommentFixedWidth,
 }
 %! formatter = on
 
