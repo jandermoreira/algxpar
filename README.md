@@ -4,10 +4,10 @@ This package extends the algorithmicx package (algpseudocode) to support multili
 ## How to use
 Copy `algxpar.sty` and `*.kw.tex` from `src` to somewhere in your TeX path.
 
-**Important**: as `algxpar` is included in the CTAN distribuition, make sure this versions comes first in the search path.
+**Important**: as `algxpar` is included in the CTAN/Tex Live distribution, make sure this versions comes first in the search path when outdated.
 
 ## Licence
-Copyright (C) 2019 by Jander Moreira (moreira.jander@gmail.com)
+Copyright (C) 2019-2023 by Jander Moreira (moreira.jander@gmail.com)
 
 This work may be distributed and/or modified under the
 conditions of the LaTeX Project Public License, either version 1.3
@@ -21,5 +21,10 @@ This work has the LPPL maintenance status `maintained'.
 
 The Current Maintainer of this work is Jander Moreira.
 
-This work consists of the files algxpar.dtx and algxpar.ins
-and the derived file algxpar.sty.
+This work consists of the files 
+* algxpar.sty
+* algxpar-english.kw.tex
+* algxpar-brazilian.kw.tex
+* algxpar-doc.pdf             .
+* algxpar-doc.tex
+* algxpar-lzw.tex
