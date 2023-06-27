@@ -227,9 +227,9 @@
 \tableofcontents
 
 \begin{figure}
-    \tcbinputlisting{listing file = lzw.tex, listing only}
+    \tcbinputlisting{listing file = algxpar-lzw.tex, listing only}
     \vspace{3em}
-    \tcbinputlisting{listing file = lzw.tex, text only}
+    \tcbinputlisting{listing file = algxpar-lzw.tex, text only}
 \end{figure}
 
 
@@ -1142,15 +1142,15 @@ Creating a new keyword set uses the \Macro{AlgLanguageSet} macro.
 
     In case a default keyword is not reset, the English version will be used.
 
-    To create a new set, copy the file \texttt{english.kw.tex} and edit it accordingly.
+    To create a new set, copy the file \texttt{algxpar-english.kw.tex} and edit it accordingly.
 
     Note that there is a set of keywords for the lines that close each block. These keys are provided to allow for more versatility in changing how these lines are presented. It is highly recommended that references to other keywords use the {Keyworkd} macro so that font, color and language changes can be made without any problems.
 
-    In translations, these \textit{compound keywords} do not necessarily need to appear (see file \texttt{brazilian.kw.tex}, which follows the settings in \texttt{english.kw.tex}). However, if defined, there will be different versions for each language.
+    In translations, these \textit{compound keywords} do not necessarily need to appear (see file \texttt{brazilian.kw.tex}, which follows the settings in \texttt{algxpar-english.kw.tex}). However, if defined, there will be different versions for each language.
 \end{macro}
 
 \begin{figure}
-    \tcbinputlisting{listing file = english.kw.tex}
+    \tcbinputlisting{listing file = algxpar-english.kw.tex, listing only}
 \end{figure}
 
 The mechanism behind \MacroRef{AlgLanguageSet} uses the \Macro{SetKeyword} macro, which is called to adjust the value of a single keyword\footnote{Macros like \Macro{algorithmicwhile} from the \PackageName{algorithimicx} package are no longer used.}. To retrieve the value of a given keyword, the \Macro{Keyword} macro must be used. It returns the formatted value according to the options currently in use for keywords.
@@ -1174,7 +1174,7 @@ The mechanism behind \MacroRef{AlgLanguageSet} uses the \Macro{SetKeyword} macro
     Depending on the language, a keyword can take different forms: \Keyword{if} (English), \Keyword[german]{if} (german) or \Keyword[brazilian]{if} (Brazilian Portuguese).
 \end{tcblisting}
 
-\subsubsection{Other features}
+\subsection{Other features}
 
 \begin{macro}{Constant}[\OArg{name}]
     This macro presents \Argument{name} using font, shape, size and color defined for constants.
@@ -1211,7 +1211,7 @@ This is a \textit{todo} list:
     comment width = nice,
     comment style = \raggedleft,
 }
-\input{lzw.tex}
+\input{algxpar-lzw}
 \endgroup
 
 \subsection{LZW revisited again}
@@ -1222,8 +1222,7 @@ This is a \textit{todo} list:
         keyword color = green!40!black,
         text font = \itshape,
         comment font = \footnotesize,
-        algorithmic indent = 0.5em,
-        comment width = auto,
+        algorithmic indent = 1.5em,
         noend,
     }
 \end{latexcode}
@@ -1236,7 +1235,7 @@ This is a \textit{todo} list:
     algorithmic indent = 1.5em,
     noend,
 }
-\input{lzw.tex}
+\input{algxpar-lzw}
 \endgroup
 
 
