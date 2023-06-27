@@ -21,10 +21,14 @@ This work has the LPPL maintenance status `maintained'.
 
 The Current Maintainer of this work is Jander Moreira.
 
-This work consists of the files 
+Files to use the package:  
 * algxpar.sty
 * algxpar-english.kw.tex
 * algxpar-brazilian.kw.tex
+
+Manual:
 * algxpar-doc.pdf             .
+
+Files to compile the manual (requires `pygmentize`)
 * algxpar-doc.tex
 * algxpar-lzw.tex
