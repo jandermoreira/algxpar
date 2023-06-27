@@ -1,27 +1,26 @@
 %! Package: algxpar
 %! Author: Jander Moreira
 %! Email =  moreira.jander@gmail.com
-%! Date: May 8, 2023
-
-\NewDocumentCommand{\AlgVersion}{}{0.99}
-\NewDocumentCommand{\AlgDate}{}{2023/06/26}
 
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
-\ProvidesPackage{algxpar}[2023/06/26 v0.95 Algorithms with multi-line/paragraph support and some enhancements]
+\ProvidesPackage{algxpar}[2023/06/26 v0.99 Algorithms with multi-line/paragraph support and some enhancements]
 
+%% Documentation
+\NewDocumentCommand{\AlgVersion}{}{0.99}
+\NewDocumentCommand{\AlgDate}{}{2023/06/26}
 
 %% Required packages
 \RequirePackage{algorithmicx}
 \RequirePackage{algpseudocode}
 \RequirePackage{ragged2e}
-% \RequirePackage{listings}
 \RequirePackage{xcolor}
-% \RequirePackage{tcolorbox} % to save verbatim
 \RequirePackage{fancyvrb} % to load verbatim preserving tabs
 \RequirePackage{pgfopts}
 \RequirePackage{amssymb}
 \RequirePackage{pgfmath}
 \RequirePackage{varwidth}
+% \RequirePackage{listings} % to load verbatim with tabs
+% \RequirePackage{tcolorbox} % to save verbatim
 
 %%% Internal commands
 \ExplSyntaxOn
@@ -207,7 +206,7 @@
     }
 }
 
-\input{english.kw}  % always loads default language
+\input{algxpar-english.kw}  % always loads default language
 
 
 % general settings defaults
@@ -243,7 +242,7 @@
     noend/.is if = axp@NoEnd,
     .unknown/.code = {
         %! suppress = FileNotFound
-        \input{\pgfkeyscurrentname.kw}
+        \input{algxpar-\pgfkeyscurrentname.kw}
         \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
     }
 }
