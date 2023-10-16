@@ -2,7 +2,7 @@
 This package extends the algorithmicx package (algpseudocode) to support multiline text.
 
 ## How to use
-Copy `algxpar.sty` and `*.kw.tex` from `src` to somewhere in your TeX path.
+Copy `algxpar.sty` and `*.kw.tex` to somewhere in your TeX path.
 
 **Important**: as `algxpar` is included in the CTAN/Tex Live distribution, make sure this versions comes first in the search path when outdated.
 
@@ -26,9 +26,5 @@ Files to use the package:
 * algxpar-english.kw.tex
 * algxpar-brazilian.kw.tex
 
-Manual:
+Manual (requires `pygmentize`):
 * algxpar-doc.pdf             .
-
-Files to compile the manual (requires `pygmentize`)
-* algxpar-doc.tex
-* algxpar-lzw.tex
