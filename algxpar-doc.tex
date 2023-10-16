@@ -44,7 +44,7 @@
 \makeindex
 
 % minted
-\usepackage[outputdir = ../out]{minted}
+\usepackage[outputdir = ./out]{minted}
 % \usemintedstyle{borland}
 \newminted{latex}{autogobble, breaklines, bgcolor = blue!5, fontsize = \footnotesize}
 \newmintinline{latex}{}
@@ -197,6 +197,28 @@
     \end{tcolorbox}%
     \medskip%
 }
+
+\begin{filecontents*}{algxpar-lzw.tex}
+\begin{algorithmic}[1]
+    \Description LZW Compression using a table with all known sequences of bytes.
+    \Input A flow of bytes
+    \Output A flow of bits with the compressed representation of the input bytes
+    \Statex
+    \Statep{Initialize a table with all bytes}[each position of the table has a single byte]
+    \Statep{Initilize \Id{sequence} with the first byte in the input flow}
+    \While{there are bytes in the input}[wait until all bytes are processed]
+        \Statep{Get a single byte from input and store it in \Id{byte}}
+        \If{the concatention of \Id{sequence} and \Id{byte} is in the table}
+            \Statep{Set \Id{sequence} to $\Id{sequence} + \Id{byte}$}[concatenate without producing any output]
+        \Else
+            \Statep{Output the code for \Id{sequence}}[i.e., the binary representation of its position in the table]\label{alg:lzw:output}
+            \Statep{Add the concatention of \Id{sequence} and \Id{byte} to the table}[the table learns a longer sequence]\label{alg:lzw:add-to-table}
+            \Statep{Set \Id{sequence} to \Id{byte}}[starts a new sequence with the remaining byte]
+        \EndIf
+    \EndWhile
+    \Statep{Output the code for \Id{sequence}}[the remaining sequence of bits]
+\end{algorithmic}
+\end{filecontents*}
 
 %% Repetitive text
 \NewDocumentCommand{\MacroOptionsText}{}{%
@@ -1173,7 +1195,7 @@ The mechanism behind \MacroRef{AlgLanguageSet} uses the \Macro{SetKeyword} macro
 
 \begin{tcblisting}{}
     \SetKeyword[german]{if}{wenn} % new
-    Depending on the language, a keyword can take different forms: \Keyword{if} (English), \Keyword[german]{if} (german) or \Keyword[brazilian]{if} (Brazilian Portuguese).
+    Depending on the language, a keyword can take different forms: \Keyword{if} (English), \Keyword[german]{if} (German) or \Keyword[brazilian]{if} (Brazilian Portuguese).
 \end{tcblisting}
 
 \subsection{Other features}

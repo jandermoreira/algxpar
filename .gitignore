@@ -301,3 +301,5 @@ TSWLatexianTemp*
 #*Notes.bib
 
 out/
+.idea/
+algxpar.iml
