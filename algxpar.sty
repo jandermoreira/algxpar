@@ -92,11 +92,11 @@
 }
 
 
-% RenewFullExpandedDocumentCommand: fully expands argument before
+% axp@RenewFullyExpandedDocumentCommand: fully expands argument before
 %   renewing document command
 % #1: macro
 % #2: value
-\NewDocumentCommand{\RenewFullExpandedDocumentCommand} { m m }{
+\NewDocumentCommand{\axp@RenewFullyExpandedDocumentCommand} { m m }{
     \exp_args:NNnV \RenewDocumentCommand #1 { } { #2 }
 }
 
@@ -261,8 +261,8 @@
     noend/.is if = axp@NoEnd,
     .unknown/.code = {
         %! suppress = FileNotFound
+        \axp@RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
         \input{algxpar-\pgfkeyscurrentname.kw}
-        \RenewFullExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
     }
 }
 \pgfkeys{
@@ -272,6 +272,7 @@
 }
 \ProcessPgfOptions{/algxpar}
 \ifaxp@NoEnd\axp@DisableEnds\fi%  globally disable 'ends'
+
 
 
 % axp@SetToWidth: \settowidth allowing multi-line text
