@@ -92,11 +92,11 @@
 }
 
 
-% RenewFullyExpandedDocumentCommand: fully expands argument before
+% RenewFullExpandedDocumentCommand: fully expands argument before
 %   renewing document command
 % #1: macro
 % #2: value
-\NewDocumentCommand{\RenewFullyExpandedDocumentCommand} { m m }{
+\NewDocumentCommand{\RenewFullExpandedDocumentCommand} { m m }{
     \exp_args:NNnV \RenewDocumentCommand #1 { } { #2 }
 }
 
@@ -174,8 +174,8 @@
     statement indent/.store in = \axp@StatementIndent,
     parameter indent/.store in = \axp@ParameterIndent,
 %
-    lines/.is if = axp@IndentLines,
-    indent line/.code = {\tikzset{indent line/.style = {#1}}},
+    indent lines/.is if = axp@IndentLines,
+    line style/.code = {\tikzset{line style/.style = {#1}}},
 %
     show boxes/.is if = axp@ShowBoxes,
 %
@@ -210,11 +210,11 @@
 }
 
 \NewDocumentCommand{\AlgLanguageSet}{ > { \TrimSpaces } m > { \TrimSpaces } m }{%
-    \AlgSet{language = #1}
+    \AlgSet{language = #1}%
     \pgfkeys{
         /algxpar/languages/.cd,
         #2
-    }
+    }%
 }
 \NewDocumentCommand{\axp@LanguageSet}{ > { \TrimSpaces } m }{%
     \pgfkeys{
@@ -247,8 +247,8 @@
     algorithmic indent = 1.5em,
     statement indent = 1em,
     parameter indent = 0pt,
-    lines = false,
-    indent line = {lightgray, thick},
+    indent lines = false,
+    line style = {lightgray, thick},
     show boxes = false,
     comment width = auto,
 }
@@ -262,7 +262,7 @@
     .unknown/.code = {
         %! suppress = FileNotFound
         \input{algxpar-\pgfkeyscurrentname.kw}
-        \RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
+        \RenewFullExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
     }
 }
 \pgfkeys{
@@ -331,7 +331,7 @@
     \ifaxp@IndentLines%
     \tikz[remember picture] \coordinate (axp-block-end-\theaxp@BlockLevelCounter) (0, 0);%
     \begin{tikzpicture}[remember picture, overlay]
-        \draw[indent line]
+        \draw[line style]
         ($ (axp-block-start-\theaxp@BlockLevelCounter) + (0.3ex, -1ex) $)
         --
         ($ (axp-block-end-\theaxp@BlockLevelCounter) +  (0.3ex, 1em) $);
@@ -345,7 +345,7 @@
     \ifaxp@IndentLines%
     \tikz[remember picture] \coordinate (axp-block-end-\theaxp@BlockLevelCounter) (0, 0);%
     \begin{tikzpicture}[remember picture, overlay]
-        \draw[indent line]
+        \draw[line style]
         ($ (axp-block-start-\theaxp@BlockLevelCounter) + (0.3ex, -1ex) $)
         --
         ($ (axp-block-end-\theaxp@BlockLevelCounter) +  (0.3ex, 1em) $);
@@ -359,7 +359,7 @@
     \ifaxp@IndentLines%
     \tikz[remember picture] \coordinate (axp-block-end-\theaxp@BlockLevelCounter) (0, 0);%
     \begin{tikzpicture}[remember picture, overlay]
-        \draw[indent line]
+        \draw[line style]
         ($ (axp-block-start-\theaxp@BlockLevelCounter) + (0.3ex, -1ex) $)
         --
         ($ (axp-block-end-\theaxp@BlockLevelCounter)  + (0.3ex, 0) $)
@@ -864,7 +864,7 @@
 % #2: options
 \RenewDocumentCommand{\EndProcedure}{ O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{endprocedure}}{}{}{#1}{#2}%
-    \axp@MarkLineEnd%
+    \axp@MarkLineEndFinal%
     \ALG@makeentity{EndProcedure}%
     \axp@EndGroup
 }
@@ -886,7 +886,7 @@
 % #2: options
 \RenewDocumentCommand{\EndFunction}{ O{} D<>{} }{%
     \axp@DefineCommand{\Keyword{endfunction}}{}{}{#1}{#2}%
-    \axp@MarkLineEnd%
+    \axp@MarkLineEndFinal%
     \ALG@makeentity{EndFunction}%
     \axp@EndGroup
 }
