@@ -43,7 +43,7 @@
 \makeindex
 
 % minted
-\usepackage{minted}
+\usepackage[outputdir = ./out]{minted}
 % \usemintedstyle{borland}
 \newminted{latex}{autogobble, breaklines, bgcolor = blue!5, fontsize = \footnotesize}
 \newmintinline{latex}{}
@@ -197,7 +197,7 @@
     \medskip%
 }
 
-\begin{filecontents*}{algxpar-lzw.tex}
+\begin{filecontents}[overwrite, nosearch, noheader]{algxpar-lzw.tex}
 \begin{algorithmic}[1]
     \Description LZW Compression using a table with all known sequences of bytes.
     \Input A flow of bytes
@@ -217,7 +217,7 @@
     \EndWhile
     \Statep{Output the code for \Id{sequence}}[the remaining sequence of bits]
 \end{algorithmic}
-\end{filecontents*}
+\end{filecontents}
 
 %% Repetitive text
 \NewDocumentCommand{\MacroOptionsText}{}{%
