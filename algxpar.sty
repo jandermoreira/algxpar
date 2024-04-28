@@ -419,8 +419,6 @@
             \setlength{\axp@RemainingWidth}{
                 \dimexpr \axp@CurrentLineWidth - \axp@FullTextWidth - \axp@FullCommentWidth - \axp@CommentSymbolWidth
             }%
-            % ***(space left in line: \the\axp@RemainingWidth)%
-            \show\axp@RemainingWidth%
             \ifdim\axp@RemainingWidth>0pt\relax%
                 % Both text and comment fit the line
                 \axp@TextWidth\axp@FullTextWidth%
@@ -467,9 +465,9 @@
         }%
     \fi%
     %
-    \ifdim\axp@FullTextWidth<\axp@TextWidth\relax%
-        \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
-    \fi%
+    % \ifdim\axp@FullTextWidth<\axp@TextWidth\relax%
+    %     \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
+    % \fi%
     %! formatter = on
 }
 
@@ -550,7 +548,6 @@
     \end{axp@FBox}%
     % Making the line: comment
     \ifaxp@NoCommentPresent\else%
-        \PackageWarning{docommand}{With comment}%
         \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
         \begin{axp@FBox}%
             \ifaxp@LineBalanceAuto%
