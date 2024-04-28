@@ -192,6 +192,8 @@
             }%
         }%
     },
+    %
+    % style/.style = {\pgfkeysalso{/algxpar/styles/#}},
 }
 %! formatter = on
 
@@ -202,6 +204,14 @@
     }%
 }
 
+
+% %% Styles
+% \NewDocumentCommand{\AlgStyle}{ > { \TrimSpaces } m > { \TrimSpaces m }{%
+%     \pgfkeys{
+%         /algxpar/style/.cd,
+%         #1/.style = {#2}
+%     }
+% }
 
 %% Languages and translations
 \pgfkeys{
@@ -307,7 +317,7 @@
 % #3: text after token
 \newlength{\axp@TokenWidth}
 \NewDocumentCommand{\axp@MakeSingleToken}{ m m m }{%
-    \settowidth{\axp@TokenWidth}{#2}%
+    \axp@SetToWidth{\axp@TokenWidth}{#2}%
     \ifdim\axp@TokenWidth>0pt\relax#1\fi%
     #2%
     \ifdim\axp@TokenWidth>0pt\relax#3\fi%
@@ -386,75 +396,79 @@
 \newlength{\axp@CurrentLineWidth}
 \newlength{\axp@RemainingWidth}
 \NewDocumentCommand{\axp@CalculateDimensions}{ m m m }{%
+    \axp@NoCommentPresenttrue%
     \axp@SetToWidth{\axp@FullTextWidth}{\axp@TextFont#2}% text
     \axp@SetToWidth{\axp@FullCommentWidth}{\axp@CommentFont#3}% comment
     %! formatter = off
     \ifdim\axp@FullCommentWidth=0pt\relax%
-    % No comments present
-    \axp@NoCommentPresenttrue%
-    \setlength{\axp@TextWidth}{
-        \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
-    }%
-    \else
-    % Yep, we have a comment
-    \axp@NoCommentPresentfalse%
-    \settowidth{\axp@CommentSymbolWidth}{\hspace{\axp@CommentSeparatorWidth}\CommentSymbol~}%
-    \setlength{\axp@CurrentLineWidth}{
-        \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
-    }%
-    \ifaxp@LineBalanceAuto%
-    % 'auto': decide here how to balance text and comment widths
-    \setlength{\axp@RemainingWidth}{
-        \dimexpr \axp@CurrentLineWidth - \axp@FullTextWidth - \axp@FullCommentWidth - \axp@CommentSymbolWidth
-    }%
-    \ifdim\axp@RemainingWidth>0pt\relax%
-    % Both text and comment fit the line
-    \axp@TextWidth\axp@FullTextWidth%
-    \axp@CommentWidth\axp@FullCommentWidth%
+        % No comments present
+        \global\axp@NoCommentPresenttrue%
+        \setlength{\axp@TextWidth}{
+            \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
+        }%
     \else%
-    % Text/comment will go multi-line
-    \pgfmathsetmacro{\axp@CurrentRatio}{
-        int(round(\axp@FullTextWidth/(\axp@FullTextWidth + \axp@FullCommentWidth) * 100))
-    }%
-    \ifnum\axp@CurrentRatio<25\relax%  never less than 0.25
-    \edef\axp@CurrentRatio{25}%
-    \fi%
-    \ifnum\axp@CurrentRatio>75\relax%  never more than 0.75
-    \edef\axp@CurrentRatio{75}%
-    \fi%
-    \pgfmathparse{
-        \axp@CurrentRatio/100 * \axp@CurrentLineWidth - \axp@CommentSymbolWidth/2
-    }%
-    \setlength{\axp@TextWidth}{\pgfmathresult pt}%
-    \pgfmathparse{\axp@CurrentLineWidth - \axp@TextWidth - \axp@CommentSymbolWidth}%
-    \setlength{\axp@CommentWidth}{\pgfmathresult pt}%
-    % fine tunning the widths
-    \settowidth{\axp@CommentWidth}{%
-        \begin{varwidth}[t]{\axp@CommentWidth}%
-            \axp@CommentStyle%
-            \textcolor{\axp@CommentColor}{\axp@CommentFont#3}\strut%
-        \end{varwidth}%
-    }%
-    \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
-    \setlength{\axp@TextWidth}{\pgfmathresult pt}%
-    \fi%
-    \else%
-    % 'fixed': limit comment width
-    % todo: think about using \axp@CurrentLineWidth instead of \linewidth
-    \setlength{\axp@CommentWidth}{\axp@CommentFixedWidth}%
-    \setlength{\axp@TextWidth}{
-        \dimexpr \axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth
-    }%
-    \fi%
-    \setlength{\axp@RemainingWidth}{
-        \dimexpr \linewidth - \axp@CurrentTokenWidth -
-        (\algorithmicindent)*(\theALG@nested - #1) -
-        \axp@CommentWidth - \axp@CommentSymbolWidth
-    }%
+        % Yep, we have a comment
+        \global\axp@NoCommentPresentfalse%
+        \axp@SetToWidth{\axp@CommentSymbolWidth}{\hspace{\axp@CommentSeparatorWidth}\CommentSymbol~}%
+        \setlength{\axp@CurrentLineWidth}{
+            \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
+        }%
+        %***(space in line after token: \the\axp@CurrentLineWidth)\\%
+        \ifaxp@LineBalanceAuto%
+            % 'auto': decide here how to balance text and comment widths
+            \setlength{\axp@RemainingWidth}{
+                \dimexpr \axp@CurrentLineWidth - \axp@FullTextWidth - \axp@FullCommentWidth - \axp@CommentSymbolWidth
+            }%
+            % ***(space left in line: \the\axp@RemainingWidth)%
+            \show\axp@RemainingWidth%
+            \ifdim\axp@RemainingWidth>0pt\relax%
+                % Both text and comment fit the line
+                \axp@TextWidth\axp@FullTextWidth%
+                \axp@CommentWidth\axp@FullCommentWidth%
+            \else%
+                % Text/comment will go multi-line
+                \pgfmathsetmacro{\axp@CurrentRatio}{
+                    int(round(\axp@FullTextWidth/(\axp@FullTextWidth + \axp@FullCommentWidth) * 100))
+                }%
+                \ifnum\axp@CurrentRatio<25\relax%  never less than 0.25
+                    \edef\axp@CurrentRatio{25}%
+                \fi%
+                \ifnum\axp@CurrentRatio>75\relax%  never more than 0.75
+                    \edef\axp@CurrentRatio{75}%
+                \fi%
+                \pgfmathparse{
+                    \axp@CurrentRatio/100 * \axp@CurrentLineWidth - \axp@CommentSymbolWidth/2
+                }%
+                \setlength{\axp@TextWidth}{\pgfmathresult pt}%
+                \pgfmathparse{\axp@CurrentLineWidth - \axp@TextWidth - \axp@CommentSymbolWidth}%
+                \setlength{\axp@CommentWidth}{\pgfmathresult pt}%
+                % fine tunning the widths
+                \axp@SetToWidth{\axp@CommentWidth}{%
+                    \begin{varwidth}[t]{\axp@CommentWidth}%
+                        \axp@CommentStyle%
+                        \textcolor{\axp@CommentColor}{\axp@CommentFont#3}\strut%
+                    \end{varwidth}%
+                }%
+                \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
+                \setlength{\axp@TextWidth}{\pgfmathresult pt}%
+            \fi%
+        \else%
+            % 'fixed': limit comment width
+            % todo: think about using \axp@CurrentLineWidth instead of \linewidth
+            \setlength{\axp@CommentWidth}{\axp@CommentFixedWidth}%
+            \setlength{\axp@TextWidth}{
+                \dimexpr \axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth
+            }%
+        \fi%
+        \setlength{\axp@RemainingWidth}{
+            \dimexpr \linewidth - \axp@CurrentTokenWidth -
+            (\algorithmicindent)*(\theALG@nested - #1) -
+            \axp@CommentWidth - \axp@CommentSymbolWidth
+        }%
     \fi%
     %
     \ifdim\axp@FullTextWidth<\axp@TextWidth\relax%
-    \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
+        \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
     \fi%
     %! formatter = on
 }
@@ -464,17 +478,14 @@
 % axp@MakeCommand: builds the command (see axp@DefineCommand)
 % #1 (star): star = end block; no star = begin block
 \NewDocumentCommand{\axp@MakeCommand}{ s }{%
-% \stepcounter{cont}\thecont.%
     \IfBooleanTF{#1}{%
-    % (*\theaxp@BlockLevelCounter)
         \axp@MarkLineEndShort%
     }{%
         \ifaxp@CloseBlock%
-        \axp@MarkLineEndCont%
-        \axp@CloseBlockfalse%
+            \axp@MarkLineEndCont%
+            \axp@CloseBlockfalse%
         \fi%
         \axp@MarkLineBegin%
-    % (\theaxp@BlockLevelCounter)
     }%
     \axp@DoCommand{%  ajustment for opening/closing blocks
         \IfBooleanTF{#1}{0}{1}%
@@ -495,16 +506,16 @@
 \newsavebox{\axp@SaveBox}
 \NewDocumentEnvironment{axp@FBox}{}{%
     \begin{lrbox}{\axp@SaveBox}%
-    }{%
+}{%
     \end{lrbox}%
     \ifaxp@ShowBoxes%
-    \begingroup%
-    \setlength{\fboxrule}{0.001pt}%
-    \setlength{\fboxsep}{0pt}%
-    \color{.!20}\fbox{\color{.}\usebox{\axp@SaveBox}}%
-    \endgroup%
+        \begingroup%
+        \setlength{\fboxrule}{0.001pt}%
+        \setlength{\fboxsep}{0pt}%
+        \color{.!20}\fbox{\color{.}\usebox{\axp@SaveBox}}%
+        \endgroup%
     \else%
-    \usebox{\axp@SaveBox}%
+        \usebox{\axp@SaveBox}%
     \fi%
 }
 %! formatter = on
@@ -521,7 +532,7 @@
 \NewDocumentCommand{\axp@DoCommand}{ m m m m m m }{%
     \AlgSet{#6}%
     % Dimensions
-    \settowidth{\axp@CurrentTokenWidth}{#2}%
+    \axp@SetToWidth{\axp@CurrentTokenWidth}{#2}%
     \axp@CalculateDimensions{#1}{{\axp@TextStyle\axp@TextFont#3}#4}{#5}%
     %
     % Making the line: body
@@ -531,28 +542,29 @@
         \ifaxp@IsModule\hspace{\axp@ParameterIndent}\fi%
         \parbox[t]{\axp@TextWidth}{%
             \ifaxp@IsStatement%
-            \setlength{\hangindent}{\axp@StatementIndent}%
+                \setlength{\hangindent}{\axp@StatementIndent}%
             \fi%
             \axp@TextStyle%
             \textcolor{\axp@TextColor}{\axp@TextFont{#3}}#4\strut%
         }%
     \end{axp@FBox}%
-% Making the line: comment
+    % Making the line: comment
     \ifaxp@NoCommentPresent\else%
-    \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
-    \begin{axp@FBox}%
-        \ifaxp@LineBalanceAuto
-        \begin{varwidth}[t]{\axp@CommentWidth}%
-            \axp@CommentStyle%
-            \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
-        \end{varwidth}%
-        \else
-        \parbox[t]{\axp@CommentWidth}{%
-            \axp@CommentStyle%
-            \textcolor{\axp@CommentColor}{\axp@CommentFont{#5}}\strut%
-        }%
-        \fi%
-    \end{axp@FBox}%
+        \PackageWarning{docommand}{With comment}%
+        \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
+        \begin{axp@FBox}%
+            \ifaxp@LineBalanceAuto%
+                \begin{varwidth}[t]{\axp@CommentWidth}%
+                    \axp@CommentStyle%
+                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+                \end{varwidth}%
+            \else%
+                \parbox[t]{\axp@CommentWidth}{%
+                    \axp@CommentStyle%
+                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+                }%
+            \fi%
+        \end{axp@FBox}%
     \fi%
     %! formatter = on
 }
@@ -718,7 +730,6 @@
     \axp@DefineCommand{\Keyword{else}~\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
     \axp@CloseBlocktrue%
     \ALG@makeentity{ElsIf}%
-% \ifaxp@NoEnd\axp@MarkLineEndCont\fi%
 }
 % #1: comment
 % #2: options
@@ -726,7 +737,6 @@
     \axp@DefineCommand{\Keyword{else}}{}{}{#1}{#2}%
     \axp@CloseBlocktrue%
     \ALG@makeentity{Else}%
-% \ifaxp@NoEnd\axp@MarkLineEndCont\fi%
 }
 % #1: comment
 % #2: options
