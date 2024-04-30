@@ -2,6 +2,8 @@
 %! Author: Jander Moreira
 %! Email =  moreira.jander@gmail.com
 
+%! suppress = FileNotFound
+
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
 \ProvidesPackage{algxpar}[2023/06/26 v0.99 Algorithms with multi-line/paragraph support and some enhancements]
 
@@ -270,7 +272,6 @@
     language/.store in = \axp@Language,
     noend/.is if = axp@NoEnd,
     .unknown/.code = {
-        %! suppress = FileNotFound
         \axp@RenewFullyExpandedDocumentCommand{\axp@Language}{\pgfkeyscurrentname}
         \input{algxpar-\pgfkeyscurrentname.kw}
     }
@@ -282,7 +283,6 @@
 }
 \ProcessPgfOptions{/algxpar}
 \ifaxp@NoEnd\axp@DisableEnds\fi%  globally disable 'ends'
-
 
 
 % axp@SetToWidth: \settowidth allowing multi-line text
@@ -382,6 +382,13 @@
 }
 %! formatter = on
 
+% % ***********************************************
+% \NewDocumentCommand{\msg}{ m O{-1} }{%
+%     \begin{tikzpicture}[overlay]
+%         \draw[black!30] (0, 0.1) -- (#2, 0.3) node[fill=black!5, anchor=east] {\scriptsize\color{darkgray}#1};
+%     \end{tikzpicture}%
+% }
+
 
 % axp@CalculateDimensions: evaluate space needed for text and comments
 % #1: nesting ajustment (1 when openning a block; 0 when closing)
@@ -402,12 +409,17 @@
     %! formatter = off
     \ifdim\axp@FullCommentWidth=0pt\relax%
         % No comments present
+        % \msg{no comment!}%
         \global\axp@NoCommentPresenttrue%
         \setlength{\axp@TextWidth}{
             \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
         }%
+        \ifdim\axp@FullTextWidth<\axp@TextWidth\relax%
+            \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
+        \fi%
     \else%
         % Yep, we have a comment
+        % \msg{has comment!}%
         \global\axp@NoCommentPresentfalse%
         \axp@SetToWidth{\axp@CommentSymbolWidth}{\hspace{\axp@CommentSeparatorWidth}\CommentSymbol~}%
         \setlength{\axp@CurrentLineWidth}{
@@ -423,8 +435,10 @@
                 % Both text and comment fit the line
                 \axp@TextWidth\axp@FullTextWidth%
                 \axp@CommentWidth\axp@FullCommentWidth%
+                % \msg{fit \the\axp@RemainingWidth}%
             \else%
                 % Text/comment will go multi-line
+                % \msg{not fit \the\axp@RemainingWidth}%
                 \pgfmathsetmacro{\axp@CurrentRatio}{
                     int(round(\axp@FullTextWidth/(\axp@FullTextWidth + \axp@FullCommentWidth) * 100))
                 }%
@@ -464,10 +478,6 @@
             \axp@CommentWidth - \axp@CommentSymbolWidth
         }%
     \fi%
-    %
-    % \ifdim\axp@FullTextWidth<\axp@TextWidth\relax%
-    %     \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
-    % \fi%
     %! formatter = on
 }
 
@@ -479,10 +489,12 @@
     \IfBooleanTF{#1}{%
         \axp@MarkLineEndShort%
     }{%
+        %! formatter = off
         \ifaxp@CloseBlock%
             \axp@MarkLineEndCont%
             \axp@CloseBlockfalse%
         \fi%
+        %! formatter = on
         \axp@MarkLineBegin%
     }%
     \axp@DoCommand{%  ajustment for opening/closing blocks
@@ -580,7 +592,7 @@
 \NewDocumentCommand{\False}{}{\Constant{false}}
 \NewDocumentCommand{\Nil}{}{\Constant{nil}}
 
-\newcommand{\Id}[1]{\ensuremath{\textit{\rmfamily#1}}}
+\newcommand{\Id}[1]{\ensuremath{\emph{\rmfamily#1}}}
 % \newcommand{\TextString}[1]{\textrm{\normalfont``{\ttfamily\mbox{#1}}''}}
 % \algnewcommand{\VisibleSpace}{\textrm{\color{black!70}\textvisiblespace}}
 
