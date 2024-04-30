@@ -198,25 +198,25 @@
 }
 
 \begin{filecontents}[overwrite, nosearch, noheader]{algxpar-lzw.tex}
-\begin{algorithmic}[1]
-    \Description LZW Compression using a table with all known sequences of bytes.
-    \Input A flow of bytes
-    \Output A flow of bits with the compressed representation of the input bytes
-    \Statex
-    \Statep{Initialize a table with all bytes}[each position of the table has a single byte]
-    \Statep{Initilize \Id{sequence} with the first byte in the input flow}
-    \While{there are bytes in the input}[wait until all bytes are processed]
-        \Statep{Get a single byte from input and store it in \Id{byte}}
-        \If{the concatention of \Id{sequence} and \Id{byte} is in the table}
-            \Statep{Set \Id{sequence} to $\Id{sequence} + \Id{byte}$}[concatenate without producing any output]
-        \Else
-            \Statep{Output the code for \Id{sequence}}[i.e., the binary representation of its position in the table]\label{alg:lzw:output}
-            \Statep{Add the concatention of \Id{sequence} and \Id{byte} to the table}[the table learns a longer sequence]\label{alg:lzw:add-to-table}
-            \Statep{Set \Id{sequence} to \Id{byte}}[starts a new sequence with the remaining byte]
-        \EndIf
-    \EndWhile
-    \Statep{Output the code for \Id{sequence}}[the remaining sequence of bits]
-\end{algorithmic}
+    \begin{algorithmic}[1]
+        \Description LZW Compression using a table with all known sequences of bytes.
+        \Input A flow of bytes
+        \Output A flow of bits with the compressed representation of the input bytes
+        \Statex
+        \Statep{Initialize a table with all bytes}[each position of the table has a single byte]
+        \Statep{Initilize \Id{sequence} with the first byte in the input flow}
+        \While{there are bytes in the input}[wait until all bytes are processed]
+            \Statep{Get a single byte from input and store it in \Id{byte}}
+            \If{the concatention of \Id{sequence} and \Id{byte} is in the table}
+                \Statep{Set \Id{sequence} to $\Id{sequence} + \Id{byte}$}[concatenate without producing any output]
+            \Else
+                \Statep{Output the code for \Id{sequence}}[i.e., the binary representation of its position in the table]\label{alg:lzw:output}
+                \Statep{Add the concatention of \Id{sequence} and \Id{byte} to the table}[the table learns a longer sequence]\label{alg:lzw:add-to-table}
+                \Statep{Set \Id{sequence} to \Id{byte}}[starts a new sequence with the remaining byte]
+            \EndIf
+        \EndWhile
+        \Statep{Output the code for \Id{sequence}}[the remaining sequence of bits]
+    \end{algorithmic}
 \end{filecontents}
 
 %% Repetitive text
@@ -716,7 +716,7 @@ Modularization uses \Macro{Procedure} or \Macro{Function}.
 \begin{tcblisting}{}
     \begin{algorithmic}
         \Procedure{SaveNode}{\Id{node}}
-            [saves a B\textsuperscript{+}-tree node to disk]
+        [saves a B\textsuperscript{+}-tree node to disk]
             \If{\Id{node}.\Id{is\_modified}}
                 \If{$\Id{node}.\Id{address} == -1$}
                     \Statep{Set file writting position after file's last byte}[creates a new node on disk]
@@ -843,17 +843,17 @@ A series of macros are defined to provide the header documentation for a pseudoc
 \end{tcblisting}
 
 \begin{macro}{Description}
-    [~\Argument{description text}]
+[~\Argument{description text}]
     The \Macro{Description} is intended to hold the general description of the pseudocode.
 \end{macro}
 
 \begin{macro}{Require}
-    [~\Argument{pre-conditions}]
+[~\Argument{pre-conditions}]
     The required initial state that the code relies on. These are \textit{pre-conditions}.
 \end{macro}
 
 \begin{macro}{Ensure}
-    [~\Argument{post-conditions}]
+[~\Argument{post-conditions}]
     The final state produced by the code. These are \textit{post-conditions}.
 \end{macro}
 
@@ -866,11 +866,11 @@ A series of macros are defined to provide the header documentation for a pseudoc
 \end{tcblisting}
 
 \begin{macro}{Input}
-    [~\Argument{inputs}]
+[~\Argument{inputs}]
     This works as an alternative to \MacroRef{Require}, presenting \Keyword{input}.
 \end{macro}
 \begin{macro}{Output}
-    [~\Argument{outputs}]
+[~\Argument{outputs}]
     This works as an alternative to \MacroRef{Ensure}, presenting \Keyword{output}.
 \end{macro}
 
@@ -960,6 +960,57 @@ Sometimes some settings need to be applied exclusively to one command, for examp
 \subsection{Options}\label{sec:options}
 This section presents the options that can be specified for the algorithms, either using \MacroRef{AlgSet} or the \Argument{options} parameter of the various macros.
 
+\begin{option}{indent lines}{\Option{true} | \Option{false}}[false]
+    With \Option{indent lines} vertical indentation lines are displayed in the pseudocode. This feature only works correctly if the start and end of the block are on the same page and at least two compilation steps are required for the lines to be positioned correctly.
+
+    To change the style for the lines, use \OptionRef{line style}
+
+    \textit{This feature is still experimental and incomplete.}
+\end{option}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}<indent lines>
+        \For{$i \gets 0$ \To $N - 1$}
+            \For{$j \gets$ \To $N - 1$}
+                \If{$m_{ij} < 0$}
+                    \Statep{$m_{ij} \gets 0$}
+                \EndIf
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+
+    \begin{algorithmic}<indent lines, noend>
+        \For{$i \gets 0$ \To $N - 1$}
+            \For{$j \gets$ \To $N - 1$}
+                \If{$m_{ij} < 0$}
+                    \Statep{$m_{ij} \gets 0$}
+                \EndIf
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+\end{tcblisting}
+
+
+\begin{option}{line style}{\Argument{style}}[\{lightgray, thick\}]
+    Almost anything Ti\emph{k}Z can apply to a line can be used to set the indentation lines.
+
+    To show indentation lines in algorithms, \OptionRef{indent lines} must be set to true.
+\end{option}
+
+\begin{tcblisting}{}
+    \begin{algorithmic}<indent lines, line style = {orange, dotted, -latex, ultra thick}>
+        \For{$i \gets 0$ \To $N - 1$}
+            \For{$j \gets$ \To $N - 1$}
+                \If{$m_{ij} < 0$}
+                    \Statep{$m_{ij} \gets 0$}
+                \EndIf
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+\end{tcblisting}
+
+
+
 \begin{option}{language}{\Argument{language}}[english]
     This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
 \end{option}
@@ -971,23 +1022,24 @@ This section presents the options that can be specified for the algorithms, eith
     The result is similar to a program written in Python.
 \end{option}
 
+
 \begin{option}{end}{}
-    This option reverses the behaviour of \OptionRef{end}, and the closing line of a block presented.
+    This option reverses the behaviour of \OptionRef{noend}, and the closing line of a block presented.
 \end{option}
 
+%! formatter = off
 \begin{tcblisting}{}
-    \begin{algorithmic}
-        <noend>
+    \begin{algorithmic}<noend>
         \For{$i \gets 0$ \To $N - 1$}
             \For{$j \gets$ \To $N - 1$}
-                \If{$m_{ij} < 0$}
-                    <end>
+                \If{$m_{ij} < 0$}<end>
                     \Statep{$m_{ij} \gets 0$}
                 \EndIf
             \EndFor
         \EndFor
     \end{algorithmic}
 \end{tcblisting}
+%! formatter = on
 
 \begin{option}{keywords}{\Argument{list of keywords assignments}}
     This option allows to change a keyword (or define a new one). See \cref{sec:languages-and-translations} for more information on keywords and translations.
@@ -1059,7 +1111,7 @@ Notice that color are handled separately (see \cref{sec:colors}) and using \Macr
 Colors are defined using the \PackageName{xcolors} package.
 
 \begin{option}{text color}{\Argument{color}}
-    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This setting corresponds to the color that applies to the \Argument{text} field in each of the commands.
 \end{option}
 
@@ -1068,17 +1120,17 @@ Colors are defined using the \PackageName{xcolors} package.
 \end{option}
 
 \begin{option}{keyword color}{\Argument{color}}
-    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This key is used to set the color for all keywords.
 \end{option}
 
 \begin{option}{constant color}{\Argument{color}}
-    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This setting corresponds to the color that applies to the defined constant (see \cref{sec:constants-and-identifiers}) and also when macro \MacroRef{Constant} is used.
 \end{option}
 
 \begin{option}{module color}{\Argument{color}}
-    [.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
+[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This color is applied to the identifier used in both \MacroRef{Procedure} and \MacroRef{Function} definitions, as well as module calls with \MacroRef{Call}. Notice that the arguments use \Option{text color}.
 \end{option}
 
@@ -1246,6 +1298,7 @@ This is a \textit{todo} list:
         text font = \itshape,
         comment font = \footnotesize,
         algorithmic indent = 1.5em,
+        indent lines,
         noend,
     }
 \end{latexcode}
@@ -1256,6 +1309,7 @@ This is a \textit{todo} list:
     text font = \itshape,
     comment font = \footnotesize,
     algorithmic indent = 1.5em,
+    indent lines,
     noend,
 }
 \input{algxpar-lzw}
