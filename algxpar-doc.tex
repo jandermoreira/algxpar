@@ -47,7 +47,7 @@
 % \usemintedstyle{borland}
 \newminted{latex}{autogobble, breaklines, bgcolor = blue!5, fontsize = \footnotesize}
 \newmintinline{latex}{}
-%
+
 % tcolorbox
 \usepackage{tcolorbox}
 \usepackage{color}
@@ -67,6 +67,9 @@
     },
     listing engine = minted,
 }
+
+% Versions
+\usepackage{versionchanges}
 
 %% Text support
 
@@ -249,6 +252,11 @@
 
 \tableofcontents
 
+\VCRegisterVersion{0.9}{2019-11-12}
+\VCRegisterVersion{0.91}{2020-08-01}
+\VCRegisterVersion{0.99}{2023-06-28}
+\VCRegisterVersion{0.99.1}{2024/05/05}
+
 \begin{figure}
     \tcbinputlisting{listing file = algxpar-lzw.tex, listing only}
     \vspace{3em}
@@ -263,6 +271,8 @@
 % \changes{v0.91}{2020/06/14}{New macro for assignments, using $\gets$}
 % \changes{v0.91}{2020/06/14}{New macro for assignments (verbose)}
 
+\VCPrintChanges
+
 
 \section{Introduction}
 I teach algorithms and programming and have adopted the \PackageName{algorithmicx} package (\PackageName{algpseudocode}) for writing my algorithms as it provides clear and easy to read pseudocodes with minimal effort to get a visually pleasing code.
@@ -272,6 +282,19 @@ The process of teaching algorithms requires a slightly different use of pseudoco
 The consequence of more verbose pseudocode leads, however, to longer sentences that often span two or more lines. As pseudocodes, by nature, value visual organization, with regard to control structures and indentations, it became necessary to develop a package that supports the use of commands and comments that could be easily displayed when more than one line was needed.
 
 The \PackageName{algorithmx} and \PackageName{algpseudocode} packages do not natively support multi-line statements. This package therefore extends several macros to handle multiple lines correctly. Some new commands and a number of features have also been added.
+
+This package was first realeased as V0.9%
+\VCChange[disable]{
+    type = released,
+    version = 0.9,
+    description = Initial version,
+}%
+and almost totally rewritten in v0.99%
+\VCChange[disable]{
+    type = new,
+    version = 0.99,
+    description = The code was reviewd and almost entirely rewritten,
+}.
 
 
 \section{Package usage and options}\label{sec:package-usage-and-options}
@@ -286,7 +309,7 @@ This package depends on the following packages:
         \PackageName{pgfmath}       & (\url{https://ctan.org/pkg/pgf})           \\
         \PackageName{pgfopts}       & (\url{https://ctan.org/pkg/pgf})           \\
         \PackageName{ragged2e}      & (\url{https://ctan.org/pkg/ragged2e})      \\
-        \PackageName{tcolorbox}     & (\url{https://www.ctan.org/pkg/tcolorbox}) \\
+        % \PackageName{tcolorbox}     & (\url{https://www.ctan.org/pkg/tcolorbox}) \\
         \PackageName{varwidth}      & (\url{https://www.ctan.org/pkg/varwidth})  \\
         \PackageName{xcolor}        & (\url{https://www.ctan.org/pkg/xcolor})    \\
     \end{tabular}
@@ -296,7 +319,6 @@ This package depends on the following packages:
 To use the package, simply request its use in the preamble of the document.
 
 \begin{macro*}{usepackage}{\OArg{package options list}}[algxpar]
-
     Currently, the list of package options includes the following.
 
     \begin{option*}{\Argument{language name}}
@@ -328,11 +350,11 @@ To use the package, simply request its use in the preamble of the document.
     \begin{option*}{\Option{noend}}
         The \OptionInd{noend} suppresses the line that indicates the end of a block, keeping the indentation.
 
-        See more information in \OptionRef{end} and \OptionInd{noend} options.
+        See more information in \OptionRef{end} and \OptionRef{noend} options.
     \end{option*}
 
     \begin{latexcode}
-        % Supresses all end-lines that close a block
+        % Suppresses all end-lines that close a block
         \usepackage[noend]{algxpar}
     \end{latexcode}
 \end{macro*}
@@ -359,7 +381,7 @@ An algorithm is composed of instructions and control structures such as conditio
 \end{tcblisting}
 
 \subsection{A preamble on comments}\label{sec:a-preamble-on-comments}
-This is the Euclid's algorithm as provided in the \PackageName{algorithmicx} package documentation\footnote{A label was supressed here.}.
+This is the Euclid's algorithm as provided in the \PackageName{algorithmicx} package documentation\footnote{A label was suppressed here.}.
 
 \begingroup
 %! formatter = off
@@ -404,8 +426,19 @@ Until \PackageName{algxpar} v0.95, they could be added as an optional parameter 
 \endgroup
 %! formatter = on
 
-Using the comment before the text always bothered me somewhat, as it seemed more natural to put it after. Thus, as of v0.99, the comment can be placed after the text (as the second parameter of the macro), certainly making writing algorithms more user-friendly. To maintain backward compatibility, the use of comments before text is still supported, although it is discouraged.
+Using the comment before the text always bothered me somewhat, as it seemed more natural to put it after.
+\VCChange{
+    type = new,
+    version = 0.99,
+    description = Optional comments may be specified after the command
+}%
+Thus, as of v0.99, the comment can be placed after the text (as the second parameter of the macro), certainly making writing algorithms more user-friendly. To maintain backward compatibility, the use of comments before text is still supported, although it is discouraged.
 
+\VCChange{
+    type = new,
+    version = 0.99,
+    description = Lines that closes blocks can have comments
+}%
 In addition to this change, the use of comments in the new format has been extended to most pseudocode macros, such as \MacroRef{EndWhile} for example.
 
 %! formatter = off
@@ -419,7 +452,7 @@ In addition to this change, the use of comments in the new format has been exten
                 \State $a\gets b$
                 \State $b\gets r$
                 \State $r\gets a\bmod b$
-            \EndWhile[end loop]  % <-- Comment
+            \EndWhile[end of the loop]  % <-- Comment
             \Statep{\Keyword{return} $b$}[The gcd is b]  % <-- Comment
         \EndProcedure
     \end{algorithmic}
@@ -434,6 +467,11 @@ Throughout this documentation, former style comments are denoted as \Argument{co
 See more about comments in \cref{sec:comments}.
 
 \subsection{A preamble on options}\label{sec:a-preamble-on-options}
+\VCChange{
+    type = new,
+    version = 0.99,
+    description = {The ``look and feel'' of the pseudocode can be set in the \Macro{begin}\latexinline{{algorithmic}}}
+}[Preamble options]%
 As of version 0.99, a list of options can be added to each command, changing some algorithm presentation settings. These settings are optional and must be entered using angle brackets at the end of the command.
 
 %! formatter = off
@@ -687,7 +725,12 @@ A few macros for well known constants were defined: \MacroDef{True} (\True), \Ma
 The macro \Macro{Id} was created to handle ``program-like'' named identifiers, such as \Id{sum}, \Id{word\_counter} and so on.
 
 \begin{macro}{Id}[\MArg{identifier}]
-    Identifiers are in italics: \latexinline!\Id{value}! is \Id{value}. Its designed to work in both text and math modes: \latexinline!$\Id{offer}_k$! is $\Id{offer}_k$.
+    \VCChange{
+        type = updated,
+        version = 0.91,
+        description = {\Macro{Id} has been recoded to work in both text and math modes, preventing hyphenation},
+    }[\Macro{Id}]
+    Identifiers are emphasised: \latexinline!\Id{value}! is \Id{value}. Its designed to work in both text and math modes: \latexinline!$\Id{offer}_k$! is $\Id{offer}_k$.
 \end{macro}
 
 \subsection{Assignments and I/O}\label{sec:assignments-and-i/o}
@@ -702,23 +745,43 @@ To support teaching-like, basic pseudocode writing, the macros \MacroDef{Read} a
     \end{algorithmic}
 \end{tcblisting}
 
-The macro \Macro{Set} can be used for assignments.
+The \Macro{Set} macro, although obsolete, can be used for assignments.
 
 \begin{macro}{Set}[\MArg{lvalue}\MArg{expression} \Deprecated]
+    \VCChange{
+        type = new,
+        version = 0.91,
+    %! parser = off
+        description = {\Macro{Set} can be used for assignments (deprecated in v0.99)},
+        %! parser = on
+    }[\Macro{Set}]%
     This macro expands to \MacroRef{Id}\latexinline!{#1} \gets #2!.
 
-    As the handling of text and math modes should be done and its usage brings no evident advantage, this macro will no longer be supported. It will be kept as is for backward compatibility however.
+    this macro will no longer be supported. It will be kept as is for backward compatibility however.
+    \VCChange{
+        type = deprecated,
+        version = 0.99,
+        description = {\Macro{Set} is deprecated and will no longer be supported},
+    }[\Macro{Set}]%
+    As the handling of text and math modes should be done and its usage brings no evident advantage,
+
+    \VCChange{
+        type = removed,
+        version = 0.99,
+        description = {\Macro{Setl} has been removed from the package},
+    }[\Macro{Setl}]%
+    The macro \MacroRefInd{Setl} has been removed.
 \end{macro}
 
 \subsection{Procedures and Functions}\label{sec:procedures-and-functions}
 Modularization uses \Macro{Procedure} or \Macro{Function}.
 
+%! formatter = off
 \begin{tcblisting}{}
     \begin{algorithmic}
-        \Procedure{SaveNode}{\Id{node}}
-        [saves a B\textsuperscript{+}-tree node to disk]
+        \Procedure{SaveNode}{\Id{node}}[saves a B\textsuperscript{+}-tree node to disk]
             \If{\Id{node}.\Id{is\_modified}}
-                \If{$\Id{node}.\Id{address} == -1$}
+                \If{$\Id{node}.\Id{address} = -1$}
                     \Statep{Set file writting position after file's last byte}[creates a new node on disk]
                 \Else
                     \Statep{Set file writting position to \Id{node}.\Id{address}}[updates the node]
@@ -741,7 +804,7 @@ Modularization uses \Macro{Procedure} or \Macro{Function}.
         \EndFunction
     \end{algorithmic}
 \end{tcblisting}
-
+%! formatter = on
 
 \begin{macro}{Procedure}[\MArg{name}\MArg{argument list}\OArg{comment}\LArg{options}]
     This macro creates a \Keyword{procedure} block that must be ended with \MacroRef{EndProcedure}.
@@ -958,9 +1021,19 @@ Sometimes some settings need to be applied exclusively to one command, for examp
 %! formatter = on
 
 \subsection{Options}\label{sec:options}
+\VCChange{
+    type = new,
+    version = 0.99,
+    description = {Added support to style the main components of the pseudocode, such as keywords, comments and text and widths}
+}[Options]%
 This section presents the options that can be specified for the algorithms, either using \MacroRef{AlgSet} or the \Argument{options} parameter of the various macros.
 
 \begin{option}{indent lines}{\Option{true} | \Option{false}}[false]
+    \VCChange{
+        type = new,
+        version = 0.99.1,
+        description = Added experimental support to show vertical indentantion lines,
+    }[\Option{indent lines}]%
     With \Option{indent lines} vertical indentation lines are displayed in the pseudocode. This feature only works correctly if the start and end of the block are on the same page and at least two compilation steps are required for the lines to be positioned correctly.
 
     To change the style for the lines, use \OptionRef{line style}
@@ -968,6 +1041,7 @@ This section presents the options that can be specified for the algorithms, eith
     \textit{This feature is still experimental and incomplete.}
 \end{option}
 
+%! formatter = off
 \begin{tcblisting}{}
     \begin{algorithmic}<indent lines>
         \For{$i \gets 0$ \To $N - 1$}
@@ -989,14 +1063,20 @@ This section presents the options that can be specified for the algorithms, eith
         \EndFor
     \end{algorithmic}
 \end{tcblisting}
-
+%! formatter = on
 
 \begin{option}{line style}{\Argument{style}}[\{lightgray, thick\}]
+    \VCChange{
+        suppress,
+        version = 0.99.1,
+        description = SUPRESSED???,
+    }[\Option{line style}]%
     Almost anything Ti\emph{k}Z can apply to a line can be used to set the indentation lines.
 
     To show indentation lines in algorithms, \OptionRef{indent lines} must be set to true.
 \end{option}
 
+%! formatter = off
 \begin{tcblisting}{}
     \begin{algorithmic}<indent lines, line style = {orange, dotted, -latex, ultra thick}>
         \For{$i \gets 0$ \To $N - 1$}
@@ -1008,7 +1088,7 @@ This section presents the options that can be specified for the algorithms, eith
         \EndFor
     \end{algorithmic}
 \end{tcblisting}
-
+%! formatter = on
 
 
 \begin{option}{language}{\Argument{language}}[english]
@@ -1189,6 +1269,11 @@ The options in this section should be used to set how these paragraphs will be p
 \end{comment}
 
 \subsection{Languages and translations}\label{sec:languages-and-translations}
+\VCChange{
+    type = new,
+    version = 0.99,
+    description = {New mechanism to translation with separate files for each language},
+}[Languages]%
 A simple mechanism is employed to allow keywords to be translated into other languages.
 
 %! formatter = off
@@ -1251,6 +1336,12 @@ The mechanism behind \MacroRef{AlgLanguageSet} uses the \Macro{SetKeyword} macro
 
 \subsection{Other features}
 
+\VCChange{
+    version = 0.99,
+    description = Added support to style named constants and function/procedures identifiers,
+}[Features]%
+These macros were added to support the styles defined for named constants and function and procedure identifiers.
+
 \begin{macro}{Constant}[\OArg{name}]
     This macro presents \Argument{name} using font, shape, size and color defined for constants.
 \end{macro}
@@ -1258,6 +1349,16 @@ The mechanism behind \MacroRef{AlgLanguageSet} uses the \Macro{SetKeyword} macro
 \begin{macro}{Module}[\OArg{name}]
     This macro presents \Argument{name} using font, shape, size and color defined for procedures and functions.
 \end{macro}
+
+
+\section{``Forgotten'' features}
+
+\VCChange{
+    type = removed,
+    version = 0.99,
+    description = {Macros \Macro{TextString} and \Macro{VisibleSpace} accidentally removed},
+}
+Some features were forgotten from v0.91 to v.99, although it was not intentional. The macros \Macro{TextString} and \Macro{VisibleSpace} simply vanished into thin air.
 
 
 \section{To do}
