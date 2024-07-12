@@ -26,5 +26,6 @@ Files to use the package:
 * algxpar-english.kw.tex
 * algxpar-brazilian.kw.tex
 
-Manual (requires `pygmentize`):
-* algxpar-doc.pdf             .
+Manual (requires `pygmentize` and `versionchanges` (https://github.com/jandermoreira/versionchanges):
+* algxpar-doc.tex
+* algxpar-doc.pdf
