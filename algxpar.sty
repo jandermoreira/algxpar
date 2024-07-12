@@ -5,11 +5,12 @@
 %! suppress = FileNotFound
 
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
-\ProvidesPackage{algxpar}[2023/06/26 v0.99 Algorithms with multi-line/paragraph support and some enhancements]
+% \ProvidesPackage{algxpar}[2023/06/26 v0.99 Algorithms with multi-line/paragraph support and some enhancements]
+\ProvidesPackage{algxpar}[2024/05/05 v0.99.1 Algorithms with multi-line/paragraph support and some enhancements]
 
 %% Documentation
-\NewDocumentCommand{\AlgVersion}{}{0.99}
-\NewDocumentCommand{\AlgDate}{}{2023/06/26}
+\NewDocumentCommand{\AlgVersion}{}{0.99.1}
+\NewDocumentCommand{\AlgDate}{}{2024/05/05}
 
 
 %% Required packages
@@ -588,6 +589,8 @@
 \NewDocumentCommand{\Break}{}{\Keyword{break}}
 \RenewDocumentCommand{\Return}{}{\axp@MakeSingleToken{}{\Keyword{return}}{ }}
 
+\NewDocumentCommand{\ByRef}{}{\Constant{byref}}
+\NewDocumentCommand{\ByValue}{}{\Constant{byvalue}}
 
 \NewDocumentCommand{\True}{}{\Constant{true}}
 \NewDocumentCommand{\False}{}{\Constant{false}}
@@ -877,7 +880,7 @@
 \RenewDocumentCommand{\Procedure}{ O{} m m O{} D<>{} }{%
     \axp@BeginGroup
     \axp@IsModuletrue%
-    \axp@DefineCommand{\Keyword{procedure}~\Module{#2}}{#3}{}{#4}{#5}%
+    \axp@DefineCommand{\Keyword{procedure}~\Module{#2}}{#3}{}{#1#4}{#5}%
     \ALG@makeentity{Procedure}%
     \axp@IsModulefalse%
 }
@@ -899,7 +902,7 @@
 \RenewDocumentCommand{\Function}{ O{} m m O{} D<>{} }{%
     \axp@BeginGroup
     \axp@IsModuletrue%
-    \axp@DefineCommand{\Keyword{function}~\Module{#2}}{#3}{}{#4}{#5}%
+    \axp@DefineCommand{\Keyword{function}~\Module{#2}}{#3}{}{#1#4}{#5}%
     \ALG@makeentity{Function}%
     \axp@IsModulefalse%
 }
