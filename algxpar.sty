@@ -442,16 +442,17 @@
                 }%
                 \ifnumcomp{\axp@CurrentRatio}{<}{25}{%  never less than 0.25
                     \edef\axp@CurrentRatio{25}%
-                }{}%
-                \ifnumcomp{\axp@CurrentRatio}{>}{75}{%  never more than 0.75
-                    \edef\axp@CurrentRatio{75}%
-                }{}%
-                \pgfmathparse{
-                    \axp@CurrentRatio/100 * \axp@CurrentLineWidth - \axp@CommentSymbolWidth/2
+                }{%
+                    \ifnumcomp{\axp@CurrentRatio}{>}{75}{%  never more than 0.75
+                        \edef\axp@CurrentRatio{75}%
+                    }{}%
                 }%
-                \setlength{\axp@TextWidth}{\pgfmathresult pt}%
-                \pgfmathparse{\axp@CurrentLineWidth - \axp@TextWidth - \axp@CommentSymbolWidth}%
+                \pgfmathparse{
+                    (100 - \axp@CurrentRatio)/100 * \axp@CurrentLineWidth - \axp@CommentSymbolWidth
+                }%
                 \setlength{\axp@CommentWidth}{\pgfmathresult pt}%
+                \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
+                \setlength{\axp@TextWidth}{\pgfmathresult pt}%
                 % fine tunning the widths
                 \axp@SetToWidth{\axp@CommentWidth}{%
                     \begin{varwidth}[t]{\axp@CommentWidth}%
@@ -461,6 +462,7 @@
                 }%
                 \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
                 \setlength{\axp@TextWidth}{\pgfmathresult pt}%
+                % \msg{\the\axp@TextWidth}%
             }%
         }{%
         % 'fixed': limit comment width
