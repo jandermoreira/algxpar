@@ -10,7 +10,7 @@
 \usepackage[all]{nowidow}
 
 % \usepackage{array}
-p
+
 \usepackage{enumitem}
 \setlist{nosep}
 
@@ -237,7 +237,7 @@ p
     This text was last revised \today.}%
 }
 \author{Jander Moreira -- \texttt{moreira.jander@gmail.com}}
-\date{June 26, 2023}
+\date{August 27, 2024}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -256,6 +256,7 @@ p
 \VCRegisterVersion{0.91}{2020-08-01}
 \VCRegisterVersion{0.99}{2023-06-28}
 \VCRegisterVersion{0.99.1}{2024/05/05}
+\VCRegisterVersion{0.99.2}{2024/08/27}
 
 \begin{figure}
     \tcbinputlisting{listing file = algxpar-lzw.tex, listing only}
@@ -283,7 +284,7 @@ The consequence of more verbose pseudocode leads, however, to longer sentences t
 
 The \PackageName{algorithmx} and \PackageName{algpseudocode} packages do not natively support multi-line statements. This package therefore extends several macros to handle multiple lines correctly. Some new commands and a number of features have also been added.
 
-This package was first realeased as V0.9%
+This package was first released as V0.9%
 \VCChange[disable]{
     type = released,
     version = 0.9,
@@ -295,6 +296,11 @@ and almost totally rewritten in v0.99%
     version = 0.99,
     description = The code was reviewd and almost entirely rewritten,
 }.
+\VCChange[disable]{
+    type = new,
+    version = 0.99.2,
+    description = Part of the code was rewritten using \PackageName{etoolbox}.,
+}.
 
 
 \section{Package usage and options}\label{sec:package-usage-and-options}
@@ -305,7 +311,8 @@ This package depends on the following packages:
         \PackageName{algorithmicx}  & (\url{https://ctan.org/pkg/algorithmicx})  \\
         \PackageName{algpseudocode} & (\url{https://ctan.org/pkg/algorithmicx})  \\
         \PackageName{amssymb}       & (\url{https://ctan.org/pkg/amsfonts})      \\
-        \PackageName{fancyvrb}      & (\url{https://ctan.org/pkg/fancyvrb})      \\
+        \PackageName{etoolbox}       & (\url{https://ctan.org/pkg/etoolbox})      \\
+        % \PackageName{fancyvrb}      & (\url{https://ctan.org/pkg/fancyvrb})      \\
         \PackageName{pgfmath}       & (\url{https://ctan.org/pkg/pgf})           \\
         \PackageName{pgfopts}       & (\url{https://ctan.org/pkg/pgf})           \\
         \PackageName{ragged2e}      & (\url{https://ctan.org/pkg/ragged2e})      \\
@@ -1216,6 +1223,11 @@ Colors are defined using the \PackageName{xcolors} package.
 
 \subsubsection{Paragraphs}
 Multi-line support are internally handled by \Macro{parbox}es.
+\VCChange{
+    type = updated,
+    version = 0.99.2,
+    description = {Wrong spacing between parboxes were fixed.}
+}
 
 \medskip
 %! formatter = off
