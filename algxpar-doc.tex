@@ -69,7 +69,31 @@
 }
 
 % Versions
-\usepackage{versionchanges}
+\usepackage{algxpar-versionchanges}
+
+
+\begin{filecontents}[overwrite, nosearch, noheader]{algxpar-lzw.tex}
+    \begin{algorithmic}[1]
+        \Description LZW Compression using a table with all known sequences of bytes.
+        \Input A flow of bytes
+        \Output A flow of bits with the compressed representation of the input bytes
+        \Statex
+        \Statep{Initialize a table with all bytes}[each position of the table has a single byte]
+        \Statep{Initilize \Id{sequence} with the first byte in the input flow}
+        \While{there are bytes in the input}[wait until all bytes are processed]
+            \Statep{Get a single byte from input and store it in \Id{byte}}
+            \If{the concatention of \Id{sequence} and \Id{byte} is in the table}
+                \Statep{Set \Id{sequence} to $\Id{sequence} + \Id{byte}$}[concatenate without producing any output]
+            \Else
+                \Statep{Output the code for \Id{sequence}}[i.e., the binary representation of its position in the table]\label{alg:lzw:output}
+                \Statep{Add the concatention of \Id{sequence} and \Id{byte} to the table}[the table learns a longer sequence]\label{alg:lzw:add-to-table}
+                \Statep{Set \Id{sequence} to \Id{byte}}[starts a new sequence with the remaining byte]
+            \EndIf
+        \EndWhile
+        \Statep{Output the code for \Id{sequence}}[the remaining sequence of bits]
+    \end{algorithmic}
+\end{filecontents}
+
 
 %% Text support
 
@@ -175,7 +199,9 @@
         [
         title = {%
             \hspace{-2em}\OptionInd{#1}%
-            \ifdim\docassignment>0pt\Option{ = #2}\fi%
+            \ifdim
+                \docassignment>0pt\Option{ = #2}
+            \fi%
             \IfValueT{#3}{\hfill\textit{Default:} \Option{#3}}
         },
         description,
@@ -200,27 +226,6 @@
     \medskip%
 }
 
-\begin{filecontents}[overwrite, nosearch, noheader]{algxpar-lzw.tex}
-    \begin{algorithmic}[1]
-        \Description LZW Compression using a table with all known sequences of bytes.
-        \Input A flow of bytes
-        \Output A flow of bits with the compressed representation of the input bytes
-        \Statex
-        \Statep{Initialize a table with all bytes}[each position of the table has a single byte]
-        \Statep{Initilize \Id{sequence} with the first byte in the input flow}
-        \While{there are bytes in the input}[wait until all bytes are processed]
-            \Statep{Get a single byte from input and store it in \Id{byte}}
-            \If{the concatention of \Id{sequence} and \Id{byte} is in the table}
-                \Statep{Set \Id{sequence} to $\Id{sequence} + \Id{byte}$}[concatenate without producing any output]
-            \Else
-                \Statep{Output the code for \Id{sequence}}[i.e., the binary representation of its position in the table]\label{alg:lzw:output}
-                \Statep{Add the concatention of \Id{sequence} and \Id{byte} to the table}[the table learns a longer sequence]\label{alg:lzw:add-to-table}
-                \Statep{Set \Id{sequence} to \Id{byte}}[starts a new sequence with the remaining byte]
-            \EndIf
-        \EndWhile
-        \Statep{Output the code for \Id{sequence}}[the remaining sequence of bits]
-    \end{algorithmic}
-\end{filecontents}
 
 %% Repetitive text
 \NewDocumentCommand{\MacroOptionsText}{}{%
@@ -311,7 +316,7 @@ This package depends on the following packages:
         \PackageName{algorithmicx}  & (\url{https://ctan.org/pkg/algorithmicx})  \\
         \PackageName{algpseudocode} & (\url{https://ctan.org/pkg/algorithmicx})  \\
         \PackageName{amssymb}       & (\url{https://ctan.org/pkg/amsfonts})      \\
-        \PackageName{etoolbox}       & (\url{https://ctan.org/pkg/etoolbox})      \\
+        \PackageName{etoolbox}      & (\url{https://ctan.org/pkg/etoolbox})      \\
         % \PackageName{fancyvrb}      & (\url{https://ctan.org/pkg/fancyvrb})      \\
         \PackageName{pgfmath}       & (\url{https://ctan.org/pkg/pgf})           \\
         \PackageName{pgfopts}       & (\url{https://ctan.org/pkg/pgf})           \\
@@ -1395,7 +1400,7 @@ This is a \textit{todo} list:
     comment width = nice,
     comment style = \raggedleft,
 }
-\input{algxpar-lzw}
+\input{algxpar-lzw.tex}
 \endgroup
 
 \subsection{LZW revisited again}
@@ -1421,7 +1426,7 @@ This is a \textit{todo} list:
     indent lines,
     noend,
 }
-\input{algxpar-lzw}
+\input{algxpar-lzw.tex}
 \endgroup
 
 
