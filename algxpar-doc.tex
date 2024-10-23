@@ -256,7 +256,7 @@
 \VCRegisterVersion{0.91}{2020-08-01}
 \VCRegisterVersion{0.99}{2023-06-28}
 \VCRegisterVersion{0.99.1}{2024/05/05}
-\VCRegisterVersion{0.99.2}{2024/08/27}
+\VCRegisterVersion{0.99.2}{2024/10/23}
 
 \begin{figure}
     \tcbinputlisting{listing file = algxpar-lzw.tex, listing only}
@@ -1035,7 +1035,7 @@ Sometimes some settings need to be applied exclusively to one command, for examp
 }[Options]%
 This section presents the options that can be specified for the algorithms, either using \MacroRef{AlgSet} or the \Argument{options} parameter of the various macros.
 
-\begin{option}{indent lines}{\Option{true} | \Option{false}}[false]
+\begin{option}{indent lines}{\Option{true} | \Option{false}}[true]
     \VCChange{
         type = new,
         version = 0.99.1,
@@ -1072,7 +1072,7 @@ This section presents the options that can be specified for the algorithms, eith
 \end{tcblisting}
 %! formatter = on
 
-\begin{option}{line style}{\Argument{style}}[\{lightgray, thick\}]
+\begin{option}{line style}{\Argument{style}}
     \VCChange{
         suppress,
         version = 0.99.1,
@@ -1098,7 +1098,7 @@ This section presents the options that can be specified for the algorithms, eith
 %! formatter = on
 
 
-\begin{option}{language}{\Argument{language}}[english]
+\begin{option}{language}{\Argument{language}}
     This key is used to choose the keyword language set for the current scope. The language keyword set should already have been loaded through the package options (see \cref{sec:package-usage-and-options}).
 \end{option}
 
@@ -1151,19 +1151,19 @@ This section presents the options that can be specified for the algorithms, eith
 \end{tcblisting}
 %! formatter = on
 
-\begin{option}{algorithmic indent}{\Argument{width}}[1em]
+\begin{option}{algorithmic indent}{\Argument{width}}
     The algorithmic indent is the amount of horizontal space used for indentation inner commands.
 
     This option actually sets the \PackageName{algorithmicx}'s \Macro{algorithmicindent}.
 \end{option}
 
-\begin{option}{comment symbol}{\Argument{symbol}}[\Macro{triangleright}]
+\begin{option}{comment symbol}{\Argument{symbol}}
     The default symbol that preceeds the text in comments is \Macro{triangleright} (\CommentSymbol), as used by \PackageName{algorithmicx}, and can be changed with this key.
 
     The current comment symbol is available with \MacroDef{CommentSymbol}. Do not change this symbol by redefining \Macro{CommentSymbol}, as font, shape and color settings will no longer be respected. Always use \Option{comment symbol}.
 \end{option}
 
-\begin{option}{comment symbol right}{\Argument{symbol}}[\Macro{triangleleft}]
+\begin{option}{comment symbol right}{\Argument{symbol}}
     This is the symbol that closes a \MacroRef{CommentIn}. This symbol is set to \CommentSymbolRight\ and can be retrieved with the \MacroDef{CommentSymbolRight} macro. Do not attempt to change the symbol by redefining \Macro{CommentSymbolRight}, as font, shape and color settings will no longer be respected. Always use \Option{comment symbol right}.
 \end{option}
 
@@ -1172,25 +1172,25 @@ The options ins this section allows setting font family, shape, weight and size 
 
 Notice that color are handled separately (see \cref{sec:colors}) and using \Macro{color} with font options will tend to break the document.
 
-\begin{option}{text font}{\Argument{font, shape and size}}[\Empty]
+\begin{option}{text font}{\Argument{font, shape and size}}
     This setting corresponds to the font family, its shape and size and applies to the \Argument{text} field in each of the commands.
 \end{option}
 
-\begin{option}{comment font}{\Argument{font, shape and size}}[\Macro{slshape}]
+\begin{option}{comment font}{\Argument{font, shape and size}}
     This setting corresponds to the font family, its shape and size and applies to all comments.
 \end{option}
 
-\begin{option}{keyword font}{\Argument{font, shape and size}}[\Macro{bfseries}]
+\begin{option}{keyword font}{\Argument{font, shape and size}}
     This setting sets the font family, shape, and size, and applies to all keywords, such as \Keyword{function} or \Keyword{end}.
 \end{option}
 
-\begin{option}{constant font}{\Argument{font, shape and size}}[\Macro{scshape}]
+\begin{option}{constant font}{\Argument{font, shape and size}}
     This setting sets the font family, shape, and size, and applies to all constants, such as \Nil, \True\ and \False.
 
     This setting also applies when \MacroRef{Constant} is used.
 \end{option}
 
-\begin{option}{module font}{\Argument{font, shape and size}}[\Macro{scshape}]
+\begin{option}{module font}{\Argument{font, shape and size}}
     This setting sets the font family, shape, and size, and applies to both procedure and function identifiers, as well as their callings with \MacroRef{Call}.
 \end{option}
 
@@ -1198,26 +1198,22 @@ Notice that color are handled separately (see \cref{sec:colors}) and using \Macr
 Colors are defined using the \PackageName{xcolors} package.
 
 \begin{option}{text color}{\Argument{color}}
-[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This setting corresponds to the color that applies to the \Argument{text} field in each of the commands.
 \end{option}
 
-\begin{option}{comment color}{\Argument{color}}[.!70]
+\begin{option}{comment color}{\Argument{color}}
     This setting corresponds to the color that applies to all comments.
 \end{option}
 
 \begin{option}{keyword color}{\Argument{color}}
-[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This key is used to set the color for all keywords.
 \end{option}
 
 \begin{option}{constant color}{\Argument{color}}
-[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This setting corresponds to the color that applies to the defined constant (see \cref{sec:constants-and-identifiers}) and also when macro \MacroRef{Constant} is used.
 \end{option}
 
 \begin{option}{module color}{\Argument{color}}
-[.\mbox{\normalfont\normalcolor\normalsize~(dot)}]
     This color is applied to the identifier used in both \MacroRef{Procedure} and \MacroRef{Function} definitions, as well as module calls with \MacroRef{Call}. Notice that the arguments use \Option{text color}.
 \end{option}
 
@@ -1249,23 +1245,23 @@ Multi-line support are internally handled by \Macro{parbox}es.
 \medskip
 The options in this section should be used to set how these paragraphs will be presented.
 
-\begin{option}{text style}{\Argument{style}}[\Macro{RaggedRight}]
+\begin{option}{text style}{\Argument{style}}
     This \Argument{style} is applied to the paragraph box that holds the \Argument{text} field in all commands.
 \end{option}
 
-\begin{option}{comment style}{\Argument{style}}[\Macro{RaggedRight}]
+\begin{option}{comment style}{\Argument{style}}
     This \Argument{style} is applied to the paragraph box that holds the \Argument{comment} field in all algorithmic commands. This setting will not be used with \MacroRef{Comment}, \MacroRef{Commentl} or \MacroRef{CommentIn}.
 \end{option}
 
-\begin{option}{comment separator width}{\Argument{width}}[1em]
+\begin{option}{comment separator width}{\Argument{width}}
     The minimum space between the text box and the \Macro{CommentSymbol}. This affects the available space in a line for keywords, text and comment.
 \end{option}
 
-\begin{option}{statement indent}{\Argument{width}}[1em]
+\begin{option}{statement indent}{\Argument{width}}
     This is the \Macro{hangindent} set inside \MacroRef{Statep} statements.
 \end{option}
 
-\begin{option}{comment width}{\Option{auto}|\Option{nice}|\Argument{width}}[auto]
+\begin{option}{comment width}{\Option{auto}|\Option{nice}|\Argument{width}}
     There are two ways to balance the lengths of \Argument{text} and \Argument{comments} on a line, each providing different visual experiences.
 
     In automatic mode (\Option{auto}), the balance is chosen considering the widths that the actual text and comment have, trying to reduce the total number of lines, given there is not enough space in a single line for the keywords, text , comment and comment symbol. The consequence is that each line with a comment will have its own balance.
