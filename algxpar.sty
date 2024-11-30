@@ -346,7 +346,7 @@
             ($ (axp-block-end-\theaxp@BlockLevelCounter) +  (0.3ex, 1em) $);
         \end{tikzpicture}%
         \addtocounter{axp@BlockLevelCounter}{-1}%
-    }%
+    }{}%
 }
 
 \NewDocumentCommand{\axp@MarkLineEndCont}{}{%
@@ -359,7 +359,7 @@
             ($ (axp-block-end-\theaxp@BlockLevelCounter) +  (0.3ex, 1em) $);
         \end{tikzpicture}%
         \addtocounter{axp@BlockLevelCounter}{-1}%
-    }%
+    }{}%
 }
 
 \NewDocumentCommand{\axp@MarkLineEndFinal}{}{%
@@ -373,7 +373,7 @@
             |- ++ (1ex, 0);
         \end{tikzpicture}%
         \addtocounter{axp@BlockLevelCounter}{-1}%
-    }%
+    }{}%
 }
 
 % % ***********************************************
@@ -461,7 +461,7 @@
                 }%
                 \pgfmathparse{\axp@CurrentLineWidth - \axp@CommentWidth - \axp@CommentSymbolWidth}%
                 \setlength{\axp@TextWidth}{\pgfmathresult pt}%
-                % \msg{\the\axp@TextWidth}%
+            % \msg{\the\axp@TextWidth}%
             }%
         }{%
         % 'fixed': limit comment width
@@ -524,6 +524,7 @@
         \usebox{\axp@SaveBox}%
     \fi%
 }
+%! formatter = on
 
 
 % axp@DoCommand: builds the command (see axp@DefineCommand)
@@ -542,33 +543,33 @@
 %
 % Making the line: body
 #2%
-    \begin{axp@FBox}%
-        \ifbool{axp@IsModule}{\hspace{\axp@ParameterIndent}}{}%
-        \parbox[t]{\axp@TextWidth}{%
-            \ifaxp@IsStatement%
-                \setlength{\hangindent}{\axp@StatementIndent}%
-            \fi%
-            \axp@TextStyle%
-            \textcolor{\axp@TextColor}{\axp@TextFont{#3}}#4\strut%
-        }%
-    \end{axp@FBox}%
-    % Making the line: comment
-    \ifbool{axp@NoCommentPresent}{}{%
-        \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
-        \begin{axp@FBox}%
-            \ifbool{axp@LineBalanceAuto}{%
-                \begin{varwidth}[t]{\axp@CommentWidth}%
-                    \axp@CommentStyle%
-                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
-                \end{varwidth}%
-            }{%
-                \parbox[t]{\axp@CommentWidth}{%
-                    \axp@CommentStyle%
-                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
-                }%
-            }%
-        \end{axp@FBox}%
-    }%
+\begin{axp@FBox}%
+\ifbool{axp@IsModule}{\hspace{\axp@ParameterIndent}}{}%
+\parbox[t]{\axp@TextWidth}{%
+\ifaxp@IsStatement%
+\setlength{\hangindent}{\axp@StatementIndent}%
+\fi%
+\axp@TextStyle%
+\textcolor{\axp@TextColor}{\axp@TextFont{#3}}#4\strut%
+}%
+\end{axp@FBox}%
+% Making the line: comment
+\ifbool{axp@NoCommentPresent}{}{%
+\hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
+\begin{axp@FBox}%
+\ifbool{axp@LineBalanceAuto}{%
+\begin{varwidth}[t]{\axp@CommentWidth}%
+\axp@CommentStyle%
+\textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+\end{varwidth}%
+}{%
+\parbox[t]{\axp@CommentWidth}{%
+\axp@CommentStyle%
+\textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+}%
+}%
+\end{axp@FBox}%
+}%
 }
 
 
