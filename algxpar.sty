@@ -17,15 +17,14 @@
 \RequirePackage{algpseudocode}
 \RequirePackage{ragged2e}
 \RequirePackage{xcolor}
-\RequirePackage{fancyvrb} % to load verbatim preserving tabs
 \RequirePackage{pgfopts}
 \RequirePackage{amssymb}
 \RequirePackage{pgfmath}
 \RequirePackage{varwidth}
-% \RequirePackage{ifthen}
 \RequirePackage{tikz}
 \usetikzlibrary{calc, arrows}
 \RequirePackage{etoolbox}
+% \RequirePackage{fancyvrb} % to load verbatim preserving tabs
 % \RequirePackage{listings} % to load verbatim with tabs
 % \RequirePackage{tcolorbox} % to save verbatim
 
@@ -106,15 +105,15 @@
 \ExplSyntaxOff
 
 %% Settings
-\newif\ifaxp@NoEnd\axp@NoEndfalse  % whether line with 'end' is used or not
-\newif\ifaxp@IsStatement\axp@IsStatementfalse  % set in \Statep
-\newif\ifaxp@ShowBoxes\axp@ShowBoxesfalse  % show parboxes for debugging
-\newif\ifaxp@LineBalanceAuto  % true for 'auto'; false for 'fixed'
-\newif\ifaxp@IndentLines\axp@IndentLinesfalse % draw lines in blocks
+\newbool{axp@NoEnd} % whether line with 'end' is used or not
+\newbool{axp@IsStatement}  % set in \Statep
+\newbool{axp@ShowBoxes}  % show parboxes for debugging
+\newbool{axp@LineBalanceAuto}  % true for 'auto'; false for 'fixed'
+\newbool{axp@IndentLines}  % draw lines in blocks
 
 
 \NewDocumentCommand{\axp@DisableEnds}{}{%
-    \axp@NoEndtrue%
+    \booltrue{axp@NoEnd}%
     \RenewDocumentCommand{\ALG@noend}{}{t}%
     \algtext*{EndWhile}%
     \algtext*{EndFor}%
@@ -128,7 +127,7 @@
 }
 
 \NewDocumentCommand{\axp@EnableEnds}{}{%
-    \axp@NoEndfalse%
+    \boolfalse{axp@NoEnd}%
     \RenewDocumentCommand{\ALG@noend}{}{f}%
     \algrenewtext{EndWhile}{\Keyword{endwhile}}%
     \algrenewtext{EndFor}{\Keyword{endfor}}%
@@ -182,12 +181,12 @@
     show boxes/.is if = axp@ShowBoxes,
 %
     comment width/.code = {%
-        \axp@LineBalanceAutotrue%
-        \ifthenelse{\equal{auto}{#1}}{%
-            \axp@LineBalanceAutotrue%
+        \booltrue{axp@LineBalanceAuto}%
+        \ifstrequal{#1}{auto}{%
+            \booltrue{axp@LineBalanceAuto}%
         }{%
-            \axp@LineBalanceAutofalse%
-            \ifthenelse{\equal{nice}{#1}}{%
+            \boolfalse{axp@LineBalanceAuto}%
+            \ifstrequal{#1}{nice}{%
                 \DeclareDocumentCommand{\axp@CommentFixedWidth}{}{0.4\linewidth}%
             }{%
                 \DeclareDocumentCommand{\axp@CommentFixedWidth}{}{#1}%
@@ -281,7 +280,7 @@
     noend = false,
 }
 \ProcessPgfOptions{/algxpar}
-\ifaxp@NoEnd\axp@DisableEnds\fi%  globally disable 'ends'
+\ifbool{axp@NoEnd}{\axp@DisableEnds}{}%  globally disable 'ends'
 
 
 % axp@SetToWidth: \settowidth allowing multi-line text
@@ -322,7 +321,7 @@
     \ifdimcomp{\axp@TokenWidth}{>}{0pt}{#3}{}%
 }
 
-\newif\ifaxp@NoCommentPresent
+\newbool{axp@NoCommentPresent}
 \newlength{\axp@TextWidth}
 \newlength{\axp@CommentWidth}
 
@@ -480,51 +479,49 @@
 }
 
 \newcounter{cont}
-\newif\ifaxp@CloseBlock
+\newbool{axp@CloseBlock}
 % axp@MakeCommand: builds the command (see axp@DefineCommand)
 % #1 (star): star = end block; no star = begin block
 \NewDocumentCommand{\axp@MakeCommand}{ s }{%
-\IfBooleanTF{#1}{%
-    \axp@MarkLineEndShort%
-}{%
-    \ifaxp@CloseBlock%
-    \axp@MarkLineEndCont%
-    \axp@CloseBlockfalse%
-    \fi%
-    \axp@MarkLineBegin%
-}%
-\axp@DoCommand{%  ajustment for opening/closing blocks
-    \IfBooleanTF{#1}{0}{1}%
-}{%  command or module+name
-\axp@MakeSingleToken{}{\axp@CommandKeyword}{\ifaxp@IsModule(\else\ \fi}%
-}{%  text or module arguments
-\axp@CommandText\ifaxp@IsModule)\fi%
-}{%  command complement
-\axp@MakeSingleToken{ }{\axp@CommandComplementKeyword}{}%
-}{%  comment
-\axp@CommentText%
-}{%  options
-\axp@CommandOptions%
-}%
+    \IfBooleanTF{#1}{%
+        \axp@MarkLineEndShort%
+    }{%
+        \ifbool{axp@CloseBlock}{%
+            \axp@MarkLineEndCont%
+            \boolfalse{axp@CloseBlock}%
+        }{}%
+        \axp@MarkLineBegin%
+    }%
+    \axp@DoCommand{%  ajustment for opening/closing blocks
+        \IfBooleanTF{#1}{0}{1}%
+    }{%  command or module+name
+        \axp@MakeSingleToken{}{\axp@CommandKeyword}{\ifbool{axp@IsModule}{(}{~}}%
+    }{%  text or module arguments
+        \axp@CommandText\ifbool{axp@IsModule}{)}{}%
+    }{%  command complement
+        \axp@MakeSingleToken{ }{\axp@CommandComplementKeyword}{}%
+    }{%  comment
+        \axp@CommentText%
+    }{%  options
+        \axp@CommandOptions%
+    }%
 }
 
-%! formatter = off
 \newsavebox{\axp@SaveBox}
 \NewDocumentEnvironment{axp@FBox}{}{%
     \begin{lrbox}{\axp@SaveBox}%
-}{%
+    }{%
     \end{lrbox}%
-    \ifaxp@ShowBoxes%
+    \ifbool{axp@ShowBoxes}{%
         \begingroup%
         \setlength{\fboxrule}{0.001pt}%
         \setlength{\fboxsep}{0pt}%
         \color{.!20}\fbox{\color{.}\usebox{\axp@SaveBox}}%
         \endgroup%
-    \else%
+    }{%
         \usebox{\axp@SaveBox}%
-    \fi%
+    }%
 }
-%! formatter = on
 
 
 % axp@DoCommand: builds the command (see axp@DefineCommand)
@@ -536,40 +533,40 @@
 % #6: options
 \newlength{\axp@CurrentTokenWidth}
 \NewDocumentCommand{\axp@DoCommand}{ m m m m m m }{%
-\AlgSet{#6}%
+    \AlgSet{#6}%
 % Dimensions
-\axp@SetToWidth{\axp@CurrentTokenWidth}{#2}%
-\axp@CalculateDimensions{#1}{{\axp@TextStyle\axp@TextFont#3}#4}{#5}%
+    \axp@SetToWidth{\axp@CurrentTokenWidth}{#2}%
+    \axp@CalculateDimensions{#1}{{\axp@TextStyle\axp@TextFont#3}#4}{#5}%
 %
 % Making the line: body
-#2%
-\begin{axp@FBox}%
-\ifbool{axp@IsModule}{\hspace{\axp@ParameterIndent}}{}%
-\parbox[t]{\axp@TextWidth}{%
-\ifaxp@IsStatement%
-\setlength{\hangindent}{\axp@StatementIndent}%
-\fi%
-\axp@TextStyle%
-\textcolor{\axp@TextColor}{\axp@TextFont{#3}}#4\strut%
-}%
-\end{axp@FBox}%
+    #2%
+    \begin{axp@FBox}%
+        \ifbool{axp@IsModule}{\hspace{\axp@ParameterIndent}}{}%
+        \parbox[t]{\axp@TextWidth}{%
+            \ifbool{axp@IsStatement}{%
+                \setlength{\hangindent}{\axp@StatementIndent}%
+            }{}%
+            \axp@TextStyle%
+            \textcolor{\axp@TextColor}{\axp@TextFont{#3}}#4\strut%
+        }%
+    \end{axp@FBox}%
 % Making the line: comment
-\ifbool{axp@NoCommentPresent}{}{%
-\hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
-\begin{axp@FBox}%
-\ifbool{axp@LineBalanceAuto}{%
-\begin{varwidth}[t]{\axp@CommentWidth}%
-\axp@CommentStyle%
-\textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
-\end{varwidth}%
-}{%
-\parbox[t]{\axp@CommentWidth}{%
-\axp@CommentStyle%
-\textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
-}%
-}%
-\end{axp@FBox}%
-}%
+    \ifbool{axp@NoCommentPresent}{}{%
+        \hspace{\axp@CommentSeparatorWidth}\hfill\CommentSymbol~%
+        \begin{axp@FBox}%
+            \ifbool{axp@LineBalanceAuto}{%
+                \begin{varwidth}[t]{\axp@CommentWidth}%
+                    \axp@CommentStyle%
+                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+                \end{varwidth}%
+            }{%
+                \parbox[t]{\axp@CommentWidth}{%
+                    \axp@CommentStyle%
+                    \textcolor{\axp@CommentColor}{\axp@CommentFont#5}\strut%
+                }%
+            }%
+        \end{axp@FBox}%
+    }%
 }
 
 
@@ -601,26 +598,26 @@
 
 % Read, write
 \NewDocumentCommand{\Set}{ m m }{%
-\PackageWarning{alxpar}{The macro \string\Set\ is no longer supported.}%
-\Id{#1} \gets #2%
+    \PackageWarning{alxpar}{The macro \string\Set\ is no longer supported.}%
+    \Id{#1} \gets #2%
 }
 \NewDocumentCommand{\Read}{}{\Keyword{read} }
 \NewDocumentCommand{\Write}{}{\Keyword{write} }
 
 % %% Comments
 \algnewcommand{\CommentIn}[1]{%
-\begin{axp@FBox}
-\textcolor{\axp@CommentColor}{\CommentSymbol~\axp@CommentFont#1~\CommentSymbolRight}%
-\end{axp@FBox}%
+    \begin{axp@FBox}
+        \textcolor{\axp@CommentColor}{\CommentSymbol~\axp@CommentFont#1~\CommentSymbolRight}%
+    \end{axp@FBox}%
 }
 \NewDocumentCommand{\Commentl}{ m D<>{} }{%
-\begingroup%
-\AlgSet{#2}%
-\textcolor{\axp@CommentColor}{\CommentSymbol~\axp@CommentFont#1\strut}%
-\endgroup%
+    \begingroup%
+    \AlgSet{#2}%
+    \textcolor{\axp@CommentColor}{\CommentSymbol~\axp@CommentFont#1\strut}%
+    \endgroup%
 }
 \RenewDocumentCommand{\Comment}{ m D<>{} }{%
-\hfill\Commentl{#1}<#2>%
+    \hfill\Commentl{#1}<#2>%
 }
 
 \newlength{\axp@CurrentIndent}
@@ -628,12 +625,12 @@
 \newcounter{axp@BlockCounter}
 \newcounter{axp@BlockLevelCounter}
 \NewDocumentCommand{\axp@BeginGroup}{}{%
-\begingroup%
+    \begingroup%
 }
 \NewDocumentCommand{\axp@EndGroup}{}{%
-\global\edef\axp@SaveIndent{\the\ALG@tlm}%
-\endgroup%
-\setlength{\ALG@tlm}{\axp@SaveIndent}%
+    \global\edef\axp@SaveIndent{\the\ALG@tlm}%
+    \endgroup%
+    \setlength{\ALG@tlm}{\axp@SaveIndent}%
 }
 
 
@@ -643,12 +640,12 @@
 % #3: comments
 % #4: options
 \NewDocumentCommand{\Statep}{ O{} +m O{} D<>{} }{%
-\axp@IsStatementtrue%
-\State\axp@DoCommand{1}{}{#2}{}{#1#3}{#4}%
-\axp@IsStatementfalse%
+    \booltrue{axp@IsStatement}%
+    \State\axp@DoCommand{1}{}{#2}{}{#1#3}{#4}%
+    \boolfalse{axp@IsStatement}%
 }
 \RenewDocumentCommand{\Statex}{}{%
-\item[]\strut%
+    \item[]\strut%
 }
 
 
@@ -659,17 +656,17 @@
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\While}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup%
-\axp@DefineCommand{\Keyword{while}}{#2}{\Keyword{do}}{#1#3}{#4}%
-\ALG@makeentity{While}%
+    \axp@BeginGroup%
+    \axp@DefineCommand{\Keyword{while}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{While}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndWhile}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endwhile}}{}{}{#1}{#2}%
-\ALG@makeentity{EndWhile}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup%
+    \axp@DefineCommand{\Keyword{endwhile}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndWhile}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup%
 }
 
 
@@ -678,19 +675,19 @@
 % #1: comments
 % #2: options
 \RenewDocumentCommand{\Repeat}{ O{} D<>{} }{%
-\axp@BeginGroup%
-\axp@DefineCommand{\Keyword{repeat}}{}{}{#1}{#2}%
-\ALG@makeentity{Repeat}%
+    \axp@BeginGroup%
+    \axp@DefineCommand{\Keyword{repeat}}{}{}{#1}{#2}%
+    \ALG@makeentity{Repeat}%
 }
 % #1: old style comment
 % #2: text
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\Until}{ O{} m O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{until}}{#2}{}{#1#3}{#4}%
-\ALG@makeentity{Until}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup%
+    \axp@DefineCommand{\Keyword{until}}{#2}{}{#1#3}{#4}%
+    \ALG@makeentity{Until}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup%
 }
 
 %% Loop
@@ -698,17 +695,17 @@
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\Loop}{ O{} D<>{} }{%
-\axp@BeginGroup%
-\axp@DefineCommand{\Keyword{loop}}{}{}{#1}{#2}%
-\ALG@makeentity{Loop}%
+    \axp@BeginGroup%
+    \axp@DefineCommand{\Keyword{loop}}{}{}{#1}{#2}%
+    \ALG@makeentity{Loop}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndLoop}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endloop}}{}{}{#1}{#2}%
-\ALG@makeentity{EndLoop}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup%
+    \axp@DefineCommand{\Keyword{endloop}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndLoop}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup%
 }
 
 
@@ -723,33 +720,33 @@
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\If}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup%
-\axp@DefineCommand{\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
-\ALG@makeentity{If}%
+    \axp@BeginGroup%
+    \axp@DefineCommand{\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
+    \ALG@makeentity{If}%
 }
 % #1: old style comment
 % #2: text
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\ElsIf}{ O{} m O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{else}~\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
-\axp@CloseBlocktrue%
-\ALG@makeentity{ElsIf}%
+    \axp@DefineCommand{\Keyword{else}~\Keyword{if}}{#2}{\Keyword{then}}{#1#3}{#4}%
+    \booltrue{axp@CloseBlock}%
+    \ALG@makeentity{ElsIf}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\Else}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{else}}{}{}{#1}{#2}%
-\axp@CloseBlocktrue%
-\ALG@makeentity{Else}%
+    \axp@DefineCommand{\Keyword{else}}{}{}{#1}{#2}%
+    \booltrue{axp@CloseBlock}%
+    \ALG@makeentity{Else}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndIf}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endif}}{}{}{#1}{#2}%
-\ALG@makeentity{EndIf}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup%
+    \axp@DefineCommand{\Keyword{endif}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndIf}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup%
 }
 
 
@@ -764,49 +761,49 @@
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\Switch}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@DefineCommand{\Keyword{switch}}{#2}{}{#1#3}{#4}%
-\ALG@makeentity{Switch}%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{switch}}{#2}{}{#1#3}{#4}%
+    \ALG@makeentity{Switch}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndSwitch}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endswitch}}{}{}{#1}{#2}%
-\ALG@makeentity{EndSwitch}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup
+    \axp@DefineCommand{\Keyword{endswitch}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndSwitch}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup
 }
 % #1: old style comment
 % #2: text
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\Case}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@DefineCommand{\Keyword{case}}{#2}{\Keyword{do}}{#1#3}{#4}%
-\ALG@makeentity{Case}%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{case}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{Case}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndCase}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endcase}}{}{}{#1}{#2}%
-\ALG@makeentity{EndCase}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup
+    \axp@DefineCommand{\Keyword{endcase}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndCase}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\Otherwise}{ O{} D<>{} }{%
-\axp@BeginGroup
-\axp@DefineCommand{\Keyword{otherwise}}{}{}{#1}{#2}%
-\ALG@makeentity{Otherwise}%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{otherwise}}{}{}{#1}{#2}%
+    \ALG@makeentity{Otherwise}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndOtherwise}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endotherwise}}{}{}{#1}{#2}%
-\ALG@makeentity{EndOtherwise}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup
+    \axp@DefineCommand{\Keyword{endotherwise}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndOtherwise}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup
 }
 
 
@@ -829,40 +826,40 @@
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\For}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@DefineCommand{\Keyword{for}}{#2}{\Keyword{do}}{#1#3}{#4}%
-\ALG@makeentity{For}%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{for}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{For}%
 }
 % #1: old style comment
 % #2: text
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\ForEach}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@DefineCommand{\Keyword{foreach}}{#2}{\Keyword{do}}{#1#3}{#4}%
-\ALG@makeentity{ForEach}%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{foreach}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{ForEach}%
 }
 % #1: old style comment
 % #2: text
 % #3: comment
 % #4: options
 \RenewDocumentCommand{\ForAll}{ O{} m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@DefineCommand{\Keyword{forall}}{#2}{\Keyword{do}}{#1#3}{#4}%
-\ALG@makeentity{For}%
+    \axp@BeginGroup
+    \axp@DefineCommand{\Keyword{forall}}{#2}{\Keyword{do}}{#1#3}{#4}%
+    \ALG@makeentity{For}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndFor}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endfor}}{}{}{#1}{#2}%
-\ALG@makeentity{EndFor}%
-\ifaxp@NoEnd\axp@MarkLineEndFinal\fi%
-\axp@EndGroup
+    \axp@DefineCommand{\Keyword{endfor}}{}{}{#1}{#2}%
+    \ALG@makeentity{EndFor}%
+    \ifbool{axp@NoEnd}{\axp@MarkLineEndFinal}{}%
+    \axp@EndGroup
 }
 
 
 %% Procedure, function, calls
-\newif\ifaxp@IsModule
+\newbool{axp@IsModule}
 \algblockdefx[Procedure]{Procedure}{EndProcedure}{\axp@MakeCommand}{\axp@MakeCommand*}
 % #1: old style comment
 % #2: name
@@ -870,19 +867,19 @@
 % #4: comment
 % #5: options
 \RenewDocumentCommand{\Procedure}{ O{} m m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@IsModuletrue%
-\axp@DefineCommand{\Keyword{procedure}~\Module{#2}}{#3}{}{#1#4}{#5}%
-\ALG@makeentity{Procedure}%
-\axp@IsModulefalse%
+    \axp@BeginGroup
+    \booltrue{axp@IsModule}%
+    \axp@DefineCommand{\Keyword{procedure}~\Module{#2}}{#3}{}{#1#4}{#5}%
+    \ALG@makeentity{Procedure}%
+    \boolfalse{axp@IsModule}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndProcedure}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endprocedure}}{}{}{#1}{#2}%
-\axp@MarkLineEndFinal%
-\ALG@makeentity{EndProcedure}%
-\axp@EndGroup
+    \axp@DefineCommand{\Keyword{endprocedure}}{}{}{#1}{#2}%
+    \axp@MarkLineEndFinal%
+    \ALG@makeentity{EndProcedure}%
+    \axp@EndGroup
 }
 
 \algblockdefx[Function]{Function}{EndFunction}{\axp@MakeCommand}{\axp@MakeCommand*}
@@ -892,26 +889,26 @@
 % #4: comment
 % #5: options
 \RenewDocumentCommand{\Function}{ O{} m m O{} D<>{} }{%
-\axp@BeginGroup
-\axp@IsModuletrue%
-\axp@DefineCommand{\Keyword{function}~\Module{#2}}{#3}{}{#1#4}{#5}%
-\ALG@makeentity{Function}%
-\axp@IsModulefalse%
+    \axp@BeginGroup
+    \booltrue{axp@IsModule}%
+    \axp@DefineCommand{\Keyword{function}~\Module{#2}}{#3}{}{#1#4}{#5}%
+    \ALG@makeentity{Function}%
+    \boolfalse{axp@IsModule}%
 }
 % #1: comment
 % #2: options
 \RenewDocumentCommand{\EndFunction}{ O{} D<>{} }{%
-\axp@DefineCommand{\Keyword{endfunction}}{}{}{#1}{#2}%
-\axp@MarkLineEndFinal%
-\ALG@makeentity{EndFunction}%
-\axp@EndGroup
+    \axp@DefineCommand{\Keyword{endfunction}}{}{}{#1}{#2}%
+    \axp@MarkLineEndFinal%
+    \ALG@makeentity{EndFunction}%
+    \axp@EndGroup
 }
 
 \RenewDocumentCommand{\Call}{ m m D<>{} }{%
-\begingroup%
-\AlgSet{#3}%
-\Module{#1}\textcolor{\axp@TextColor}{\axp@TextFont(#2)}%
-\endgroup%
+    \begingroup%
+    \AlgSet{#3}%
+    \Module{#1}\textcolor{\axp@TextColor}{\axp@TextFont(#2)}%
+    \endgroup%
 }
 
 
@@ -936,13 +933,13 @@
 \NewCommandCopy{\axp@AlgorithmicxAlgorithmic}{\algorithmic}
 \NewCommandCopy{\axp@AlgorithmicxEndAlgorithmic}{\endalgorithmic}
 \RenewDocumentCommand{\algorithmic}{ O{} D<>{} }{%
-\begingroup%
-\AlgSet{#2}%
-\axp@AlgorithmicxAlgorithmic[#1]%
+    \begingroup%
+    \AlgSet{#2}%
+    \axp@AlgorithmicxAlgorithmic[#1]%
 }
 \RenewDocumentCommand{\endalgorithmic}{}{%
-\axp@AlgorithmicxEndAlgorithmic%
-\endgroup%
+    \axp@AlgorithmicxEndAlgorithmic%
+    \endgroup%
 }
 
 \endinput
