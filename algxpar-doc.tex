@@ -512,7 +512,7 @@ For automatic handling of comments and multi-line text, the \Macro{Statep} macro
     \MacroOptionsText
 \end{macro}
 
-As an example, observe lines~\ref{alg:lzw:output} and \ref{alg:lzw:add-to-table} of the LZW compression algorithm on \cpageref{alg:lzw:add-to-table}.
+% As an example, observe lines~\ref{alg:lzw:output} and \ref{alg:lzw:add-to-table} of the LZW compression algorithm on \cpageref{alg:lzw:add-to-table}.
 
 \subsection{Flow Control Blocks}\label{sec:flow-control-blocks}
 Flow control is essentially based on conditionals and loop.
@@ -1345,6 +1345,28 @@ The mechanism behind \MacroRef{AlgLanguageSet} uses the \Macro{SetKeyword} macro
 \begin{tcblisting}{}
     \SetKeyword[german]{if}{wenn} % new
     Depending on the language, a keyword can take different forms: \Keyword{if} (English), \Keyword[german]{if} (German) or \Keyword[brazilian]{if} (Brazilian Portuguese).
+\end{tcblisting}
+
+\begin{tcblisting}{}
+    \AlgLanguageSet{spanish}{
+        while = mientras,
+        do = hacer,
+        endwhile = fin,
+        if = si,
+        then = entonces,
+        else = en otro caso,
+        endif = fin,
+    }
+    \begin{algorithmic}
+        <language = spanish, indent lines>
+        \If{$a > b$}[check conditions]
+            \While{$a > 0$}
+                \Statep{\Call{Process}{$a$}}[process current data]
+            \EndWhile
+        \Else
+            \Statep{\Call{Signal}{\Id{pid}}}
+        \EndIf
+    \end{algorithmic}
 \end{tcblisting}
 
 \subsection{Other features}
