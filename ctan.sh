@@ -13,6 +13,7 @@ files="
   out/"$packagename"-doc.pdf
 "
 cp -v $files $packagename
+cp out/${packagename}-doc.pdf .
 [ -f docs.zip ] && rm $packagename.zip
 zip -r $packagename.zip $packagename
 rm -r ./$packagename
