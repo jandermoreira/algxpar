@@ -1,18 +1,18 @@
 # Creates a CTAN zip file
 # Jander Moreira (moreira.jander@gmail.com)
-# 2024
+# 2025
 
-mkdir -p algxpar
+packagename=algxpar
+mkdir -p $packagename
 files="
   license
   README.md
-  algxpar.sty
-  algxpar-*kw.tex
-  algxpar-doc.tex
-  out/algxpar-doc.pdf
-  ../versionchanges/versionchanges.sty
+  DEPENDS.txt
+  "$packagename".sty
+  "$packagename"-doc.tex
+  out/"$packagename"-doc.pdf
 "
-cp $files algxpar
-mv algxpar/versionchanges.sty algxpar/algxpar-versionchanges.sty
-zip -r algxpar.zip ./algxpar
-rm -r algxpar
+cp -v $files $packagename
+[ -f docs.zip ] && rm $packagename.zip
+zip -r $packagename.zip $packagename
+rm -r ./$packagename
