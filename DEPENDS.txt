@@ -1,0 +1,10 @@
+hard algorithmicx
+hard algpseudocode
+hard amssymb
+hard etoolbox
+hard pgfmath
+hard pgfopts
+hard ragged2e
+hard tikz
+hard varwidth
+hard xcolor
