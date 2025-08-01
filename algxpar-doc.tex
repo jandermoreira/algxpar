@@ -85,6 +85,12 @@
     no box,
     no page,
 }
+\PDNewVersion{0.99.2a}{2025/07/31}
+\PDAddChange{0.99.2a}{
+    description = {Fixed length computation in non-commented lines to consider the token length.},
+    no box,
+    no page,
+}
 
 
 \begin{figure}
@@ -205,7 +211,8 @@ This is Euclid's algorithm as shown in the \PackageName{algorithmicx} package do
         \Procedure{Euclid}{$a,b$}
             \Comment{The g.c.d. of a and b}
             \State $r\gets a\bmod b$
-            \While{$r\not=0$}\Comment{We have the answer if r is 0}
+            \While{$r\not=0$}
+                \Comment{We have the answer if r is 0}
                 \State $a\gets b$
                 \State $b\gets r$
                 \State $r\gets a\bmod b$
@@ -289,9 +296,11 @@ As of version 0.99, a list of options can be added to each command, changing som
 
 %! formatter = off
 \begin{PDExample}
-    \begin{algorithmic}<keyword font = \scshape\bfseries, comment width = nice>
+    \begin{algorithmic}
+        <keyword font = \scshape\bfseries, comment width = nice>
         \If{$a > b$}[check conditions]
-            \While{$a > 0$}<keyword color = blue!70>
+            \While{$a > 0$}
+                <keyword color = blue!70>
                 \Statep{\Call{Process}{$a$}}[process current data]
             \EndWhile
         \EndIf
@@ -361,15 +370,15 @@ This block is the standard \textit{if} block.
     \begin{algorithmic}
         \Statep{Get \Id{Optiondef}}
         \Switch{\Id{Optiondef}}
-            \Case{1}[inserts new record]
-                \Statep{\Call{Insert}{\Id{record}}}
-            \EndCase
-            \Case{2}[deletes a record]
-                \Statep{\Call{Delete}{\Id{key}}}
-            \EndCase
-            \Otherwise
-                \Statep{Print ``invalid option''}
-            \EndOtherwise
+        \Case{1}[inserts new record]
+        \Statep{\Call{Insert}{\Id{record}}}
+        \EndCase
+        \Case{2}[deletes a record]
+        \Statep{\Call{Delete}{\Id{key}}}
+        \EndCase
+        \Otherwise
+        \Statep{Print ``invalid option''}
+        \EndOtherwise
         \EndSwitch
     \end{algorithmic}
 \end{PDExample}
@@ -535,15 +544,19 @@ A generic loop is build with \Macro{Loop}.
 \subsection{Constants and Identifiers}\label{sec:constants-and-identifiers}
 A few macros for well known constants were defined: \MacroDef{True} (\True), \MacroDef{False} (\False), and \MacroDef{Nil} (\Nil).
 
-The macro \Macro{Id} was created to handle ``program-like'' named identifiers, such as \Id{sum}, \Id{word\_counter} and so on.
+The macro \Macro{Id} was created to handle ``program-like'' named identifiers, such as \Id{sum}, \Id{word_counter} and so on.
 
 \begin{Macrodef}{Id}{\MArg{identifier}}{}
-    \PDAddChange{
-        type = updated,
-        version = 0.91,
+    \PDAddChange{0.91}{
+        update,
         description = {\Macro{Id} has been recoded to work in both text and math modes, preventing hyphenation},
-    }[\Macro{Id}]
-    Identifiers are emphasised: \PDInline!\Id{value}! is \Id{value}. Its designed to work in both text and math modes: \PDInline!$\Id{offer}_k$! is $\Id{offer}_k$.
+        no box,
+    }%
+    \PDAddChange{0.99.2a}{
+        update,
+        description = {\MacroRef{Id} updated to natively handle the underscore character without escaping.},
+    }%
+    Identifiers are emphasised: \PDInline!\Id{my_value}! is \Id{my_value}. Its designed to work in both text and math modes: \PDInline!$\Id{offer}_k$! is $\Id{offer}_k$.
 \end{Macrodef}
 
 \subsection{Assignments and I/O}\label{sec:assignments-and-i/o}
@@ -571,7 +584,7 @@ The \Macro{Set} macro, although obsolete, can be used for assignments.
     }%
     This macro expands to \MacroRef{Id}\PDInline!{#1} \gets #2!.
 
-    It will no longer be supported. It will be kept as is for backward compatibility however. As the handling of text and math modes should be done and its usage brings no evident advantage,
+    It will no longer be supported but will be retained as-is for backward compatibility. Since proper handling of text and math modes is needed and its usage offers no clear benefit, there is no justification to keep it.
 \end{Macrodef}
 
 \PDAddChange{0.99}{
@@ -588,14 +601,14 @@ Modularization uses \Macro{Procedure} or \Macro{Function}.
 \begin{PDExample}
     \begin{algorithmic}
         \Procedure{SaveNode}{\Id{node}}[saves a B\textsuperscript{+}-tree node to disk]
-            \If{\Id{node}.\Id{is\_modified}}
+            \If{\Id{node}.\Id{is_modified}}
                 \If{$\Id{node}.\Id{address} = -1$}
                     \Statep{Set file writting position after file's last byte}[creates a new node on disk]
                 \Else
                     \Statep{Set file writting position to \Id{node}.\Id{address}}[updates the node]
                 \EndIf
                 \Statep{Write \Id{node} to disk}
-                \Statep{$\Id{node}.\Id{is\_modified} \gets \False$}
+                \Statep{$\Id{node}.\Id{is_modified} \gets \False$}
             \EndIf
         \EndProcedure
     \end{algorithmic}
@@ -660,7 +673,8 @@ The \Macro{Comment} macro, as defined by the \PackageName{algorithmicx} package,
 %! formatter = off
 \begin{PDExample}
     \begin{minipage}{7.5cm}
-        \begin{algorithmic}<comment color = blue>%  for viewing purposes only
+        \begin{algorithmic}
+            <comment color = blue>%  for viewing purposes only
             \State Assign the value zero to the variable $x$\Comment{first assignment}
             \Statep{Assign the value zero to the variable $x$\Comment{first assignment}}
             \Statep{Assign the value zero to the variable $x$}[first assignment]% best choice
@@ -769,7 +783,8 @@ If the settings are only applied to a single algorithm and not a group of algori
 
 %! formatter = off
 \begin{PDExample}
-    \begin{algorithmic}<keyword font = \sffamily\bfseries\itshape>
+    \begin{algorithmic}
+        <keyword font = \sffamily\bfseries\itshape>
         \Statep{\Read $k$}
         \If{$k < 0$}
             \Statep{$k \gets -k$}
@@ -791,7 +806,8 @@ Named styles can also be defined using the \PackageName{pgfkeys} syntax.
             comment symbol = \texttt{//},
         }
     }
-    \begin{algorithmic}<fancy>
+    \begin{algorithmic}
+        <fancy>
         \Statep{\Commentl{Process $k$}}
         \Statep{\Read $k$}
         \If{$k < 0$}
@@ -815,7 +831,8 @@ Sometimes some settings need to be applied exclusively to one command, for examp
     \begin{algorithmic}
         \Statep{\Commentl{Process $k$}}
         \Statep{\Read $k$}
-        \If{$k < 0$}<highlight>
+        \If{$k < 0$}
+            <highlight>
             \Statep{$k \gets -k$}[back to positive]
         \EndIf
         \Statep{\Write $k$}
@@ -843,7 +860,8 @@ This section presents the options that can be specified for the algorithms, eith
 
 %! formatter = off
 \begin{PDExample}
-    \begin{algorithmic}<indent lines>
+    \begin{algorithmic}
+        <indent lines>
         \For{$i \gets 0$ \To $N - 1$}
             \For{$j \gets$ \To $N - 1$}
                 \If{$m_{ij} < 0$}
@@ -853,7 +871,8 @@ This section presents the options that can be specified for the algorithms, eith
         \EndFor
     \end{algorithmic}
 
-    \begin{algorithmic}<indent lines, noend>
+    \begin{algorithmic}
+        <indent lines, noend>
         \For{$i \gets 0$ \To $N - 1$}
             \For{$j \gets$ \To $N - 1$}
                 \If{$m_{ij} < 0$}
@@ -876,7 +895,8 @@ This section presents the options that can be specified for the algorithms, eith
 
 %! formatter = off
 \begin{PDExample}
-    \begin{algorithmic}<indent lines, line style = {orange, dotted, -latex, ultra thick}>
+    \begin{algorithmic}
+        <indent lines, line style = {orange, dotted, -latex, ultra thick}>
         \For{$i \gets 0$ \To $N - 1$}
             \For{$j \gets$ \To $N - 1$}
                 \If{$m_{ij} < 0$}
@@ -906,10 +926,12 @@ This section presents the options that can be specified for the algorithms, eith
 
 %! formatter = off
 \begin{PDExample}
-    \begin{algorithmic}<noend>
+    \begin{algorithmic}
+        <noend>
         \For{$i \gets 0$ \To $N - 1$}
             \For{$j \gets$ \To $N - 1$}
-                \If{$m_{ij} < 0$}<end>
+                \If{$m_{ij} < 0$}
+                    <end>
                     \Statep{$m_{ij} \gets 0$}
                 \EndIf
             \EndFor
@@ -924,13 +946,14 @@ This section presents the options that can be specified for the algorithms, eith
 
 %! formatter = off
 \begin{PDExample}
-    \begin{algorithmic}<
-            keywords = {
-                terminate = Terminate, %  new keyword
-                then = \{, %  redefined
-                endif = \}, %  redefined
-                while = whilst,  %  redefined
-            }
+    \begin{algorithmic}
+        <
+        keywords = {
+            terminate = Terminate, %  new keyword
+            then = \{, %  redefined
+            endif = \}, %  redefined
+            while = whilst,  %  redefined
+        }
         >
         \While{\True}
             \If{$t < 0$}
@@ -1018,7 +1041,8 @@ Multi-line support are internally handled by \Macro{parbox}es.
 \medskip
 %! formatter = off
 \begingroup
-\begin{algorithmic}<show boxes>
+\begin{algorithmic}
+    <show boxes>
     \Procedure{Euclid}{$a,b$}[The g.c.d. of a and b]
         \Statep{$r\gets a\bmod b$}
         \While{$r\not=0$}[We have the answer if r is 0]
@@ -1076,7 +1100,8 @@ A simple mechanism is employed to allow keywords to be translated into other lan
 %! formatter = off
 \begingroup
 \begin{PDExample}
-    \begin{algorithmic}<language = brazilian>
+    \begin{algorithmic}
+        <language = brazilian>
         \Procedure{Euclid}{$a,b$}
             \State $r\gets a\bmod b$
             \While{$r\not=0$}
@@ -1111,7 +1136,7 @@ Creating a new keyword set uses the \Macro{AlgLanguageSet} macro.
 \end{Macrodef}
 
 % \begin{figure}
-    \tcbinputlisting{example, listing file = algxpar-english.kw.tex, listing only}
+\tcbinputlisting{example, listing file = algxpar-english.kw.tex, listing only}
 % \end{figure}
 
 The mechanism behind \MacroRef{AlgLanguageSet} utilizes the \Macro{SetKeyword} macro, which is called to modify the value of a single keyword\footnote{Macros such as \Macro{algorithmicwhile} from the \PackageName{algorithmicx} package are no longer in use.}. To retrieve the value of a specific keyword, the \Macro{Keyword} macro should be used. It produces the formatted value based on the options currently applied to keywords.

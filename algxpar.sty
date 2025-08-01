@@ -5,11 +5,11 @@
 %! suppress = FileNotFound
 
 \NeedsTeXFormat{LaTeX2e}[2005/12/01]
-\ProvidesPackage{algxpar}[2024/10/23 v0.99.2 Algorithms with multi-line/paragraph support and some enhancements]
+\ProvidesPackage{algxpar}[2025/07/31 v0.99.2a Algorithms with multi-line/paragraph support and some enhancements]
 
 %% Documentation
-\NewDocumentCommand{\AlgVersion}{}{0.99.2}
-\NewDocumentCommand{\AlgDate}{}{2024/10/23}
+\NewDocumentCommand{\AlgVersion}{}{0.99.2a}
+\NewDocumentCommand{\AlgDate}{}{2025/07/31}
 
 
 %% Required packages
@@ -408,10 +408,11 @@
         \setlength{\axp@TextWidth}{
             \dimexpr \linewidth - \axp@CurrentTokenWidth - (\algorithmicindent)*(\theALG@nested - #1)
         }%
-        \ifdimcomp{\axp@FullTextWidth}{<}{\axp@TextWidth}{%
+        \setlength{\axp@RemainingWidth}{\dimexpr \axp@FullTextWidth - \axp@TextWidth + \axp@CurrentTokenWidth}%
+        \null%  this works like an 'anchor' to the next \item
+        \ifdimcomp{\axp@RemainingWidth}{<}{0pt}{%
             \axp@TextWidth\axp@FullTextWidth%  makes the parbox fit the actual text width
         }{}%
-    % }{}
     }{%
     % Yep, we have a comment in this line
     % \msg{got a comment!}%
@@ -534,11 +535,11 @@
 \newlength{\axp@CurrentTokenWidth}
 \NewDocumentCommand{\axp@DoCommand}{ m m m m m m }{%
     \AlgSet{#6}%
-% Dimensions
+    % Dimensions
     \axp@SetToWidth{\axp@CurrentTokenWidth}{#2}%
     \axp@CalculateDimensions{#1}{{\axp@TextStyle\axp@TextFont#3}#4}{#5}%
-%
-% Making the line: body
+    %
+    % Making the line: body
     #2%
     \begin{axp@FBox}%
         \ifbool{axp@IsModule}{\hspace{\axp@ParameterIndent}}{}%
@@ -585,7 +586,16 @@
 \NewDocumentCommand{\False}{}{\Constant{false}}
 \NewDocumentCommand{\Nil}{}{\Constant{nil}}
 
-\newcommand{\Id}[1]{\ensuremath{\emph{\rmfamily#1}}}
+%$ Id
+\ExplSyntaxOn
+\NewDocumentCommand{\Id}{m}{
+    \begingroup
+    \catcode`\_=12
+    \mbox{\emph{\rmfamily\tl_rescan:nn {} {#1}}}
+    \endgroup
+}
+\ExplSyntaxOff
+
 % \newcommand{\TextString}[1]{\textrm{\normalfont``{\ttfamily\mbox{#1}}''}}
 % \algnewcommand{\VisibleSpace}{\textrm{\color{black!70}\textvisiblespace}}
 
